@@ -10,7 +10,7 @@ export default function MainPage() {
         <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
           <div className="flex items-center">
             <Image
-              src="/placeholder.svg?height=50&width=50"
+              src="/Logo_UDO.svg.png"
               alt="Logo"
               width={50}
               height={50}
