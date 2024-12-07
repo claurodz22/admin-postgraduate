@@ -16,7 +16,7 @@ export default function MainPage() {
               height={50}
               className="mr-4"
             />
-            <h1 className="text-3xl font-bold text-gray-900">Panel de Control</h1>
+            <h1 className="text-3xl font-bold text-gray-900">Menu Principal</h1>
           </div>
           <Button variant="outline">Cerrar Sesión</Button>
         </div>
