@@ -2,6 +2,9 @@
 
 import { useState } from 'react'
 import { ChevronDown } from 'lucide-react'
+import { Button } from "@/components/ui/button"
+import Link from 'next/link'
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 
 export default function RegistroUsuario() {
   const [password, setPassword] = useState('')
@@ -105,14 +108,19 @@ export default function RegistroUsuario() {
               </ul>
             </div>
 
-            <div className="flex justify-end">
-              <button
-                type="submit"
-                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-              >
-                Registrarse
-              </button>
-            </div>
+            <div className="flex justify-center"> {/* Centra los botones */}
+  <CardContent>
+    <div className="flex items-center space-x-8"> {/* Quita justify-between, usa space-x-8 */}
+      <Button asChild>
+        <Link href="/home">Atrás (Menú Principal)</Link>
+      </Button>
+      <button className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+        Registrarse
+      </button>
+    </div>
+  </CardContent>
+</div>
+
           </form>
         </div>
       </div>

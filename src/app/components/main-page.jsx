@@ -76,7 +76,7 @@ export default function MainPage() {
                 </CardHeader>
                 <CardContent>
                   <Button asChild>
-                    <Link href="/requests">Ver Solicitudes</Link>
+                    <Link href="/request">Ver Solicitudes</Link>
                   </Button>
                 </CardContent>
               </Card>
