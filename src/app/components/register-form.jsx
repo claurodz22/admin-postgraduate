@@ -36,7 +36,11 @@ export default function RegistroUsuario() {
                 <label className="block text-sm font-medium mb-1" htmlFor="cedula">Cedula:</label>
                 <input
                   id="cedula"
-                  type="text"
+                  name="cedula"
+                  type="number"
+                  inputMode="numeric"
+                  pattern="[0-9]*"
+                  autoComplete="on"
                   className="w-full px-3 py-2 border rounded-md"
                   required
                 />
@@ -67,17 +71,6 @@ export default function RegistroUsuario() {
                 <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-500" />
               </div>
             </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-1" htmlFor="nombre-usuario">Nombre de Usuario:</label>
-              <input
-                id="nombre-usuario"
-                type="text"
-                className="w-full px-3 py-2 border rounded-md"
-                required
-              />
-            </div>
-
             <div>
               <label className="block text-sm font-medium mb-1" htmlFor="password">Contraseña:</label>
               <input

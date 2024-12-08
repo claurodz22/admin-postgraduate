@@ -5,7 +5,7 @@ import Link from 'next/link'
 
 export default function MainPage() {
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-blue-100">
       <header className="bg-white shadow">
         <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
           <div className="flex items-center">
@@ -65,7 +65,7 @@ export default function MainPage() {
                 </CardHeader>
                 <CardContent>
                   <Button asChild>
-                    <Link href="/payments">Gestionar Pagos</Link>
+                    <Link href="/pagos">Gestionar Pagos</Link>
                   </Button>
                 </CardContent>
               </Card>
