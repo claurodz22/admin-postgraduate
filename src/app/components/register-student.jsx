@@ -2,6 +2,9 @@
 
 import { useState } from 'react'
 import { ChevronDown } from 'lucide-react'
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
+import Link from 'next/link'
+import { Button } from "@/components/ui/button"
 
 export default function RegistroEstudiante() {
   const [estudiante, setEstudiante] = useState({
@@ -122,13 +125,17 @@ export default function RegistroEstudiante() {
                 <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-500" />
               </div>
             </div>
-            <div className="flex justify-end mt-6">
-              <button
-                type="submit"
-                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-              >
-                Guardar Estudiante
-              </button>
+            <div className="flex justify-center"> {/* Centra los botones */}
+              <CardContent>
+                <div className="flex items-center space-x-8"> {/* Quita justify-between, usa space-x-8 */}
+                  <Button asChild>
+                    <Link href="/home">Atrás (Menú Principal)</Link>
+                  </Button>
+                  <button className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                    Guardar Estudiante
+                  </button>
+                </div>
+              </CardContent>
             </div>
           </form>
         </div>

@@ -17,8 +17,13 @@ export default function MainPage() {
               className="mr-4"
             />
             <h1 className="text-3xl font-bold text-gray-900">Menu Principal</h1>
+            
           </div>
-          <Button variant="outline">Cerrar Sesión</Button>
+          <CardContent>
+            <Button asChild>
+              <Link href="/login">Cerrar Sesion</Link>
+            </Button>
+          </CardContent>
         </div>
       </header>
       <main>

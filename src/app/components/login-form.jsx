@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import Image from 'next/image'
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
+import Link from 'next/link'
 
 export default function LoginForm() {
   const [email, setEmail] = useState('')
@@ -69,12 +71,16 @@ export default function LoginForm() {
           </div>
 
           <div>
-            <Button
-              type="submit"
-              className="group relative flex w-full justify-center rounded-md border border-transparent bg-blue-600 py-2 px-4 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-            >
-              Iniciar sesión
-            </Button>
+          <CardContent>
+            <div className="flex justify-center"> {/* Centra el botón horizontalmente */}
+              <Button
+                type="submit"
+                className="relative flex w-[250px] justify-center rounded-md border border-transparent bg-blue-600 py-2 px-4 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+              >
+                <Link href="/home">Iniciar sesión</Link>
+              </Button>
+            </div>
+          </CardContent>
           </div>
         </form>
       </div>

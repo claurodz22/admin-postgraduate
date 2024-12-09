@@ -13,18 +13,15 @@ const solicitudes = [
 
 export default function SolicitudesEstudiantiles() {
   return (
-    <div className="container mx-auto py-10">
+    <><div className="container mx-auto py-10">
       <CardContent>
-        <div className="flex items-center"> {/* Agrupación dentro de CardContent */}
-            <Button asChild className="mr-8">
-                <Link href="/home">Atras (Menu Principal)</Link>
-            </Button>
-            <h1 className="text-2xl font-bold text-center flex-grow">Solicitudes Estudiantiles</h1>
-        </div>
-       </CardContent>
+        <h1 className="text-2xl font-bold text-center">Solicitudes Estudiantiles</h1>
+      </CardContent>
+
 
       <Table>
-      <TableCaption>Lista de solicitudes estudiantiles actuales</TableCaption>
+        <TableCaption>Lista de solicitudes estudiantiles actuales</TableCaption>
+
         <TableHeader>
           <TableRow>
             <TableHead>Código</TableHead>
@@ -44,7 +41,7 @@ export default function SolicitudesEstudiantiles() {
               <TableCell>
                 <Badge
                   variant={solicitud.status === 'no revisado' ? 'destructive' :
-                           solicitud.status === 'en revision' ? 'default' : 'success'}
+                    solicitud.status === 'en revision' ? 'default' : 'success'}
                 >
                   {solicitud.status}
                 </Badge>
@@ -53,6 +50,11 @@ export default function SolicitudesEstudiantiles() {
           ))}
         </TableBody>
       </Table>
-    </div>
+
+    </div><div className="flex items-center space-x-8"> {/* Quita justify-between, usa space-x-8 */}
+        <Button asChild>
+          <Link href="/home">Atrás (Menú Principal)</Link>
+        </Button>
+      </div></>
   )
 }
