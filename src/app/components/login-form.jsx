@@ -1,5 +1,5 @@
 "use client"
-import { useState } from 'react'
+import { useState, useEffect} from 'react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -10,7 +10,22 @@ import Link from 'next/link'
 export default function LoginForm() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [dateTime, setDateTime] = useState(''); // Estado para la fecha y hora
 
+  useEffect(() => {
+    const updateDateTime = () => {
+      const now = new Date();
+      const formattedDateTime = now.toLocaleString(); // Formato de fecha y hora según la configuración regional del navegador. Puedes personalizar el formato si necesitas algo específico.
+      setDateTime(formattedDateTime);
+    };
+
+    updateDateTime(); // Actualiza al montar el componente
+    const intervalId = setInterval(updateDateTime, 1000); // Actualiza cada segundo
+
+    return () => clearInterval(intervalId); // Limpia el intervalo al desmontar el componente
+  }, []);
+
+  
   const handleSubmit = (e) => {
     e.preventDefault()
     // Aquí iría la lógica de inicio de sesión
@@ -19,8 +34,13 @@ export default function LoginForm() {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="w-full max-w-md space-y-8">
-        <div className="flex flex-col items-center">
+    
+      
+    <div className="w-full max-w-md space-y-8"> {/* Este div ya tiene w-full */}
+      <div className="bg-blue-500 text-white p-4 mb-4 w-full"> {/* Franja azul a todo ancho */}
+        <p className="text-center">Universidad de Oriente, Núcleo Anzoátegui - {dateTime}</p>
+      </div>
+      <div className="flex flex-col items-center">
         <Image
           src="/Logo_UDO.svg.png"
           alt="Logo_UDO"
@@ -28,10 +48,10 @@ export default function LoginForm() {
           height={150}
           className="mb-4"
         />
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Control de Postgrado <br/> Ciencias Administrativas
-          </h2>
-        </div>
+        <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+          Control de Postgrado <br/> Ciencias Administrativas
+        </h2>
+      </div>
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="space-y-4 rounded-md shadow-sm">
             <div>
