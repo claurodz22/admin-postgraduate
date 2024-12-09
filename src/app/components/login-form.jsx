@@ -1,17 +1,24 @@
-"use client"
-import { useState, useEffect} from 'react'
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import Image from 'next/image'
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
-import Link from 'next/link'
+"use client";
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import Image from "next/image";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from "@/components/ui/card";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function LoginForm() {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [dateTime, setDateTime] = useState(''); // Estado para la fecha y hora
-
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [dateTime, setDateTime] = useState(""); // Estado para la fecha y hora
+  const router = useRouter();
   useEffect(() => {
     const updateDateTime = () => {
       const now = new Date();
@@ -25,33 +32,65 @@ export default function LoginForm() {
     return () => clearInterval(intervalId); // Limpia el intervalo al desmontar el componente
   }, []);
 
-  
-  const handleSubmit = (e) => {
-    e.preventDefault()
+  const postLogin = async () => {
+    try {
+      const res = await fetch("http://localhost:8000/api/token/", {
+        method: "post",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          username: email,
+          password: password,
+        }),
+      });
+
+      if (!res.ok) Promise.reject(res);
+
+      const data = await res.json();
+      console.log({ data });
+      localStorage.setItem("token", data.access);
+    } catch (error) {
+      alert(error?.message || "A ocurrido un error");
+      throw new Error(error.message);
+    }
+  };
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     // Aquí iría la lógica de inicio de sesión
-    console.log('Inicio de sesión con:', email, password)
-  }
+    console.log("Inicio de sesión con:", email, password);
+    try {
+      await postLogin();
+      router.push("/home");
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-    
-      
-    <div className="w-full max-w-md space-y-8"> {/* Este div ya tiene w-full */}
-      <div className="bg-blue-500 text-white p-4 mb-4 w-full"> {/* Franja azul a todo ancho */}
-        <p className="text-center">Universidad de Oriente, Núcleo Anzoátegui - {dateTime}</p>
-      </div>
-      <div className="flex flex-col items-center">
-        <Image
-          src="/Logo_UDO.svg.png"
-          alt="Logo_UDO"
-          width={150}
-          height={150}
-          className="mb-4"
-        />
-        <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-          Control de Postgrado <br/> Ciencias Administrativas
-        </h2>
-      </div>
+      <div className="w-full max-w-md space-y-8">
+        {" "}
+        {/* Este div ya tiene w-full */}
+        <div className="bg-blue-500 text-white p-4 mb-4 w-full">
+          {" "}
+          {/* Franja azul a todo ancho */}
+          <p className="text-center">
+            Universidad de Oriente, Núcleo Anzoátegui - {dateTime}
+          </p>
+        </div>
+        <div className="flex flex-col items-center">
+          <Image
+            src="/Logo_UDO.svg.png"
+            alt="Logo_UDO"
+            width={150}
+            height={150}
+            className="mb-4"
+          />
+          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+            Control de Postgrado <br /> Ciencias Administrativas
+          </h2>
+        </div>
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="space-y-4 rounded-md shadow-sm">
             <div>
@@ -62,6 +101,7 @@ export default function LoginForm() {
                 id="cedula"
                 name="email"
                 type="number"
+                min={0}
                 inputMode="numeric"
                 pattern="[0-9]*"
                 autoComplete="on"
@@ -91,20 +131,22 @@ export default function LoginForm() {
           </div>
 
           <div>
-          <CardContent>
-            <div className="flex justify-center"> {/* Centra el botón horizontalmente */}
-              <Button
-                type="submit"
-                className="relative flex w-[250px] justify-center rounded-md border border-transparent bg-blue-600 py-2 px-4 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-              >
-                <Link href="/home">Iniciar sesión</Link>
-              </Button>
-            </div>
-          </CardContent>
+            <CardContent>
+              <div className="flex justify-center">
+                {" "}
+                {/* Centra el botón horizontalmente */}
+                <Button
+                  type="submit"
+                  className="relative flex w-[250px] justify-center rounded-md border border-transparent bg-blue-600 py-2 px-4 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                >
+                  {/* <Link href="/home">Iniciar sesión</Link> */}
+                  Iniciar sesión
+                </Button>
+              </div>
+            </CardContent>
           </div>
         </form>
       </div>
     </div>
-  )
+  );
 }
-
