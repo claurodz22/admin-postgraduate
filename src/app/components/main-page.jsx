@@ -1,9 +1,18 @@
-import { Button } from "@/components/ui/button"
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
-import Image from 'next/image'
-import Link from 'next/link'
+'use client'
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from "@/components/ui/card";
+import Image from "next/image";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function MainPage() {
+  const router  = useRouter()
   return (
     <div className="min-h-screen bg-blue-100">
       <header className="bg-white shadow">
@@ -17,11 +26,18 @@ export default function MainPage() {
               className="mr-4"
             />
             <h1 className="text-3xl font-bold text-gray-900">Menu Principal</h1>
-            
           </div>
           <CardContent>
-            <Button asChild>
-              <Link href="/login">Cerrar Sesion</Link>
+            <Button
+              
+              onClick={() => {
+                localStorage.removeItem("token");
+                localStorage.removeItem("accessToken");
+                localStorage.removeItem("refreshToken");
+                router.push("/login");
+              }}
+            >
+              Cerrar Sesion
             </Button>
           </CardContent>
         </div>
@@ -33,7 +49,9 @@ export default function MainPage() {
               <Card>
                 <CardHeader>
                   <CardTitle>Registro de Usuarios Nuevos</CardTitle>
-                  <CardDescription>Añadir nuevos usuarios al sistema</CardDescription>
+                  <CardDescription>
+                    Añadir nuevos usuarios al sistema
+                  </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <Button asChild>
@@ -44,7 +62,9 @@ export default function MainPage() {
               <Card>
                 <CardHeader>
                   <CardTitle>Registro de Estudiantes</CardTitle>
-                  <CardDescription>Gestionar la información de los estudiantes</CardDescription>
+                  <CardDescription>
+                    Gestionar la información de los estudiantes
+                  </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <Button asChild>
@@ -55,7 +75,9 @@ export default function MainPage() {
               <Card>
                 <CardHeader>
                   <CardTitle>Control de Notas</CardTitle>
-                  <CardDescription>Revisar y actualizar calificaciones</CardDescription>
+                  <CardDescription>
+                    Revisar y actualizar calificaciones
+                  </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <Button asChild>
@@ -66,7 +88,9 @@ export default function MainPage() {
               <Card>
                 <CardHeader>
                   <CardTitle>Control de Pagos</CardTitle>
-                  <CardDescription>Gestionar pagos y facturación</CardDescription>
+                  <CardDescription>
+                    Gestionar pagos y facturación
+                  </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <Button asChild>
@@ -77,7 +101,9 @@ export default function MainPage() {
               <Card>
                 <CardHeader>
                   <CardTitle>Solicitudes Estudiantiles</CardTitle>
-                  <CardDescription>Ver y procesar solicitudes de estudiantes</CardDescription>
+                  <CardDescription>
+                    Ver y procesar solicitudes de estudiantes
+                  </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <Button asChild>
@@ -90,6 +116,5 @@ export default function MainPage() {
         </div>
       </main>
     </div>
-  )
+  );
 }
-

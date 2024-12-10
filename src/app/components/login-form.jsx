@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/card";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { login } from "../utils/auth";
 
 export default function LoginForm() {
   const [email, setEmail] = useState("");
@@ -60,7 +61,7 @@ export default function LoginForm() {
     // Aquí iría la lógica de inicio de sesión
     console.log("Inicio de sesión con:", email, password);
     try {
-      await postLogin();
+      await login(email,password);
       router.push("/home");
     } catch (error) {
       console.error(error);
