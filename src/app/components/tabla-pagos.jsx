@@ -58,7 +58,7 @@ export default function TablaPagos() {
       </div>
       <div className="flex items-center space-x-8">
         <Button asChild>
-          <Link href="/home">Atrás (Menú Principal)</Link>
+          <Link href="/home-admin">Atrás (Menú Principal)</Link>
         </Button>
       </div>
     </>

@@ -1,36 +1,32 @@
 "use client";
+
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Image from "next/image";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-} from "@/components/ui/card";
-import Link from "next/link";
+import { Card, CardContent } from "@/components/ui/card";
 import { useRouter } from "next/navigation";
 import { login } from "../utils/auth";
+import { Lock } from 'lucide-react';
 
 export default function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [dateTime, setDateTime] = useState(""); // Estado para la fecha y hora
+  const [dateTime, setDateTime] = useState("");
   const router = useRouter();
+
   useEffect(() => {
     const updateDateTime = () => {
       const now = new Date();
-      const formattedDateTime = now.toLocaleString(); // Formato de fecha y hora según la configuración regional del navegador. Puedes personalizar el formato si necesitas algo específico.
+      const formattedDateTime = now.toLocaleString();
       setDateTime(formattedDateTime);
     };
 
-    updateDateTime(); // Actualiza al montar el componente
-    const intervalId = setInterval(updateDateTime, 1000); // Actualiza cada segundo
+    updateDateTime();
+    const intervalId = setInterval(updateDateTime, 1000);
 
-    return () => clearInterval(intervalId); // Limpia el intervalo al desmontar el componente
+    return () => clearInterval(intervalId);
   }, []);
 
   const postLogin = async () => {
@@ -56,98 +52,104 @@ export default function LoginForm() {
       throw new Error(error.message);
     }
   };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // Aquí iría la lógica de inicio de sesión
-    console.log("Inicio de sesión con:", email, password);
     try {
-      await login(email,password);
-      router.push("/home");
+      await login(email, password);
+      router.push("/home-admin");
     } catch (error) {
       console.error(error);
     }
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="w-full max-w-md space-y-8">
-        {" "}
-        {/* Este div ya tiene w-full */}
-        <div className="bg-blue-500 text-white p-4 mb-4 w-full">
-          {" "}
-          {/* Franja azul a todo ancho */}
-          <p className="text-center">
-            Universidad de Oriente, Núcleo Anzoátegui - {dateTime}
-          </p>
-        </div>
-        <div className="flex flex-col items-center">
+    <div className="min-h-screen bg-white">
+      {/* Header */}
+      <header className="bg-[#004976] border-b border-white/20 p-4">
+        <div className="mx-auto flex max-w-7xl items-center justify-between">
+          <div className="text-white">
+            <h1 className="text-xl"> <b> Núcleo de Anzoátegui </b> </h1>
+            <h2 className="text-lg"> <b> Sistema de Control para PostGrados ECAT  </b> </h2>
+          </div>
           <Image
             src="/Logo_UDO.svg.png"
-            alt="Logo_UDO"
-            width={150}
-            height={150}
-            className="mb-4"
+            alt="Logo UDO"
+            width={60}
+            height={60}
+            className="bg-white p-1 rounded-full"
           />
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Control de Postgrado <br /> Ciencias Administrativas
-          </h2>
         </div>
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          <div className="space-y-4 rounded-md shadow-sm">
-            <div>
-              <Label htmlFor="cedula" className="sr-only">
-                Cedula
-              </Label>
-              <Input
-                id="cedula"
-                name="email"
-                type="number"
-                min={0}
-                inputMode="numeric"
-                pattern="[0-9]*"
-                autoComplete="on"
-                required
-                className="relative block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-500 focus:z-10 focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm"
-                placeholder="Cedula"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-            </div>
-            <div>
-              <Label htmlFor="password" className="sr-only">
-                Contraseña
-              </Label>
-              <Input
-                id="password"
-                name="password"
-                type="password"
-                autoComplete="current-password"
-                required
-                className="relative block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-500 focus:z-10 focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm"
-                placeholder="Contraseña"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-            </div>
-          </div>
+      </header>
 
-          <div>
-            <CardContent>
+      {/* Main Content */}
+      <main className="container mx-auto px-4 py-8">
+        <Card className="mx-auto max-w-md bg-[#81D4FE]">
+          <CardContent className="p-6">
+            <div className="text-center mb-6">
+              <h3 className="text-xl font-bold text-[#000000] mb-2">Autenticación de Usuario </h3>
+              <p className="text-xl font-bold text-[#000000] mb-2"> Administrador</p>
               <div className="flex justify-center">
-                {" "}
-                {/* Centra el botón horizontalmente */}
+                <Lock className="w-16 h-16 text-yellow-500" />
+              </div>
+            </div>
+
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="space-y-2 text-[#0F3272]">
+                <Label htmlFor="cedula"><b>Usuario:</b></Label>
+                <Input
+                  id="cedula"
+                  name="email"
+                  type="number"
+                  min={0}
+                  inputMode="numeric"
+                  pattern="[0-9]*"
+                  autoComplete="on"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="border-[#004976]"
+                />
+              </div>
+
+              <div className="space-y-2 text-[#0F3272]">
+                <Label htmlFor="password"><b>Contraseña:</b></Label>
+                <Input
+                  id="password"
+                  name="password"
+                  type="password"
+                  autoComplete="current-password"
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="border-[#004976]"
+                />
+              </div>
+
+              <div className="flex gap-4 justify-center pt-4">
                 <Button
                   type="submit"
-                  className="relative flex w-[250px] justify-center rounded-md border border-transparent bg-blue-600 py-2 px-4 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                  className="bg-green-600 hover:bg-green-700 text-white px-8"
                 >
-                  {/* <Link href="/home">Iniciar sesión</Link> */}
-                  Iniciar sesión
+                  Aceptar
+                </Button>
+                <Button
+                  type="button"
+                  variant="destructive"
+                  className="px-8"
+                  onClick={() => {
+                    setEmail("");
+                    setPassword("");
+                  }}
+                >
+                  Cancelar
                 </Button>
               </div>
-            </CardContent>
-          </div>
-        </form>
-      </div>
+            </form>
+          </CardContent>
+        </Card>
+      </main>
     </div>
   );
 }
+

@@ -1,130 +1,246 @@
 'use client'
 
 import { useState } from 'react'
-import { ChevronDown } from 'lucide-react'
-import { Button } from "@/components/ui/button"
-import Link from 'next/link'
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import Image from "next/image";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { Home, UserPlus, GraduationCap, ClipboardList, CreditCard, FileText } from 'lucide-react';
 
-export default function RegistroUsuario() {
-  const [password, setPassword] = useState('')
-  const [confirmPassword, setConfirmPassword] = useState('')
+export default function RegisterUser() {
+  const router = useRouter()
+
+  const [user, setUser] = useState({
+    nombre: '',
+    apellido: '',
+    cedula: '',
+    correo: '',
+    tipoUsuario: '',
+    password: '',
+    confirmPassword: ''
+  })
+
+  const [passwordError, setPasswordError] = useState('')
+
+  const handleChange = (e) => {
+    const { name, value } = e.target
+    setUser(prev => ({ ...prev, [name]: value }))
+  }
+
+  const handleSelectChange = (value) => {
+    setUser(prev => ({ ...prev, tipoUsuario: value }))
+  }
+
+  const validatePassword = (password) => {
+    const minLength = 8;
+    const hasUpperCase = /[A-Z]/.test(password);
+    const hasLowerCase = /[a-z]/.test(password);
+    const hasNumbers = /\d/.test(password);
+    const hasNonalphas = /\W/.test(password);
+    return password.length >= minLength && hasUpperCase && hasLowerCase && hasNumbers && hasNonalphas;
+  }
+
+  const handleSubmit = (e) => {
+    e.preventDefault()
+    if (user.password !== user.confirmPassword) {
+      setPasswordError('Las contraseñas no coinciden')
+      return
+    }
+    if (!validatePassword(user.password)) {
+      setPasswordError('La contraseña no cumple con los requisitos')
+      return
+    }
+    // Aquí iría la lógica para guardar el usuario en la base de datos
+    console.log('Usuario guardado:', user)
+    // Resetear el formulario después de guardar
+    setUser({
+      nombre: '',
+      apellido: '',
+      cedula: '',
+      correo: '',
+      tipoUsuario: '',
+      password: '',
+      confirmPassword: ''
+    })
+    setPasswordError('')
+    alert('Usuario registrado con éxito!')
+  }
+
+  const menuItems = [
+    { title: "Inicio", icon: Home, href: "/home-admin" },
+    { title: "Registro de Usuarios Nuevos", icon: UserPlus, href: "/register-user" },
+    { title: "Registro de Estudiantes", icon: GraduationCap, href: "/register-student" },
+    { title: "Control de Notas", icon: ClipboardList, href: "/grades" },
+    { title: "Control de Pagos", icon: CreditCard, href: "/pagos" },
+    { title: "Solicitudes Estudiantiles", icon: FileText, href: "/request" },
+  ];
 
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
-      <div className="w-full max-w-2xl bg-white rounded-lg shadow-md">
-        <div className="p-6">
-          <h2 className="text-2xl font-bold mb-6 text-center">Registro de Usuario</h2>
-          <form className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium mb-1" htmlFor="nombre">Nombre:</label>
-                <input
-                  id="nombre"
-                  type="text"
-                  className="w-full px-3 py-2 border rounded-md"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1" htmlFor="apellido">Apellido:</label>
-                <input
-                  id="apellido"
-                  type="text"
-                  className="w-full px-3 py-2 border rounded-md"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1" htmlFor="cedula">Cedula:</label>
-                <input
-                  id="cedula"
-                  name="cedula"
-                  type="number"
-                  inputMode="numeric"
-                  pattern="[0-9]*"
-                  autoComplete="on"
-                  className="w-full px-3 py-2 border rounded-md"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1" htmlFor="correo">Correo:</label>
-                <input
-                  id="correo"
-                  type="email"
-                  className="w-full px-3 py-2 border rounded-md"
-                  required
-                />
-              </div>
-            </div>
-
+    <div className="min-h-screen flex flex-col">
+      {/* Header */}
+      <header className="bg-[#004976] text-white py-4">
+        <div className="container mx-auto px-6 flex items-center">
+          <div className="flex items-center gap-4">
+            <Image
+              src="/Logo_UDO.svg.png"
+              alt="Logo UDO"
+              width={60}
+              height={60}
+              className="bg-white p-1 rounded-full"
+            />
             <div>
-              <label className="block text-sm font-medium mb-1" htmlFor="tipo-usuario">Tipo de Usuario:</label>
-              <div className="relative">
-                <select 
-                  id="tipo-usuario"
-                  className="w-full px-3 py-2 border rounded-md appearance-none bg-white"
-                >
-                  <option value="">Seleccione un tipo</option>
-                  <option value="estudiante">Estudiante</option>
-                  <option value="profesor">Profesor</option>
-                  <option value="admin">Administrador</option>
-                </select>
-                <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-500" />
-              </div>
+              <h1 className="text-2xl font-bold">Universidad de Oriente</h1>
+              <h2 className="text-lg">Núcleo de Anzoátegui</h2>
             </div>
-            <div>
-              <label className="block text-sm font-medium mb-1" htmlFor="password">Contraseña:</label>
-              <input
-                id="password"
-                type="password"
-                className="w-full px-3 py-2 border rounded-md"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-1" htmlFor="confirm-password">Confirme su contraseña:</label>
-              <input
-                id="confirm-password"
-                type="password"
-                className="w-full px-3 py-2 border rounded-md"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                required
-              />
-            </div>
-
-            {/* Password requirements */}
-            <div className="text-sm text-gray-600 bg-gray-50 p-4 rounded-md">
-              <p className="font-medium mb-2">La contraseña debe:</p>
-              <ul className="list-disc list-inside space-y-1">
-                <li>Considerar una longitud mínima de 8 caracteres.</li>
-                <li>Al definir una, utilizar letras mayúsculas y minúsculas, números y caracteres especiales (%$#+-)</li>
-                <li>No usar información personal o referente a nuestra persona (nombres, fechas, cuentas, empleo, formación, Etc.)</li>
-              </ul>
-            </div>
-
-            <div className="flex justify-center"> {/* Centra los botones */}
-              <CardContent>
-                <div className="flex items-center space-x-8"> {/* Quita justify-between, usa space-x-8 */}
-                  <Button asChild>
-                    <Link href="/home">Atrás (Menú Principal)</Link>
-                  </Button>
-                  <button className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
-                    Registrarse
-                  </button>
-                </div>
-              </CardContent>
-            </div>
-
-          </form>
+          </div>
+          <div className="ml-auto">
+            <Button
+              variant="secondary"
+              className="bg-[#FFD580] text-black hover:bg-[#FFD580] hover:text-black"
+              onClick={() => {
+                localStorage.removeItem("token");
+                localStorage.removeItem("accessToken");
+                localStorage.removeItem("refreshToken");
+                router.push("/home-all");
+              }}
+            >
+              Cerrar Sesión
+            </Button>
+          </div>
         </div>
+      </header>
+
+      <div className="flex flex-1">
+        {/* Sidebar */}
+        <aside className="w-64 bg-[#e6f3ff]">
+          <nav className="py-4">
+            <ul className="space-y-1">
+              {menuItems.map((item, index) => (
+                <li key={index}>
+                  <Link 
+                    href={item.href} 
+                    className="flex items-center px-6 py-2 text-[#004976] gap-3"
+                  >
+                    <item.icon className="h-5 w-5" />
+                    <span>{item.title}</span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        </aside>
+
+        {/* Main Content */}
+        <main className="flex-1 p-6">
+          <Card className="max-w-3xl mx-auto bg-[#FFEFD5]">
+            <CardContent className="p-6">
+              <h2 className="text-2xl font-bold text-[#004976] mb-6 text-center">Registro de Usuario</h2>
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="nombre">Nombre</Label>
+                    <Input
+                      id="nombre"
+                      name="nombre"
+                      value={user.nombre}
+                      onChange={handleChange}
+                      required
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="apellido">Apellido</Label>
+                    <Input
+                      id="apellido"
+                      name="apellido"
+                      value={user.apellido}
+                      onChange={handleChange}
+                      required
+                    />
+                  </div>
+                </div>
+                <div>
+                  <Label htmlFor="cedula">Cédula</Label>
+                  <Input
+                    id="cedula"
+                    name="cedula"
+                    type="number"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    value={user.cedula}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="correo">Correo Electrónico</Label>
+                  <Input
+                    id="correo"
+                    name="correo"
+                    type="email"
+                    value={user.correo}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="tipoUsuario">Tipo de Usuario</Label>
+                  <Select onValueChange={handleSelectChange} value={user.tipoUsuario}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Seleccione un tipo de usuario" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="estudiante">Estudiante</SelectItem>
+                      <SelectItem value="profesor">Profesor</SelectItem>
+                      <SelectItem value="administrativo">Administrativo</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label htmlFor="password">Contraseña</Label>
+                  <Input
+                    id="password"
+                    name="password"
+                    type="password"
+                    value={user.password}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="confirmPassword">Confirmar Contraseña</Label>
+                  <Input
+                    id="confirmPassword"
+                    name="confirmPassword"
+                    type="password"
+                    value={user.confirmPassword}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
+                {passwordError && <p className="text-red-500">{passwordError}</p>}
+                <p className="text-sm text-gray-500">
+                  La contraseña debe tener al menos 8 caracteres, incluir mayúsculas, minúsculas, números y caracteres especiales.
+                </p>
+                <div className="flex justify-center mt-6">
+                  <div className="flex items-center space-x-8">
+                    <Button asChild variant="outline">
+                      <Link href="/home-admin">Atrás (Menú Principal)</Link>
+                    </Button>
+                    <Button type="submit" className="bg-[#004976] text-white hover:bg-[#003357]">
+                      Registrar Usuario
+                    </Button>
+                  </div>
+                </div>
+              </form>
+            </CardContent>
+          </Card>
+        </main>
       </div>
     </div>
-  )
+  );
 }
 
