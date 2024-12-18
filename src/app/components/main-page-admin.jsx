@@ -7,23 +7,16 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Home, UserPlus, GraduationCap, ClipboardList, CreditCard, FileText } from 'lucide-react';
 
-export default function ControlNotas() {
+export default function MainPage() {
   const router = useRouter()
 
   const menuItems = [
     { title: "Inicio", icon: Home, href: "/home-admin" },
     { title: "Registro de Usuarios Nuevos", icon: UserPlus, href: "/register-user" },
     { title: "Registro de Estudiantes", icon: GraduationCap, href: "/register-student" },
-    { title: "Control de Notas", icon: ClipboardList, href: "/control-notas" },
+    { title: "Control de Notas", icon: ClipboardList, href: "/grades" },
     { title: "Control de Pagos", icon: CreditCard, href: "/pagos" },
     { title: "Solicitudes Estudiantiles", icon: FileText, href: "/request" },
-  ];
-
-  const notasOptions = [
-    { title: "Habilitación de Corte", description: "Habilitar o deshabilitar períodos de corte para ingreso de notas", href: "/habilitar-corte" },
-    { title: "Ingreso de Notas", description: "Ingresar notas para estudiantes por asignatura", href: "/ingresar-notas" },
-    { title: "Modificación de Notas", description: "Modificar notas existentes con autorización", href: "/modificar-notas" },
-    { title: "Reportes de Notas", description: "Generar reportes de notas por estudiante, asignatura o período", href: "/reportes-notas" },
   ];
 
   return (
@@ -84,21 +77,14 @@ export default function ControlNotas() {
         {/* Main Content */}
         <main className="flex-1 p-6">
           <Card className="max-w-3xl mx-auto bg-[#FFEFD5]">
-            <CardContent className="p-6">
-              <h2 className="text-2xl font-bold text-[#004976] mb-6 text-center">Control de Notas</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {notasOptions.map((option, index) => (
-                  <Card key={index} className="bg-white">
-                    <CardContent className="p-4">
-                      <h3 className="text-lg font-semibold text-[#004976] mb-2">{option.title}</h3>
-                      <p className="text-sm text-gray-600 mb-4">{option.description}</p>
-                      <Button asChild className="w-full bg-[#004976] text-white hover:bg-[#003357]">
-                        <Link href={option.href}>Acceder</Link>
-                      </Button>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
+            <CardContent className="p-6 text-center">
+              <h2 className="text-3xl font-bold text-[#004976] mb-4">
+                Bienvenido, Administrador
+              </h2>
+              <p className="text-lg text-gray-600">
+                Este es el panel de control para la gestión del Sistema de Control para PostGrados ECAT. 
+                Utilice las opciones del menú para navegar por las diferentes funciones del sistema.
+              </p>
             </CardContent>
           </Card>
         </main>
