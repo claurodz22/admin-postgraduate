@@ -3,26 +3,68 @@
 import { useState } from 'react'
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Home, UserPlus, GraduationCap, ClipboardList, CreditCard, FileText, ChevronDown } from 'lucide-react';
+import { Home, UserPlus, GraduationCap, ClipboardList, CreditCard, FileText } from 'lucide-react';
 
-export default function RegisterUser() {
+// Simulated function to fetch student data
+const fetchStudentData = async (cedula) => {
+  // In a real application, this would be an API call
+  await new Promise(resolve => setTimeout(resolve, 500)); // Simulate network delay
+  
+  // Dummy data for demonstration
+  const students = {
+    'V-12345678': { nombre: 'Juan Pérez', carrera: 'Ingeniería Informática', anio_ingreso: '2020' },
+    'V-87654321': { nombre: 'María González', carrera: 'Medicina', anio_ingreso: '2019' },
+  };
+
+  return students[cedula] || null;
+};
+
+export default function RegisterStudent() {
   const router = useRouter()
 
   const [estudiante, setEstudiante] = useState({
     cedula_estudiante: '',
-    id_usuario: '',
     nombre_estudiante: '',
     carrera: '',
     anio_ingreso: '',
     estado: ''
   })
 
+  const [isLoading, setIsLoading] = useState(false);
+
   const handleChange = (e) => {
     const { name, value } = e.target
     setEstudiante(prev => ({ ...prev, [name]: value }))
+  }
+
+  const handleCedulaChange = async (e) => {
+    const cedula = e.target.value;
+    setEstudiante(prev => ({ ...prev, cedula_estudiante: cedula }));
+
+    if (cedula.length >= 8) { // Assuming a minimum length for a valid cedula
+      setIsLoading(true);
+      try {
+        const studentData = await fetchStudentData(cedula);
+        if (studentData) {
+          setEstudiante(prev => ({
+            ...prev,
+            nombre_estudiante: studentData.nombre,
+            carrera: studentData.carrera,
+            anio_ingreso: studentData.anio_ingreso
+          }));
+        }
+      } catch (error) {
+        console.error('Error fetching student data:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
   }
 
   const handleSubmit = (e) => {
@@ -32,8 +74,7 @@ export default function RegisterUser() {
     // Resetear el formulario después de guardar
     setEstudiante({
       cedula_estudiante: '',
-      id_usuario: '',
-      numero_estudiante: '',
+      nombre_estudiante: '',
       carrera: '',
       anio_ingreso: '',
       estado: ''
@@ -45,9 +86,9 @@ export default function RegisterUser() {
     { title: "Inicio", icon: Home, href: "/home-admin" },
     { title: "Registro de Usuarios Nuevos", icon: UserPlus, href: "/register-user" },
     { title: "Registro de Estudiantes", icon: GraduationCap, href: "/register-student" },
-    { title: "Control de Notas", icon: ClipboardList, href: "/grades" },
-    { title: "Control de Pagos", icon: CreditCard, href: "/pagos" },
-    { title: "Solicitudes Estudiantiles", icon: FileText, href: "/request" },
+    { title: "Control de Notas", icon: ClipboardList, href: "/control-notas" },
+    { title: "Control de Pagos", icon: CreditCard, href: "/control-pagos" },
+    { title: "Solicitudes Estudiantiles", icon: FileText, href: "/solicitudes-estudiantiles" },
   ];
 
   return (
@@ -113,54 +154,68 @@ export default function RegisterUser() {
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label htmlFor="cedula_estudiante" className="block text-sm font-medium text-gray-700 mb-1">
-                      Cedula Estudiante
-                    </label>
-                    <input
-                      id="cedula_estudiante"
-                      name="cedula_estudiante"
-                      type="number"
-                      inputMode="numeric"
-                      pattern="[0-9]*"
-                      autoComplete="on"
-                      className="w-full px-3 py-2 border rounded-md"
-                      required
-                    />
+                    <Label htmlFor="cedula_estudiante">Cédula Estudiante</Label>
+                    <div className="flex">
+                      <Select 
+                        value={estudiante.cedula_estudiante.split('-')[0] || 'V'}
+                        onValueChange={(value) => setEstudiante(prev => ({ ...prev, cedula_estudiante: `${value}-${prev.cedula_estudiante.split('-')[1] || ''}` }))}
+                      >
+                        <SelectTrigger className="w-[70px]">
+                          <SelectValue placeholder="Tipo" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="V">V-</SelectItem>
+                          <SelectItem value="E">E-</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <Input
+                        id="cedula_estudiante"
+                        name="cedula_estudiante"
+                        type="text"
+                        value={estudiante.cedula_estudiante.split('-')[1] || ''}
+                        onChange={(e) => handleCedulaChange({ target: { value: `${estudiante.cedula_estudiante.split('-')[0]}-${e.target.value}` } })}
+                        className="flex-1 ml-2"
+                        required
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <Label htmlFor="buscar_estudiante">Buscar Estudiante</Label>
+                    <Button 
+                      type="button" 
+                      onClick={() => handleCedulaChange({ target: { value: estudiante.cedula_estudiante } })}
+                      disabled={isLoading}
+                      className="w-full"
+                    >
+                      {isLoading ? 'Buscando...' : 'Buscar'}
+                    </Button>
                   </div>
                 </div>
                 <div>
-                  <label htmlFor="nombre_estudiante" className="block text-sm font-medium text-gray-700 mb-1">
-                    Nombre del Estudiante
-                  </label>
-                  <input
+                  <Label htmlFor="nombre_estudiante">Nombre del Estudiante</Label>
+                  <Input
                     type="text"
                     id="nombre_estudiante"
                     name="nombre_estudiante"
                     value={estudiante.nombre_estudiante}
                     onChange={handleChange}
-                    className="w-full px-3 py-2 border rounded-md"
                     required
                   />
                 </div>
                 <div>
-                  <label htmlFor="carrera" className="block text-sm font-medium text-gray-700 mb-1">
-                    Carrera
-                  </label>
-                  <input
+                  <Label htmlFor="carrera">Carrera</Label>
+                  <Input
                     type="text"
                     id="carrera"
                     name="carrera"
                     value={estudiante.carrera}
                     onChange={handleChange}
-                    className="w-full px-3 py-2 border rounded-md"
                     required
                   />
                 </div>
                 <div>
-                  <label htmlFor="anio_ingreso" className="block text-sm font-medium text-gray-700 mb-1">
-                    Año de Ingreso
-                  </label>
-                  <input
+                  <Label htmlFor="anio_ingreso">Año de Ingreso</Label>
+                  <Input
                     type="number"
                     id="anio_ingreso"
                     name="anio_ingreso"
@@ -168,29 +223,20 @@ export default function RegisterUser() {
                     onChange={handleChange}
                     min="1900"
                     max={new Date().getFullYear()}
-                    className="w-full px-3 py-2 border rounded-md"
                     required
                   />
                 </div>
                 <div>
-                  <label htmlFor="estado" className="block text-sm font-medium text-gray-700 mb-1">
-                    Estado
-                  </label>
-                  <div className="relative">
-                    <select
-                      id="estado"
-                      name="estado"
-                      value={estudiante.estado}
-                      onChange={handleChange}
-                      className="w-full px-3 py-2 border rounded-md appearance-none bg-white"
-                      required
-                    >
-                      <option value="">Seleccione un estado</option>
-                      <option value="activo">Activo</option>
-                      <option value="inactivo">Inactivo</option>
-                    </select>
-                    <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-500" />
-                  </div>
+                  <Label htmlFor="estado">Estado</Label>
+                  <Select name="estado" value={estudiante.estado} onValueChange={(value) => handleChange({ target: { name: 'estado', value } })}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Seleccione un estado" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="activo">Activo</SelectItem>
+                      <SelectItem value="inactivo">Inactivo</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div className="flex justify-center mt-6">
                   <div className="flex items-center space-x-8">

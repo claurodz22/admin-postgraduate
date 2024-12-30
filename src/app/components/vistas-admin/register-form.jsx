@@ -17,7 +17,8 @@ export default function RegisterUser() {
   const [user, setUser] = useState({
     nombre: '',
     apellido: '',
-    cedula: '',
+    cedulaTipo: 'V-',
+    cedulaNumero: '',
     correo: '',
     tipoUsuario: '',
     password: '',
@@ -55,12 +56,18 @@ export default function RegisterUser() {
       return
     }
     // Aquí iría la lógica para guardar el usuario en la base de datos
-    console.log('Usuario guardado:', user)
+    const fullCedula = `${user.cedulaTipo}${user.cedulaNumero}`
+    const userToSubmit = {
+      ...user,
+      cedula: fullCedula
+    }
+    console.log('Usuario guardado:', userToSubmit)
     // Resetear el formulario después de guardar
     setUser({
       nombre: '',
       apellido: '',
-      cedula: '',
+      cedulaTipo: 'V-',
+      cedulaNumero: '',
       correo: '',
       tipoUsuario: '',
       password: '',
@@ -74,9 +81,9 @@ export default function RegisterUser() {
     { title: "Inicio", icon: Home, href: "/home-admin" },
     { title: "Registro de Usuarios Nuevos", icon: UserPlus, href: "/register-user" },
     { title: "Registro de Estudiantes", icon: GraduationCap, href: "/register-student" },
-    { title: "Control de Notas", icon: ClipboardList, href: "/grades" },
-    { title: "Control de Pagos", icon: CreditCard, href: "/pagos" },
-    { title: "Solicitudes Estudiantiles", icon: FileText, href: "/request" },
+    { title: "Control de Notas", icon: ClipboardList, href: "/control-notas" },
+    { title: "Control de Pagos", icon: CreditCard, href: "/control-pagos" },
+    { title: "Solicitudes Estudiantiles", icon: FileText, href: "/solicitudes-estudiantiles" },
   ];
 
   return (
@@ -164,16 +171,31 @@ export default function RegisterUser() {
                 </div>
                 <div>
                   <Label htmlFor="cedula">Cédula</Label>
-                  <Input
-                    id="cedula"
-                    name="cedula"
-                    type="number"
-                    inputMode="numeric"
-                    pattern="[0-9]*"
-                    value={user.cedula}
-                    onChange={handleChange}
-                    required
-                  />
+                  <div className="flex">
+                    <Select 
+                      value={user.cedulaTipo} 
+                      onValueChange={(value) => setUser(prev => ({ ...prev, cedulaTipo: value }))}
+                    >
+                      <SelectTrigger className="w-[70px]">
+                        <SelectValue placeholder="Tipo" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="V-">V-</SelectItem>
+                        <SelectItem value="E-">E-</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <Input
+                      id="cedulaNumero"
+                      name="cedulaNumero"
+                      type="number"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
+                      value={user.cedulaNumero}
+                      onChange={handleChange}
+                      required
+                      className="flex-1 ml-2"
+                    />
+                  </div>
                 </div>
                 <div>
                   <Label htmlFor="correo">Correo Electrónico</Label>
@@ -231,7 +253,7 @@ export default function RegisterUser() {
                       <Link href="/home-admin">Atrás (Menú Principal)</Link>
                     </Button>
                     <Button type="submit" className="bg-[#004976] text-white hover:bg-[#003357]">
-                      Registrar Usuario
+                    <Link href="/home-admin">Registrar Usuario</Link>
                     </Button>
                   </div>
                 </div>

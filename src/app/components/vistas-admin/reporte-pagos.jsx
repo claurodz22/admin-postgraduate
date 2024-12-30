@@ -2,25 +2,36 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Home, UserPlus, GraduationCap, ClipboardList, CreditCard, FileText } from 'lucide-react';
 
-export default function MainPage() {
+// Simulated payment data with dates
+const payments = [
+  { id: 1, bank: "Banco de Venezuela", reference: "REF123456", cedula: "V-12345678", amount: 150.00, date: "2023-06-15" },
+  { id: 2, bank: "Banesco", reference: "REF234567", cedula: "V-23456789", amount: 200.50, date: "2023-06-14" },
+  { id: 3, bank: "Mercantil", reference: "REF345678", cedula: "E-34567890", amount: 175.25, date: "2023-06-13" },
+  { id: 4, bank: "Provincial", reference: "REF456789", cedula: "V-45678901", amount: 300.00, date: "2023-06-12" },
+  { id: 5, bank: "Banco del Tesoro", reference: "REF567890", cedula: "E-56789012", amount: 125.75, date: "2023-06-11" },
+  // ... add more simulated payments up to 25
+];
+
+export default function ControlPagos() {
   const router = useRouter()
 
   const menuItems = [
     { title: "Inicio", icon: Home, href: "/home-admin" },
     { title: "Registro de Usuarios Nuevos", icon: UserPlus, href: "/register-user" },
     { title: "Registro de Estudiantes", icon: GraduationCap, href: "/register-student" },
-    { title: "Control de Notas", icon: ClipboardList, href: "/grades" },
-    { title: "Control de Pagos", icon: CreditCard, href: "/pagos" },
-    { title: "Solicitudes Estudiantiles", icon: FileText, href: "/request" },
+    { title: "Control de Notas", icon: ClipboardList, href: "/control-notas" },
+    { title: "Control de Pagos", icon: CreditCard, href: "/control-pagos" },
+    { title: "Solicitudes Estudiantiles", icon: FileText, href: "/solicitudes-estudiantiles" },
   ];
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col"> 
       {/* Header */}
       <header className="bg-[#004976] text-white py-4">
         <div className="container mx-auto px-6 flex items-center">
@@ -76,15 +87,33 @@ export default function MainPage() {
 
         {/* Main Content */}
         <main className="flex-1 p-6">
-          <Card className="max-w-3xl mx-auto bg-[#FFEFD5]">
-            <CardContent className="p-6 text-center">
-              <h2 className="text-3xl font-bold text-[#004976] mb-4">
-                Bienvenido, Administrador
-              </h2>
-              <p className="text-lg text-gray-600">
-                Este es el panel de control para la gestión del Sistema de Control para PostGrados ECAT. 
-                Utilice las opciones del menú para navegar por las diferentes funciones del sistema.
-              </p>
+          <Card className="mx-auto bg-[#FFEFD5]">
+            <CardContent className="p-6">
+              <h2 className="text-2xl font-bold text-[#004976] mb-6 text-center">Últimos 25 Pagos Ingresados</h2>
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Fecha del Pago</TableHead>
+                      <TableHead>Banco</TableHead>
+                      <TableHead>Número de Referencia</TableHead>
+                      <TableHead>Cédula</TableHead>
+                      <TableHead className="text-right">Monto</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {payments.map((payment) => (
+                      <TableRow key={payment.id}>
+                        <TableCell>{new Date(payment.date).toLocaleDateString('es-VE')}</TableCell>
+                        <TableCell>{payment.bank}</TableCell>
+                        <TableCell>{payment.reference}</TableCell>
+                        <TableCell>{payment.cedula}</TableCell>
+                        <TableCell className="text-right">{payment.amount.toFixed(2)} Bs.</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
             </CardContent>
           </Card>
         </main>

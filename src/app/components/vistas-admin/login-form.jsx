@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
 import { useRouter } from "next/navigation";
-import { login } from "../utils/auth";
+import { login } from "../../utils/auth";
 import { Lock } from 'lucide-react';
 
 export default function LoginForm() {
