@@ -15,15 +15,15 @@ export default function ControlNotas() {
     { title: "Registro de Usuarios Nuevos", icon: UserPlus, href: "/register-user" },
     { title: "Registro de Estudiantes", icon: GraduationCap, href: "/register-student" },
     { title: "Control de Notas", icon: ClipboardList, href: "/control-notas" },
-    { title: "Control de Pagos", icon: CreditCard, href: "/pagos" },
-    { title: "Solicitudes Estudiantiles", icon: FileText, href: "/request" },
+    { title: "Control de Pagos", icon: CreditCard, href: "/control-pagos" },
+    { title: "Solicitudes Estudiantiles", icon: FileText, href: "/solicitudes-estudiantiles" },
   ];
 
   const notasOptions = [
-    { title: "Habilitación de Corte", description: "Habilitar o deshabilitar períodos de corte para ingreso de notas", href: "/habilitar-corte" },
-    { title: "Ingreso de Notas", description: "Ingresar notas para estudiantes por asignatura", href: "/ingresar-notas" },
+    { title: "Creación de cohorte", description: "El administrador crea un cohorte de acuerdo a los requerimientos", href: "/crear-cohorte" },
+    { title: "Habilitación de cohorte", description: "Habilitar o deshabilitar períodos de cohorte para ingreso de notas", href: "/habilitar-cohorte" },
+    { title: "Reportes de Notas", description: "Generar reportes de notas por estudiante, asignatura o cohorte", href: "/reportes-notas" },
     { title: "Modificación de Notas", description: "Modificar notas existentes con autorización", href: "/modificar-notas" },
-    { title: "Reportes de Notas", description: "Generar reportes de notas por estudiante, asignatura o período", href: "/reportes-notas" },
   ];
 
   return (

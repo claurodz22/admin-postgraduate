@@ -31,7 +31,7 @@
     ".next/types/**/*.ts",
     "**/*.ts",
     "**/*.tsx"
-, "components/ui/card.jsx", "src/app/pagos/page.jsx", "src/app/components/tabla-pagos.jsx", "src/app/pagos/page.jsx", "src/app/components/tabla-pagos.jsx", "src/app/pagos/page.jsx", "src/app/components/tabla-pagos.jsx", "src/app/components/filtro-cedula.jsx", "src/app/pagos/page.jsx", "src/app/grades/page.jsx"  ],
+, "components/ui/card.jsx", "src/app/control-pagos/page.jsx", "src/app/components/vistas-admin/tabla-pagos.jsx", "src/app/control-pagos/page.jsx", "src/app/components/vistas-admin/tabla-pagos.jsx", "src/app/control-pagos/page.jsx", "src/app/components/vistas-admin/tabla-pagos.jsx", "src/app/components/filtro-cedula.jsx", "src/app/control-pagos/page.jsx", "src/app/control-notas/page.jsx"  ],
   "exclude": [
     "node_modules"
   ]

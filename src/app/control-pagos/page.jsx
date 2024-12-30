@@ -1,4 +1,4 @@
-import TablaPagos from '../components/tabla-pagos'
+import TablaPagos from '../components/vistas-admin/tabla-pagos'
 
 export default function PaginaPagos() {
   return (

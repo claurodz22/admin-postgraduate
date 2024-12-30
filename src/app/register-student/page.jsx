@@ -1,4 +1,4 @@
-import RegisterStudent from '../components/register-student'
+import RegisterStudent from '../components/vistas-admin/register-student'
 
 export default function LoginPage() {
   return (
