@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -12,16 +12,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Home, UserPlus, GraduationCap, ClipboardList, CreditCard, FileText, Search } from 'lucide-react';
 
-// Simulated payment data
-const allPayments = [
-  { id: 1, bank: "Banco de Venezuela", reference: "REF123456", cedula: "V-12345678", amount: 150.00, date: "2023-06-15" },
-  { id: 2, bank: "Banesco", reference: "REF234567", cedula: "V-23456789", amount: 200.50, date: "2023-06-14" },
-  { id: 3, bank: "Mercantil", reference: "REF345678", cedula: "E-34567890", amount: 175.25, date: "2023-06-13" },
-  { id: 4, bank: "Provincial", reference: "REF456789", cedula: "V-45678901", amount: 300.00, date: "2023-06-12" },
-  { id: 5, bank: "Banco del Tesoro", reference: "REF567890", cedula: "E-56789012", amount: 125.75, date: "2023-06-11" },
-  // ... add more simulated payments
-];
-
 export default function BusquedaPagos() {
   const router = useRouter()
   const [cedulaTipo, setCedulaTipo] = useState('V')
@@ -29,6 +19,9 @@ export default function BusquedaPagos() {
   const [fechaInicio, setFechaInicio] = useState('')
   const [fechaFin, setFechaFin] = useState('')
   const [searchResults, setSearchResults] = useState([])
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [allPayments, setAllPayments] = useState([])
 
   const menuItems = [
     { title: "Inicio", icon: Home, href: "/home-admin" },
@@ -39,14 +32,36 @@ export default function BusquedaPagos() {
     { title: "Solicitudes Estudiantiles", icon: FileText, href: "/solicitudes-estudiantiles" },
   ];
 
+  useEffect(() => {
+    const fetchPayments = async () => {
+      try {
+        const response = await fetch('http://127.0.0.1:8000/api/pagos/');
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        console.log('Estructura de datos recibidos:', JSON.stringify(data, null, 2));
+        console.log('Estructura de un pago:', JSON.stringify(data[0], null, 2));
+        setAllPayments(data);
+        setSearchResults(data);
+      } catch (err) {
+        setError(`Error al cargar los pagos: ${err.message}`);
+        console.error('Error fetching payments:', err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchPayments();
+  }, []);
+
   const handleSearch = (e) => {
     e.preventDefault()
     const cedula = `${cedulaTipo}-${cedulaNumero}`
-    // Simulated search logic
     const results = allPayments.filter(payment => {
-      const cedulaMatch = cedulaNumero ? payment.cedula.includes(cedula) : true
+      const cedulaMatch = cedulaNumero ? payment.cedula_responsable.includes(cedulaNumero) : true
       const dateMatch = (fechaInicio && fechaFin) ? 
-        (payment.date >= fechaInicio && payment.date <= fechaFin) : true
+        (new Date(payment.fecha_pago) >= new Date(fechaInicio) && new Date(payment.fecha_pago) <= new Date(fechaFin)) : true
       return cedulaMatch && dateMatch
     })
     setSearchResults(results)
@@ -160,10 +175,21 @@ export default function BusquedaPagos() {
                 <Button type="submit" className="md:col-span-3 bg-[#004976] text-white hover:bg-[#003357]">
                   <Search className="mr-2 h-4 w-4" /> Buscar Pagos
                 </Button>
+                <Button 
+                  type="button" 
+                  onClick={() => setSearchResults(allPayments)} 
+                  className="md:col-span-3 mt-2 bg-gray-500 text-white hover:bg-gray-600"
+                >
+                  Resetear Búsqueda
+                </Button>
               </form>
 
               {/* Search Results */}
-              {searchResults.length > 0 && (
+              {isLoading ? (
+                <p className="text-center">Cargando pagos...</p>
+              ) : error ? (
+                <p className="text-center text-red-500">{error}</p>
+              ) : searchResults.length > 0 ? (
                 <div className="overflow-x-auto">
                   <Table>
                     <TableHeader>
@@ -171,26 +197,28 @@ export default function BusquedaPagos() {
                         <TableHead>Fecha del Pago</TableHead>
                         <TableHead>Banco</TableHead>
                         <TableHead>Número de Referencia</TableHead>
-                        <TableHead>Cédula</TableHead>
+                        <TableHead>Cédula del Responsable</TableHead>
                         <TableHead className="text-right">Monto</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {searchResults.map((payment) => (
-                        <TableRow key={payment.id}>
-                          <TableCell>{new Date(payment.date).toLocaleDateString('es-VE')}</TableCell>
-                          <TableCell>{payment.bank}</TableCell>
-                          <TableCell>{payment.reference}</TableCell>
-                          <TableCell>{payment.cedula}</TableCell>
-                          <TableCell className="text-right">{payment.amount.toFixed(2)} Bs.</TableCell>
+                        <TableRow key={payment.numero_referencia}>
+                          <TableCell>{payment.fecha_pago ? new Date(payment.fecha_pago).toLocaleDateString('es-VE') : 'N/A'}</TableCell>
+                          <TableCell>{payment.banco_pago || 'N/A'}</TableCell>
+                          <TableCell>{payment.numero_referencia || 'N/A'}</TableCell>
+                          <TableCell>{payment.cedula_responsable || 'N/A'}</TableCell>
+                          <TableCell className="text-right">
+                            {payment.monto_pago !== undefined && payment.monto_pago !== null
+                              ? `${Number(payment.monto_pago).toFixed(2)} Bs.`
+                              : 'N/A'}
+                          </TableCell>
                         </TableRow>
                       ))}
                     </TableBody>
                   </Table>
                 </div>
-              )}
-
-              {searchResults.length === 0 && (
+              ) : (
                 <p className="text-center text-gray-500 mt-4">No se encontraron resultados.</p>
               )}
             </CardContent>
