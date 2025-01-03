@@ -7,19 +7,35 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Home, UserPlus, GraduationCap, ClipboardList, CreditCard, FileText } from 'lucide-react';
-
-// Simulated payment data with dates
-const payments = [
-  { id: 1, bank: "Banco de Venezuela", reference: "REF123456", cedula: "V-12345678", amount: 150.00, date: "2023-06-15" },
-  { id: 2, bank: "Banesco", reference: "REF234567", cedula: "V-23456789", amount: 200.50, date: "2023-06-14" },
-  { id: 3, bank: "Mercantil", reference: "REF345678", cedula: "E-34567890", amount: 175.25, date: "2023-06-13" },
-  { id: 4, bank: "Provincial", reference: "REF456789", cedula: "V-45678901", amount: 300.00, date: "2023-06-12" },
-  { id: 5, bank: "Banco del Tesoro", reference: "REF567890", cedula: "E-56789012", amount: 125.75, date: "2023-06-11" },
-  // ... add more simulated payments up to 25
-];
+import { useEffect, useState } from "react";
 
 export default function ControlPagos() {
-  const router = useRouter()
+  const router = useRouter();
+  const [payments, setPayments] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchPayments = async () => {
+      try {
+        const response = await fetch('http://127.0.0.1:8000/api/pagos/');
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        console.log('Estructura de datos recibidos:', JSON.stringify(data, null, 2));
+        console.log('Primer pago:', data[0]);
+        setPayments(data);
+      } catch (err) {
+        setError(`Error al cargar los pagos: ${err.message}`);
+        console.error('Error fetching payments:', err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchPayments();
+  }, []);
 
   const menuItems = [
     { title: "Inicio", icon: Home, href: "/home-admin" },
@@ -29,6 +45,8 @@ export default function ControlPagos() {
     { title: "Control de Pagos", icon: CreditCard, href: "/control-pagos" },
     { title: "Solicitudes Estudiantiles", icon: FileText, href: "/solicitudes-estudiantiles" },
   ];
+
+  console.log('Estado actual de payments:', payments);
 
   return (
     <div className="min-h-screen flex flex-col"> 
@@ -71,7 +89,7 @@ export default function ControlPagos() {
           <nav className="py-4">
             <ul className="space-y-1">
               {menuItems.map((item, index) => (
-                <li key={index}>
+                <li key={item.title}>
                   <Link 
                     href={item.href} 
                     className="flex items-center px-6 py-2 text-[#004976] gap-3"
@@ -89,31 +107,39 @@ export default function ControlPagos() {
         <main className="flex-1 p-6">
           <Card className="mx-auto bg-[#FFEFD5]">
             <CardContent className="p-6">
-              <h2 className="text-2xl font-bold text-[#004976] mb-6 text-center">Últimos 25 Pagos Ingresados</h2>
-              <div className="overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Fecha del Pago</TableHead>
-                      <TableHead>Banco</TableHead>
-                      <TableHead>Número de Referencia</TableHead>
-                      <TableHead>Cédula</TableHead>
-                      <TableHead className="text-right">Monto</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {payments.map((payment) => (
-                      <TableRow key={payment.id}>
-                        <TableCell>{new Date(payment.date).toLocaleDateString('es-VE')}</TableCell>
-                        <TableCell>{payment.bank}</TableCell>
-                        <TableCell>{payment.reference}</TableCell>
-                        <TableCell>{payment.cedula}</TableCell>
-                        <TableCell className="text-right">{payment.amount.toFixed(2)} Bs.</TableCell>
+              <h2 className="text-2xl font-bold text-[#004976] mb-6 text-center">Últimos Pagos Ingresados</h2>
+              {isLoading ? (
+                <p className="text-center">Cargando pagos...</p>
+              ) : error ? (
+                <p className="text-center text-red-500">{error}</p>
+              ) : (
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Fecha del Pago</TableHead>
+                        <TableHead>Banco</TableHead>
+                        <TableHead>Número de Referencia</TableHead>
+                        <TableHead>Cédula</TableHead>
+                        <TableHead className="text-right">Monto</TableHead>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
+                    </TableHeader>
+                    <TableBody>
+                      {payments.slice(0, 25).map((payment, index) => (
+                        <TableRow key={payment.numero_referencia || `payment-${index}`}>
+                          <TableCell>{payment.fecha_pago ? new Date(payment.fecha_pago).toLocaleDateString('es-VE') : 'N/A'}</TableCell>
+                          <TableCell>{payment.banco_pago || 'N/A'}</TableCell>
+                          <TableCell>{payment.numero_referencia || 'N/A'}</TableCell>
+                          <TableCell>{payment.cedula_responsable || 'N/A'}</TableCell>
+                          <TableCell className="text-right">
+                            {typeof payment.monto_pago === 'number' ? `${(payment.monto_pago / 100).toFixed(2)} Bs.` : 'N/A'}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              )}
             </CardContent>
           </Card>
         </main>
