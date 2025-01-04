@@ -13,6 +13,10 @@ import { useRouter } from "next/navigation";
 import { Home, UserPlus, GraduationCap, ClipboardList, CreditCard, FileText, Search } from 'lucide-react';
 
 export default function BusquedaPagos() {
+  /*
+    Variables de state que se usan en 
+    para filtrar los datos y gestión de los datos
+  */
   const router = useRouter()
   const [cedulaTipo, setCedulaTipo] = useState('V')
   const [cedulaNumero, setCedulaNumero] = useState('')
@@ -23,18 +27,44 @@ export default function BusquedaPagos() {
   const [error, setError] = useState(null);
   const [allPayments, setAllPayments] = useState([])
 
+  /*
+    Información del menú del lado izquierdo
+    con su respecto enlace. Si inica por una 'a-'
+    es que esas son vistas solo del administrador
+  */
   const menuItems = [
-    { title: "Inicio", icon: Home, href: "/home-admin" },
-    { title: "Registro de Usuarios Nuevos", icon: UserPlus, href: "/register-user" },
-    { title: "Registro de Estudiantes", icon: GraduationCap, href: "/register-student" },
-    { title: "Control de Notas", icon: ClipboardList, href: "/control-notas" },
-    { title: "Control de Pagos", icon: CreditCard, href: "/control-pagos" },
-    { title: "Solicitudes Estudiantiles", icon: FileText, href: "/solicitudes-estudiantiles" },
+    { title: "Inicio", icon: Home, href: "/a-home-admin" },
+    { title: "Registro de Usuarios Nuevos", icon: UserPlus, href: "/a-register-user" },
+    { title: "Registro de Estudiantes", icon: GraduationCap, href: "/a-register-student" },
+    { title: "Control de Notas", icon: ClipboardList, href: "/a-control-notas" },
+    { title: "Control de Pagos", icon: CreditCard, href: "/a-control-pagos" },
+    { title: "Solicitudes Estudiantiles", icon: FileText, href: "/a-solicitudes-estudiantiles" },
   ];
 
+
+  /*
+    Objetivo de este useEffect = en caso de no tener el token
+    de acceso redirige al usuario a /a-login-admin.
+  */
+  useEffect(() => {
+    const token = localStorage.getItem('token')
+    if (!token) {
+      router.push('/a-login-admin')
+    }
+  }, [router])
+  
+
+  /*
+    Obtiene los datos de la BDD mediante la API
+  */
   useEffect(() => {
     const fetchPayments = async () => {
       try {
+        /*
+          Se recuerda que para completo funcionamiento, activar
+          el django, si no, lanza error de que no se encuentra
+          la información solicitada
+        */
         const response = await fetch('http://127.0.0.1:8000/api/pagos/');
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
@@ -69,7 +99,8 @@ export default function BusquedaPagos() {
 
   return (
     <div className="min-h-screen flex flex-col"> 
-      {/* Header */}
+      {/* Encabezado (que reuse en casi 
+      todas las vistas del admin) */}
       <header className="bg-[#004976] text-white py-4">
         <div className="container mx-auto px-6 flex items-center">
           <div className="flex items-center gap-4">
@@ -103,7 +134,8 @@ export default function BusquedaPagos() {
       </header>
 
       <div className="flex flex-1">
-        {/* Sidebar */}
+        {/* Menú lado izquierdo (igual reusado
+        en casi todas las vistas, lol) */}
         <aside className="w-64 bg-[#e6f3ff]">
           <nav className="py-4">
             <ul className="space-y-1">
@@ -122,13 +154,13 @@ export default function BusquedaPagos() {
           </nav>
         </aside>
 
-        {/* Main Content */}
+        {/* body para buscar los pagos por cédula */}
         <main className="flex-1 p-6">
           <Card className="mx-auto bg-[#FFEFD5]">
             <CardContent className="p-6">
               <h2 className="text-2xl font-bold text-[#004976] mb-6 text-center">Búsqueda de Pagos</h2>
               
-              {/* Search Form */}
+              {/* método de busqueda */}
               <form onSubmit={handleSearch} className="mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <Label htmlFor="cedula">Cédula</Label>
@@ -149,7 +181,7 @@ export default function BusquedaPagos() {
                       id="cedula"
                       value={cedulaNumero}
                       onChange={(e) => setCedulaNumero(e.target.value)}
-                      placeholder="Ej: 12345678"
+                      placeholder="Ej: 1234567890"
                       className="flex-1 ml-2"
                     />
                   </div>
@@ -184,7 +216,7 @@ export default function BusquedaPagos() {
                 </Button>
               </form>
 
-              {/* Search Results */}
+              {/* resultados de la busqueda */}
               {isLoading ? (
                 <p className="text-center">Cargando pagos...</p>
               ) : error ? (
@@ -194,6 +226,7 @@ export default function BusquedaPagos() {
                   <Table>
                     <TableHeader>
                       <TableRow>
+                        {/* columnas de la tabla de pagos */}
                         <TableHead>Fecha del Pago</TableHead>
                         <TableHead>Banco</TableHead>
                         <TableHead>Número de Referencia</TableHead>
@@ -218,7 +251,7 @@ export default function BusquedaPagos() {
                     </TableBody>
                   </Table>
                 </div>
-              ) : (
+              ) : (/* caso en el que no coincidan datos con la busuqeda */
                 <p className="text-center text-gray-500 mt-4">No se encontraron resultados.</p>
               )}
             </CardContent>

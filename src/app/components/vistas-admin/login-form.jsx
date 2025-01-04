@@ -7,13 +7,16 @@ import { Label } from "@/components/ui/label";
 import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
 import { useRouter } from "next/navigation";
-import { login } from "../../utils/auth";
 import { Lock } from 'lucide-react';
 
 export default function LoginForm() {
-  const [email, setEmail] = useState("");
+  /* declaración de variables utilizadas en
+  el login del admin */
+  const [nationality, setNationality] = useState("V");
+  const [cedula, setCedula] = useState("");
   const [password, setPassword] = useState("");
   const [dateTime, setDateTime] = useState("");
+  const [error, setError] = useState("");
   const router = useRouter();
 
   useEffect(() => {
@@ -31,41 +34,67 @@ export default function LoginForm() {
 
   const postLogin = async () => {
     try {
-      const res = await fetch("http://localhost:8000/api/token/", {
-        method: "post",
+      const fullCedula = `${nationality}-${cedula}`;
+      /* recordatorio: método post es para obtener 
+      los datos del servidor (bdd), en este caso solicita
+      los datos de inicio de sesión, para iniciar sesión en el
+      login admin el tipo_usuario = 1, una vez confirmado eso,
+      manda los datos para ver si corresponden*/
+      const res = await fetch("http://localhost:8000/api/admin-login/", {
+        method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          username: email,
+          username: fullCedula,
           password: password,
         }),
       });
+      /* en caso de obtener una res (respuesta), dice que 
+      ocurrio un error*/
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || "Ha ocurrido un error durante la autenticación");
+      }
 
-      if (!res.ok) Promise.reject(res);
+      /* otro posible caso es que diga que reviso en la bdd
+      y diga: 'Usuario no encontrado o no es admin' esto es una
+      respuesta de la API*/
 
       const data = await res.json();
-      console.log({ data });
       localStorage.setItem("token", data.access);
+      document.cookie = `token=${data.access}; path=/; max-age=${60 * 60 * 24 * 7}`; // 7 days
+      return data;
     } catch (error) {
-      alert(error?.message || "A ocurrido un error");
-      throw new Error(error.message);
+      console.error(error);
+      setError(error.message || "Ha ocurrido un error durante la autenticación");
+      throw error;
     }
   };
 
+  /*
+    ya una vez autenticado el usuario, [que sea hace por 
+    el método de JWT que significa JSON Web Token, este proporciona
+    una clave para su correcto inicio de sesion (token)
+    
+    ya luego accede al /a-home-admin o a cualquier vista del admin
+    si conoce los links y en caso de cerrar sesión, el token se elimina
+    y si quiere acceder nuevamente, tiene que iniciar sesión
+  */
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
     try {
-      await login(email, password);
-      router.push("/home-admin");
+      await postLogin();
+      router.push("/a-home-admin");
     } catch (error) {
       console.error(error);
     }
   };
 
+  /* cuerpo del inicio de sesión */
   return (
     <div className="min-h-screen bg-white">
-      {/* Header */}
       <header className="bg-[#004976] border-b border-white/20 p-4">
         <div className="mx-auto flex max-w-7xl items-center justify-between">
           <div className="text-white">
@@ -82,7 +111,6 @@ export default function LoginForm() {
         </div>
       </header>
 
-      {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
         <Card className="mx-auto max-w-md bg-[#81D4FE]">
           <CardContent className="p-6">
@@ -94,22 +122,44 @@ export default function LoginForm() {
               </div>
             </div>
 
+            {error && (
+              <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+                <span className="block sm:inline">{error}</span>
+              </div>
+            )}
+            {/*el usuario debe de ingresar la cédula correspondiente al admin
+            y su contraseña, en caso de estar equivocado lanzará una advertencia
+            y se tiene el botón borrar para que elimine lo ingresado 
+            cedula y contraseña*/}
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2 text-[#0F3272]">
-                <Label htmlFor="cedula"><b>Usuario:</b></Label>
-                <Input
-                  id="cedula"
-                  name="email"
-                  type="number"
-                  min={0}
-                  inputMode="numeric"
-                  pattern="[0-9]*"
-                  autoComplete="on"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="border-[#004976]"
-                />
+                <Label htmlFor="cedula"><b>Usuario (Cédula):</b></Label>
+                <div className="flex gap-1">
+                  <select
+                    id="nationality"
+                    name="nationality"
+                    value={nationality}
+                    onChange={(e) => setNationality(e.target.value)}
+                    className="border-[#004976] w-16 p-2 text-center"
+                  >
+                    <option value="V">V-</option>
+                    <option value="E">E-</option>
+                  </select>
+
+                  <Input
+                    id="cedula"
+                    name="cedula"
+                    type="number"
+                    min={0}
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    autoComplete="on"
+                    required
+                    value={cedula}
+                    onChange={(e) => setCedula(e.target.value)}
+                    className="border-[#004976] flex-1"
+                  />
+                </div>
               </div>
 
               <div className="space-y-2 text-[#0F3272]">
@@ -138,8 +188,10 @@ export default function LoginForm() {
                   variant="destructive"
                   className="px-8"
                   onClick={() => {
-                    setEmail("");
+                    setCedula("");
                     setPassword("");
+                    setNationality("V");
+                    setError("");
                   }}
                 >
                   Cancelar

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect} from 'react'
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -12,17 +12,20 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Home, UserPlus, GraduationCap, ClipboardList, CreditCard, FileText, Search } from 'lucide-react';
 
-// Simulated student request data
+/*datos para practicar tienes que añadir la bdd*/
 const allStudentRequests = [
-  { id: 1, code: "SOL-001", date: "2023-06-15", cedula: "V-12345678", name: "Juan Pérez", type: "Constancia de Estudios", status: "Resuelta", attachment: "constancia_juan.pdf" },
-  { id: 2, code: "SOL-002", date: "2023-06-14", cedula: "V-23456789", name: "María González", type: "Cambio de Carrera", status: "En trámite", attachment: "solicitud_maria.pdf" },
-  { id: 3, code: "SOL-003", date: "2023-06-13", cedula: "E-34567890", name: "Carlos Rodríguez", type: "Reincorporación", status: "No resuelta", attachment: "reincorporacion_carlos.pdf" },
-  { id: 4, code: "SOL-004", date: "2023-06-12", cedula: "V-45678901", name: "Ana Martínez", type: "Constancia de Notas", status: "Resuelta", attachment: "notas_ana.pdf" },
-  { id: 5, code: "SOL-005", date: "2023-06-11", cedula: "E-56789012", name: "Luis Hernández", type: "Retiro de Materia", status: "En trámite", attachment: "retiro_luis.pdf" },
-  // ... add more simulated requests
+  { id: 1, code: "SOL-001", date: "2023-06-15", cedula: "V-12345678", name: "luis", type: "Constancia de Estudios", status: "Resuelta", attachment: "constancia_juan.pdf" },
+  { id: 2, code: "SOL-002", date: "2023-06-14", cedula: "V-23456789", name: "cheito", type: "Cambio de Carrera", status: "En trámite", attachment: "solicitud_maria.pdf" },
+  { id: 3, code: "SOL-003", date: "2023-06-13", cedula: "E-34567890", name: "claudiz", type: "Reincorporación", status: "No resuelta", attachment: "reincorporacion_carlos.pdf" },
+  { id: 4, code: "SOL-004", date: "2023-06-12", cedula: "V-45678901", name: "auidla", type: "Constancia de Notas", status: "Resuelta", attachment: "notas_ana.pdf" },
+  { id: 5, code: "SOL-005", date: "2023-06-11", cedula: "E-56789012", name: "rosaz", type: "Retiro de Materia", status: "En trámite", attachment: "retiro_luis.pdf" },
 ];
 
 export default function BuscarSolicitudes() {
+  /*
+    Variables de state que se usan en 
+    para filtrar los datos y gestión de los datos
+  */
   const router = useRouter()
   const [cedulaTipo, setCedulaTipo] = useState('V')
   const [cedulaNumero, setCedulaNumero] = useState('')
@@ -30,14 +33,25 @@ export default function BuscarSolicitudes() {
   const [fechaFin, setFechaFin] = useState('')
   const [searchResults, setSearchResults] = useState([])
 
+  /*menu del lado izquierdo con sus enlaces */
   const menuItems = [
-    { title: "Inicio", icon: Home, href: "/home-admin" },
-    { title: "Registro de Usuarios Nuevos", icon: UserPlus, href: "/register-user" },
-    { title: "Registro de Estudiantes", icon: GraduationCap, href: "/register-student" },
-    { title: "Control de Notas", icon: ClipboardList, href: "/control-notas" },
-    { title: "Control de Pagos", icon: CreditCard, href: "/control-pagos" },
-    { title: "Solicitudes Estudiantiles", icon: FileText, href: "/solicitudes-estudiantiles" },
+    { title: "Inicio", icon: Home, href: "/a-home-admin" },
+    { title: "Registro de Usuarios Nuevos", icon: UserPlus, href: "/a-register-user" },
+    { title: "Registro de Estudiantes", icon: GraduationCap, href: "/a-register-student" },
+    { title: "Control de Notas", icon: ClipboardList, href: "/a-control-notas" },
+    { title: "Control de Pagos", icon: CreditCard, href: "/a-control-pagos" },
+    { title: "Solicitudes Estudiantiles", icon: FileText, href: "/a-solicitudes-estudiantiles" },
   ];
+
+  /* si el usuario intenta acceder sin tener el token
+  que inicia como admi entonces lo redirige para que inicie sesion*/
+
+  useEffect(() => {
+    const token = localStorage.getItem('token')
+    if (!token) {
+      router.push('/a-login-admin')
+    }
+  }, [router])
 
   const handleSearch = (e) => {
     e.preventDefault()
@@ -54,7 +68,7 @@ export default function BuscarSolicitudes() {
 
   return (
     <div className="min-h-screen flex flex-col"> 
-      {/* Header */}
+      {/* encabezado, el mismo de los otros jsx */}
       <header className="bg-[#004976] text-white py-4">
         <div className="container mx-auto px-6 flex items-center">
           <div className="flex items-center gap-4">
@@ -88,7 +102,7 @@ export default function BuscarSolicitudes() {
       </header>
 
       <div className="flex flex-1">
-        {/* Sidebar */}
+        {/* menu izquierdo, el mismo de los otrs jsx */}
         <aside className="w-64 bg-[#e6f3ff]">
           <nav className="py-4">
             <ul className="space-y-1">
@@ -107,13 +121,14 @@ export default function BuscarSolicitudes() {
           </nav>
         </aside>
 
-        {/* Main Content */}
+        {/* contenido principal de la pag 
+        buscar solicitudes estudiantiles */}
         <main className="flex-1 p-6">
           <Card className="mx-auto bg-[#FFEFD5]">
             <CardContent className="p-6">
               <h2 className="text-2xl font-bold text-[#004976] mb-6 text-center">Búsqueda de Solicitudes Estudiantiles</h2>
               
-              {/* Search Form */}
+              {/* formulario para filtrar los datos */}
               <form onSubmit={handleSearch} className="mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <Label htmlFor="cedula">Cédula</Label>
@@ -162,12 +177,13 @@ export default function BuscarSolicitudes() {
                 </Button>
               </form>
 
-              {/* Search Results */}
+              {/* resultados de la busqueda */}
               {searchResults.length > 0 && (
                 <div className="overflow-x-auto">
                   <Table>
                     <TableHeader>
                       <TableRow>
+                        {/*columnas de la tabla*/}
                         <TableHead>Código Solicitud</TableHead>
                         <TableHead>Fecha de Solicitud</TableHead>
                         <TableHead>Cédula del Estudiante</TableHead>
@@ -199,6 +215,7 @@ export default function BuscarSolicitudes() {
               )}
 
               {searchResults.length === 0 && (
+                /* en caso de no conseguir datos dice que no se encontro nada xd*/
                 <p className="text-center text-gray-500 mt-4">No se encontraron resultados.</p>
               )}
             </CardContent>

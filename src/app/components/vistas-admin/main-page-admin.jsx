@@ -1,5 +1,6 @@
 'use client'
 
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import Image from "next/image";
@@ -8,20 +9,40 @@ import { useRouter } from "next/navigation";
 import { Home, UserPlus, GraduationCap, ClipboardList, CreditCard, FileText } from 'lucide-react';
 
 export default function MainPage() {
-  const router = useRouter()
+  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(true);
 
+  /* Esta función se ejecuta cada vez que se recarga la página
+  para verificar si hay un token en el localStorage. Si no hay,
+  se redirecciona a la página de login de administradores */
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      router.push("/a-login-admin");
+    } else {
+      setIsLoading(false);
+    }
+  }, [router]);
+
+  /* elementos del menú de la izquierda con 
+  su respectivo enlace de ingreso. se recuerda
+  que si inicia por a- es del admin*/
   const menuItems = [
-    { title: "Inicio", icon: Home, href: "/home-admin" },
-    { title: "Registro de Usuarios Nuevos", icon: UserPlus, href: "/register-user" },
-    { title: "Registro de Estudiantes", icon: GraduationCap, href: "/register-student" },
-    { title: "Control de Notas", icon: ClipboardList, href: "/control-notas" },
-    { title: "Control de Pagos", icon: CreditCard, href: "/control-pagos" },
-    { title: "Solicitudes Estudiantiles", icon: FileText, href: "/solicitudes-estudiantiles" },
+    { title: "Inicio", icon: Home, href: "/a-home-admin" },
+    { title: "Registro de Usuarios Nuevos", icon: UserPlus, href: "/a-register-user" },
+    { title: "Registro de Estudiantes", icon: GraduationCap, href: "/a-register-student" },
+    { title: "Control de Notas", icon: ClipboardList, href: "/a-control-notas" },
+    { title: "Control de Pagos", icon: CreditCard, href: "/a-control-pagos" },
+    { title: "Solicitudes Estudiantiles", icon: FileText, href: "/a-solicitudes-estudiantiles" },
   ];
+
+  if (isLoading) {
+    return <div className="min-h-screen flex items-center justify-center">Cargando...</div>;
+  }
 
   return (
     <div className="min-h-screen flex flex-col">
-      {/* Header */}
+      {/* encabezado */}
       <header className="bg-[#004976] text-white py-4">
         <div className="container mx-auto px-6 flex items-center">
           <div className="flex items-center gap-4">
@@ -43,8 +64,7 @@ export default function MainPage() {
               className="bg-[#FFD580] text-black hover:bg-[#FFD580] hover:text-black"
               onClick={() => {
                 localStorage.removeItem("token");
-                localStorage.removeItem("accessToken");
-                localStorage.removeItem("refreshToken");
+                document.cookie = "token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT";
                 router.push("/home-all");
               }}
             >
@@ -55,7 +75,7 @@ export default function MainPage() {
       </header>
 
       <div className="flex flex-1">
-        {/* Sidebar */}
+        {/* menu con los items de arriba */}
         <aside className="w-64 bg-[#e6f3ff]">
           <nav className="py-4">
             <ul className="space-y-1">
@@ -74,7 +94,8 @@ export default function MainPage() {
           </nav>
         </aside>
 
-        {/* Main Content */}
+        {/* presentación al admi de su
+        página principal */}
         <main className="flex-1 p-6">
           <Card className="max-w-3xl mx-auto bg-[#FFEFD5]">
             <CardContent className="p-6 text-center">

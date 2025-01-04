@@ -5,28 +5,36 @@ import { Card, CardContent } from "@/components/ui/card";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useState, useEffect } from 'react'
 import { Home, UserPlus, GraduationCap, ClipboardList, CreditCard, FileText } from 'lucide-react';
 
 export default function ControlNotas() {
   const router = useRouter()
 
   const menuItems = [
-    { title: "Inicio", icon: Home, href: "/home-admin" },
-    { title: "Registro de Usuarios Nuevos", icon: UserPlus, href: "/register-user" },
-    { title: "Registro de Estudiantes", icon: GraduationCap, href: "/register-student" },
-    { title: "Control de Notas", icon: ClipboardList, href: "/control-notas" },
-    { title: "Control de Pagos", icon: CreditCard, href: "/control-pagos" },
+    { title: "Inicio", icon: Home, href: "/a-home-admin" },
+    { title: "Registro de Usuarios Nuevos", icon: UserPlus, href: "/a-register-user" },
+    { title: "Registro de Estudiantes", icon: GraduationCap, href: "/a-register-student" },
+    { title: "Control de Notas", icon: ClipboardList, href: "/a-control-notas" },
+    { title: "Control de Pagos", icon: CreditCard, href: "/a-control-pagos" },
     { title: "Solicitudes Estudiantiles", icon: FileText, href: "/solicitudes-estudiantiles" },
   ];
 
+  useEffect(() => {
+    const token = localStorage.getItem('token')
+    if (!token) {
+      router.push('/a-login-admin')
+    }
+  }, [router])
+
   const notasOptions = [
-    { title: "Generar Reporte de Solicitudes Estudiantiles", description: "Generar un reporte de las últimas solicitudes estudiantiles ingresadas", href: "/reporte-solicitudes-estudiantiles" },
-    { title: "Buscar Solicitudes por Cédula", description: "Buscar las solicitudes estudiantiles realizados por un estudiante usando su número de cédula en un período de tiempo.", href: "/buscar-solicitudes-estudiantiles" },
+    { title: "Generar Reporte de Solicitudes Estudiantiles", description: "Generar un reporte de las últimas solicitudes estudiantiles ingresadas", href: "/a-reporte-solicitudes-estudiantiles" },
+    { title: "Buscar Solicitudes por Cédula", description: "Buscar las solicitudes estudiantiles realizados por un estudiante usando su número de cédula en un período de tiempo.", href: "/a-buscar-solicitudes-estudiantiles" },
   ];
 
   return (
     <div className="min-h-screen flex flex-col">
-      {/* Header */}
+      {/* encabezado de la pagina */}
       <header className="bg-[#004976] text-white py-4">
         <div className="container mx-auto px-6 flex items-center">
           <div className="flex items-center gap-4">
@@ -60,7 +68,7 @@ export default function ControlNotas() {
       </header>
 
       <div className="flex flex-1">
-        {/* Sidebar */}
+        {/* menu izquierdo de la pag*/ }
         <aside className="w-64 bg-[#e6f3ff]">
           <nav className="py-4">
             <ul className="space-y-1">
@@ -79,7 +87,7 @@ export default function ControlNotas() {
           </nav>
         </aside>
 
-        {/* Main Content */}
+        {/* cuerpo principal de la pag */ }
         <main className="flex-1 p-6">
           <Card className="max-w-3xl mx-auto bg-[#FFEFD5]">
             <CardContent className="p-6">

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { format } from 'date-fns'
 import { Button } from "@/components/ui/button"
@@ -9,27 +9,30 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Calendar } from "@/components/ui/calendar"
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover"
+import { Popover,  PopoverContent,  PopoverTrigger, } from "@/components/ui/popover"
 import Image from "next/image"
 import Link from "next/link"
 import { Home, UserPlus, GraduationCap, ClipboardList, CreditCard, FileText, CalendarIcon } from 'lucide-react'
 
+/* opciones de maestria posible*/
 const MAESTRIA_OPTIONS = {
   GG: 'Cs Administrativas / Gerencia General (GG)',
   FI: 'Cs Administrativas / Finanzas (FI)',
   RRHH: 'Cs Administrativas / Gerencia de Recursos Humanos (RRHH)' 
 }
 
+/* opciones de sede posible */
 const SEDE_OPTIONS = {
   barcelona: 'Barcelona',
   cantaura: 'Cantaura'
 }
 
+/* se le coloca el const para que no sean modificadas despues
+ambas vars [MAESTRIA_OPTIONS] y [SEDE_OPTIONS] se utilizan
+posteriormente para la generación del código del cohorte*/
+
 export default function CreacionDecohorte() {
+  /* Variables de estado utilizadas en el código */
   const router = useRouter()
   const [startDate, setStartDate] = useState(null)
   const [endDate, setEndDate] = useState(null)
@@ -38,37 +41,53 @@ export default function CreacionDecohorte() {
   const [codigo, setCodigo] = useState('')
 
   const menuItems = [
-    { title: "Inicio", icon: Home, href: "/home-admin" },
-    { title: "Registro de Usuarios Nuevos", icon: UserPlus, href: "/register-user" },
-    { title: "Registro de Estudiantes", icon: GraduationCap, href: "/register-student" },
-    { title: "Control de Notas", icon: ClipboardList, href: "/control-notas" },
-    { title: "Control de Pagos", icon: CreditCard, href: "/control-pagos" },
-    { title: "Solicitudes Estudiantiles", icon: FileText, href: "/solicitudes-estudiantiles" },
+    { title: "Inicio", icon: Home, href: "/a-home-admin" },
+    { title: "Registro de Usuarios Nuevos", icon: UserPlus, href: "/a-register-user" },
+    { title: "Registro de Estudiantes", icon: GraduationCap, href: "/a-register-student" },
+    { title: "Control de Notas", icon: ClipboardList, href: "/a-control-notas" },
+    { title: "Control de Pagos", icon: CreditCard, href: "/a-control-pagos" },
+    { title: "Solicitudes Estudiantiles", icon: FileText, href: "/a-solicitudes-estudiantiles" },
   ];
 
+  /* Definición de la función generateCódigo
+  esta con el objetivo que de acuerdo a lo escogido por el
+  usuario se cree un identificador único por cohorte.
+  Se recuerda que se debe de verificar en la BDD si existe
+  una con el mismo código*/
   const generateCodigo = () => {
     if (!maestria || !sede || !startDate) return
 
     const sedeCode = sede === 'barcelona' ? 'I' : 'II'
     const year = startDate.getFullYear()
-    // Note: In a real application, you would check against existing codes in the database
-    // to determine if it should be 'A' or 'B'. For this example, we'll always use 'A'.
+    
     const section = 'A'
 
     setCodigo(`${maestria}${sedeCode}${section}-${year}`)
   }
 
+  /* Se utiliza para redirigir al usuario
+  en caso de no poseer token de acceso*/
+  useEffect(() => {
+    const token = localStorage.getItem('token')
+    if (!token) {
+      router.push('/a-login-admin')
+    }
+  }, [router])
+
+
+  /* recuerda en esta parte añadir la API para poder almacenar 
+  el código del cohorte en la BDD*/
   const handleSubmit = (e) => {
     e.preventDefault()
-    // Here you would typically send the data to your backend
+    
     console.log({ startDate, endDate, maestria, sede, codigo })
-    // After successful submission, redirect to the control-notas page
-    router.push('/control-notas')
+    
+    router.push('/a-control-notas')
   }
 
   return (
     <div className="min-h-screen flex flex-col">
-      {/* Header */}
+      {/* encabezado */}
       <header className="bg-[#004976] text-white py-4">
         <div className="container mx-auto px-6 flex items-center">
           <div className="flex items-center gap-4">
@@ -102,7 +121,7 @@ export default function CreacionDecohorte() {
       </header>
 
       <div className="flex flex-1">
-        {/* Sidebar */}
+        {/* menu de la izquierda */}
         <aside className="w-64 bg-[#e6f3ff]">
           <nav className="py-4">
             <ul className="space-y-1">
@@ -121,7 +140,10 @@ export default function CreacionDecohorte() {
           </nav>
         </aside>
 
-        {/* Main Content */}
+        {/* creación del cohorte, contenido
+        lo siguiente representa el formulario que de acuerdo
+        a los datos ingresados y pasados a la función generateCodigo
+        crea el código del cohorte */}
         <main className="flex-1 p-6">
           <Card className="max-w-3xl mx-auto bg-[#FFEFD5]">
             <CardContent className="p-6">

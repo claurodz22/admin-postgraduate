@@ -17,7 +17,7 @@ export default function Page() {
 
   return (
     <div className="min-h-screen flex flex-col bg-white">
-      {/* Header */}
+      {/* encabezado de la pagina */}
       <header className="bg-[#004976] px-4 py-4">
         <div className="mx-auto flex max-w-7xl items-center justify-between">
           <div className="flex items-center gap-4">
@@ -41,7 +41,7 @@ export default function Page() {
         </div>
       </header>
 
-      {/* Main Content */}
+      {/* cuerpo principal de la pag */ }
       <main className="flex-grow mx-auto max-w-7xl px-4 py-8">
         <div className="mb-8 rounded-lg bg-gray-100 p-4 text-center">
           <h2 className="text-2xl font-bold text-[#004976]">
@@ -76,7 +76,7 @@ export default function Page() {
               <ShieldCheck className="mb-4 h-12 w-12 text-[#004976]" />
               <h3 className="mb-4 text-xl font-bold text-[#004976]">Administración</h3>
               <Button asChild className="w-full bg-[#e85d04] hover:bg-[#dc5303]">
-                <Link href="/login-admin">Ingresar como Administrador</Link>
+                <Link href="/a-login-admin">Ingresar como Administrador</Link>
               </Button>
             </CardContent>
           </Card>
