@@ -1,5 +1,6 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import Image from "next/image";
@@ -11,16 +12,29 @@ export default function ControlNotas() {
   const router = useRouter()
 
   const menuItems = [
-    { title: "Inicio", icon: Home, href: "/home-admin" },
-    { title: "Registro de Usuarios Nuevos", icon: UserPlus, href: "/register-user" },
-    { title: "Registro de Estudiantes", icon: GraduationCap, href: "/register-student" },
-    { title: "Control de Notas", icon: ClipboardList, href: "/control-notas" },
-    { title: "Control de Pagos", icon: CreditCard, href: "/control-pagos" },
-    { title: "Solicitudes Estudiantiles", icon: FileText, href: "/solicitudes-estudiantiles" },
+    { title: "Inicio", icon: Home, href: "/a-home-admin" },
+    { title: "Registro de Usuarios Nuevos", icon: UserPlus, href: "/a-register-user" },
+    { title: "Registro de Estudiantes", icon: GraduationCap, href: "/a-register-student" },
+    { title: "Control de Notas", icon: ClipboardList, href: "/a-control-notas" },
+    { title: "Control de Pagos", icon: CreditCard, href: "/a-control-pagos" },
+    { title: "Solicitudes Estudiantiles", icon: FileText, href: "/a-solicitudes-estudiantiles" },
   ];
 
+  useEffect(() => {
+    const token = localStorage.getItem('token')
+    if (!token) {
+      router.push('/a-login-admin')
+    }
+  }, [router])
+
+  /*  
+    Opciones del control de notas. El admi puede crear, habilitar un cohorte, reporte de notas (el cual pudiera filtrar
+    los datos que se desean mostrar, y modificar notas)
+
+    De las opciones, la única que cuenta con frontend es 'Creación de chohorte'
+  */
   const notasOptions = [
-    { title: "Creación de cohorte", description: "El administrador crea un cohorte de acuerdo a los requerimientos", href: "/crear-cohorte" },
+    { title: "Creación de cohorte", description: "El administrador crea un cohorte de acuerdo a los requerimientos", href: "/a-crear-cohorte" },
     { title: "Habilitación de cohorte", description: "Habilitar o deshabilitar períodos de cohorte para ingreso de notas", href: "/habilitar-cohorte" },
     { title: "Reportes de Notas", description: "Generar reportes de notas por estudiante, asignatura o cohorte", href: "/reportes-notas" },
     { title: "Modificación de Notas", description: "Modificar notas existentes con autorización", href: "/modificar-notas" },
@@ -28,7 +42,7 @@ export default function ControlNotas() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      {/* Header */}
+      {/* encabezado */}
       <header className="bg-[#004976] text-white py-4">
         <div className="container mx-auto px-6 flex items-center">
           <div className="flex items-center gap-4">
@@ -62,7 +76,7 @@ export default function ControlNotas() {
       </header>
 
       <div className="flex flex-1">
-        {/* Sidebar */}
+        {/* menu de la izquierda */}
         <aside className="w-64 bg-[#e6f3ff]">
           <nav className="py-4">
             <ul className="space-y-1">
@@ -81,7 +95,7 @@ export default function ControlNotas() {
           </nav>
         </aside>
 
-        {/* Main Content */}
+        {/* contenido proncipal */}
         <main className="flex-1 p-6">
           <Card className="max-w-3xl mx-auto bg-[#FFEFD5]">
             <CardContent className="p-6">

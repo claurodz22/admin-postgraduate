@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -13,7 +13,13 @@ import { Home, UserPlus, GraduationCap, ClipboardList, CreditCard, FileText } fr
 
 export default function RegisterUser() {
   const router = useRouter()
-
+  
+  /* declaración de variables del formulario
+    todos inicializados en vacío a excepción de
+    la nacionalidad, estas variables se rellenan
+    en el formulario y posteriormente enviadas
+    a la bdd
+  */
   const [user, setUser] = useState({
     nombre: '',
     apellido: '',
@@ -26,6 +32,17 @@ export default function RegisterUser() {
   })
 
   const [passwordError, setPasswordError] = useState('')
+  const [formError, setFormError] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
+
+  /* redirige a la pagina de inicio
+  si el usuario no posee un tokem */
+  useEffect(() => {
+    const token = localStorage.getItem('token')
+    if (!token) {
+      router.push('/a-login-admin')
+    }
+  }, [router])
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -36,6 +53,11 @@ export default function RegisterUser() {
     setUser(prev => ({ ...prev, tipoUsuario: value }))
   }
 
+  /*
+    Definición de función validatePassword, esta
+    con el objetivo de que cumpla con los 
+    parametros de seguridad
+  */
   const validatePassword = (password) => {
     const minLength = 8;
     const hasUpperCase = /[A-Z]/.test(password);
@@ -45,8 +67,13 @@ export default function RegisterUser() {
     return password.length >= minLength && hasUpperCase && hasLowerCase && hasNumbers && hasNonalphas;
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
+
+    /*
+      Utilizado para verificar que la
+      contraseña sea la misma
+    */
     if (user.password !== user.confirmPassword) {
       setPasswordError('Las contraseñas no coinciden')
       return
@@ -55,40 +82,94 @@ export default function RegisterUser() {
       setPasswordError('La contraseña no cumple con los requisitos')
       return
     }
-    // Aquí iría la lógica para guardar el usuario en la base de datos
-    const fullCedula = `${user.cedulaTipo}${user.cedulaNumero}`
-    const userToSubmit = {
-      ...user,
-      cedula: fullCedula
-    }
-    console.log('Usuario guardado:', userToSubmit)
-    // Resetear el formulario después de guardar
-    setUser({
-      nombre: '',
-      apellido: '',
-      cedulaTipo: 'V-',
-      cedulaNumero: '',
-      correo: '',
-      tipoUsuario: '',
-      password: '',
-      confirmPassword: ''
-    })
+
     setPasswordError('')
-    alert('Usuario registrado con éxito!')
+    setFormError('')
+    /* concatenar la nacionalidad  con la cedula */
+    const fullCedula = `${user.cedulaTipo}${user.cedulaNumero}`
+
+
+    /* transformar el tipo de usuario a un valor numérico 
+    para la bdd esta parte es clave */
+    let tipoUsuarioValue;
+    switch (user.tipoUsuario) {
+      case 'administrativo':
+        tipoUsuarioValue = 1;
+        break;
+      case 'estudiante':
+        tipoUsuarioValue = 2;
+        break;
+      case 'profesor':
+        tipoUsuarioValue = 3;
+        break;
+      default:
+        tipoUsuarioValue = 2;
+        break;
+    }
+
+    const userToSubmit = {
+      nombre: user.nombre,
+      apellido: user.apellido,
+      cedula: fullCedula,
+      correo: user.correo,
+      tipo_usuario: tipoUsuarioValue,
+      contraseña: user.password
+    }
+
+    setIsLoading(true)
+
+    /*
+      luego con todos los datos se hace un post (envío/crear) datos
+      en la bdd
+    */
+
+    try {
+      const response = await fetch('http://127.0.0.1:8000/api/datosbasicos/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(userToSubmit),
+      })
+
+      const result = await response.json()
+
+      if (response.ok) {
+        setUser({
+          nombre: '',
+          apellido: '',
+          cedulaTipo: 'V-',
+          cedulaNumero: '',
+          correo: '',
+          tipoUsuario: '',
+          password: '',
+          confirmPassword: ''
+        })
+        alert('Usuario registrado con éxito!')
+        router.push("/a-home-admin")
+      } else {
+        setFormError(result.error || 'Ocurrió un error al registrar el usuario')
+      }
+    } catch (error) {
+      setFormError('Hubo un problema con la solicitud')
+    } finally {
+      setIsLoading(false)
+    }
   }
 
+  /* opcs del menu */
   const menuItems = [
-    { title: "Inicio", icon: Home, href: "/home-admin" },
-    { title: "Registro de Usuarios Nuevos", icon: UserPlus, href: "/register-user" },
-    { title: "Registro de Estudiantes", icon: GraduationCap, href: "/register-student" },
-    { title: "Control de Notas", icon: ClipboardList, href: "/control-notas" },
-    { title: "Control de Pagos", icon: CreditCard, href: "/control-pagos" },
-    { title: "Solicitudes Estudiantiles", icon: FileText, href: "/solicitudes-estudiantiles" },
+    { title: "Inicio", icon: Home, href: "/a-home-admin" },
+    { title: "Registro de Usuarios Nuevos", icon: UserPlus, href: "/a-register-user" },
+    { title: "Registro de Estudiantes", icon: GraduationCap, href: "/a-register-student" },
+    { title: "Control de Notas", icon: ClipboardList, href: "/a-control-notas" },
+    { title: "Control de Pagos", icon: CreditCard, href: "/a-control-pagos" },
+    { title: "Solicitudes Estudiantiles", icon: FileText, href: "/a-solicitudes-estudiantiles" },
   ];
 
   return (
     <div className="min-h-screen flex flex-col">
-      {/* Header */}
+      {/* encabezado */}
       <header className="bg-[#004976] text-white py-4">
         <div className="container mx-auto px-6 flex items-center">
           <div className="flex items-center gap-4">
@@ -122,7 +203,7 @@ export default function RegisterUser() {
       </header>
 
       <div className="flex flex-1">
-        {/* Sidebar */}
+        {/* menu izquierdo */}
         <aside className="w-64 bg-[#e6f3ff]">
           <nav className="py-4">
             <ul className="space-y-1">
@@ -141,7 +222,8 @@ export default function RegisterUser() {
           </nav>
         </aside>
 
-        {/* Main Content */}
+        {/* formulario para el registro de usuarios 
+        nuevos en la app web */}
         <main className="flex-1 p-6">
           <Card className="max-w-3xl mx-auto bg-[#FFEFD5]">
             <CardContent className="p-6">
@@ -174,7 +256,7 @@ export default function RegisterUser() {
                   <div className="flex">
                     <Select 
                       value={user.cedulaTipo} 
-                      onValueChange={(value) => setUser(prev => ({ ...prev, cedulaTipo: value }))}
+                      onValueChange={(value) => setUser(prev => ({ ...prev, cedulaTipo: value }))} 
                     >
                       <SelectTrigger className="w-[70px]">
                         <SelectValue placeholder="Tipo" />
@@ -215,9 +297,9 @@ export default function RegisterUser() {
                       <SelectValue placeholder="Seleccione un tipo de usuario" />
                     </SelectTrigger>
                     <SelectContent>
+                      <SelectItem value="administrativo">Administrador</SelectItem>
                       <SelectItem value="estudiante">Estudiante</SelectItem>
                       <SelectItem value="profesor">Profesor</SelectItem>
-                      <SelectItem value="administrativo">Administrativo</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -244,16 +326,21 @@ export default function RegisterUser() {
                   />
                 </div>
                 {passwordError && <p className="text-red-500">{passwordError}</p>}
+                {formError && <p className="text-red-500">{formError}</p>}
                 <p className="text-sm text-gray-500">
                   La contraseña debe tener al menos 8 caracteres, incluir mayúsculas, minúsculas, números y caracteres especiales.
                 </p>
                 <div className="flex justify-center mt-6">
                   <div className="flex items-center space-x-8">
                     <Button asChild variant="outline">
-                      <Link href="/home-admin">Atrás (Menú Principal)</Link>
+                      <Link href="/a-home-admin">Atrás (Menú Principal)</Link>
                     </Button>
-                    <Button type="submit" className="bg-[#004976] text-white hover:bg-[#003357]">
-                    <Link href="/home-admin">Registrar Usuario</Link>
+                    <Button
+                      type="submit"
+                      className="bg-[#004976] text-white hover:bg-[#003357]"
+                      disabled={isLoading}
+                    >
+                      {isLoading ? 'Registrando...' : 'Registrar Usuario'}
                     </Button>
                   </div>
                 </div>

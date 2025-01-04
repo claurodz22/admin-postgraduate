@@ -16,6 +16,13 @@ export default function ControlPagos() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    const token = localStorage.getItem('token')
+    if (!token) {
+      router.push('/a-login-admin')
+    }
+  }, [router])
+
+  useEffect(() => {
     const fetchPayments = async () => {
       try {
         const response = await fetch('http://127.0.0.1:8000/api/pagos/');
@@ -38,19 +45,19 @@ export default function ControlPagos() {
   }, []);
 
   const menuItems = [
-    { title: "Inicio", icon: Home, href: "/home-admin" },
-    { title: "Registro de Usuarios Nuevos", icon: UserPlus, href: "/register-user" },
-    { title: "Registro de Estudiantes", icon: GraduationCap, href: "/register-student" },
-    { title: "Control de Notas", icon: ClipboardList, href: "/control-notas" },
-    { title: "Control de Pagos", icon: CreditCard, href: "/control-pagos" },
-    { title: "Solicitudes Estudiantiles", icon: FileText, href: "/solicitudes-estudiantiles" },
+    { title: "Inicio", icon: Home, href: "/a-home-admin" },
+    { title: "Registro de Usuarios Nuevos", icon: UserPlus, href: "/a-register-user" },
+    { title: "Registro de Estudiantes", icon: GraduationCap, href: "/a-register-student" },
+    { title: "Control de Notas", icon: ClipboardList, href: "/a-control-notas" },
+    { title: "Control de Pagos", icon: CreditCard, href: "/a-control-pagos" },
+    { title: "Solicitudes Estudiantiles", icon: FileText, href: "/a-solicitudes-estudiantiles" },
   ];
 
   console.log('Estado actual de payments:', payments);
 
   return (
     <div className="min-h-screen flex flex-col"> 
-      {/* Header */}
+      {/* encabezado de la pagina */}
       <header className="bg-[#004976] text-white py-4">
         <div className="container mx-auto px-6 flex items-center">
           <div className="flex items-center gap-4">
@@ -84,7 +91,7 @@ export default function ControlPagos() {
       </header>
 
       <div className="flex flex-1">
-        {/* Sidebar */}
+        {/* menu izquierdo de la pag*/ }
         <aside className="w-64 bg-[#e6f3ff]">
           <nav className="py-4">
             <ul className="space-y-1">
@@ -103,7 +110,7 @@ export default function ControlPagos() {
           </nav>
         </aside>
 
-        {/* Main Content */}
+        {/* cuerpo principal de la pag */ }
         <main className="flex-1 p-6">
           <Card className="mx-auto bg-[#FFEFD5]">
             <CardContent className="p-6">
