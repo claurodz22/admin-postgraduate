@@ -9,18 +9,11 @@ import { useRouter } from "next/navigation";
 import { Home, UserPlus, GraduationCap, ClipboardList, CreditCard, FileText } from 'lucide-react';
 import { useState, useEffect } from 'react'
 
-// Simulated student request data
-const studentRequests = [
-  { id: 1, code: "SOL-001", date: "2023-06-15", cedula: "V-12345678", name: "Juan Pérez", type: "Constancia de Estudios", status: "Resuelta" },
-  { id: 2, code: "SOL-002", date: "2023-06-14", cedula: "V-23456789", name: "María González", type: "Cambio de Carrera", status: "En trámite" },
-  { id: 3, code: "SOL-003", date: "2023-06-13", cedula: "E-34567890", name: "Carlos Rodríguez", type: "Reincorporación", status: "No resuelta" },
-  { id: 4, code: "SOL-004", date: "2023-06-12", cedula: "V-45678901", name: "Ana Martínez", type: "Constancia de Notas", status: "Resuelta" },
-  { id: 5, code: "SOL-005", date: "2023-06-11", cedula: "E-56789012", name: "Luis Hernández", type: "Retiro de Materia", status: "En trámite" },
-  // ... add more simulated requests up to 25
-];
-
 export default function UltimasSolicitudes() {
   const router = useRouter()
+  const [studentRequests, setStudentRequests] = useState([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState(null)
 
   const menuItems = [
     { title: "Inicio", icon: Home, href: "/a-home-admin" },
@@ -38,9 +31,30 @@ export default function UltimasSolicitudes() {
     }
   }, [router])
 
+  useEffect(() => {
+    const fetchSolicitudes = async () => {
+      try {
+        const response = await fetch('http://127.0.0.1:8000/api/solicitudes/');
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        console.log('Estructura de datos recibidos:', JSON.stringify(data, null, 2));
+        console.log('Primer solicitud:', data[0]);
+        setStudentRequests(data);
+      } catch (err) {
+        setError(`Error al cargar las solicitudes: ${err.message || String(err)}`);
+        console.error('Error fetching solicitudes:', err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchSolicitudes();
+  }, []);
+
   return (
     <div className="min-h-screen flex flex-col"> 
-      {/* encabezado de la pagina */}
       <header className="bg-[#004976] text-white py-4">
         <div className="container mx-auto px-6 flex items-center">
           <div className="flex items-center gap-4">
@@ -74,7 +88,6 @@ export default function UltimasSolicitudes() {
       </header>
 
       <div className="flex flex-1">
-        {/* menu izquierdo de la pag*/ }
         <aside className="w-64 bg-[#e6f3ff]">
           <nav className="py-4">
             <ul className="space-y-1">
@@ -93,37 +106,44 @@ export default function UltimasSolicitudes() {
           </nav>
         </aside>
 
-        {/* cuerpo principal de la pag */ }
         <main className="flex-1 p-6">
           <Card className="mx-auto bg-[#FFEFD5]">
             <CardContent className="p-6">
               <h2 className="text-2xl font-bold text-[#004976] mb-6 text-center">Últimas 25 Solicitudes Estudiantiles</h2>
-              <div className="overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Código Solicitud</TableHead>
-                      <TableHead>Fecha de Solicitud</TableHead>
-                      <TableHead>Cédula del Estudiante</TableHead>
-                      <TableHead>Nombre del Estudiante</TableHead>
-                      <TableHead>Tipo de Solicitud</TableHead>
-                      <TableHead>Status de la Solicitud</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {studentRequests.map((request) => (
-                      <TableRow key={request.id}>
-                        <TableCell>{request.code}</TableCell>
-                        <TableCell>{new Date(request.date).toLocaleDateString('es-VE')}</TableCell>
-                        <TableCell>{request.cedula}</TableCell>
-                        <TableCell>{request.name}</TableCell>
-                        <TableCell>{request.type}</TableCell>
-                        <TableCell>{request.status}</TableCell>
+              {isLoading ? (
+                <p>Cargando solicitudes...</p>
+              ) : error ? (
+                <p className="text-red-500">{error}</p>
+              ) : (
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Código Solicitud</TableHead>
+                        <TableHead>Fecha Solicitud</TableHead>
+                        <TableHead>Cédula Responsable</TableHead>
+                        <TableHead>Nombre Estudiante</TableHead>
+                        <TableHead>Apellido Estudiante</TableHead>
+                        <TableHead>Status de Solicitud</TableHead>
+                        <TableHead>Tipo de Solicitud</TableHead>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
+                    </TableHeader>
+                    <TableBody>
+                      {studentRequests.slice(0, 25).map((request) => (
+                        <TableRow key={request.cod_solicitudes}>
+                          <TableCell>{request.cod_solicitudes}</TableCell>
+                          <TableCell>{request.fecha_solicitud ? new Date(request.fecha_solicitud).toLocaleDateString('es-VE') : 'N/A'}</TableCell>
+                          <TableCell>{request.cedula_responsable}</TableCell>
+                          <TableCell>{request.nombre_estudiante}</TableCell>
+                          <TableCell>{request.apellido_estudiante}</TableCell>
+                          <TableCell>{request.status_solicitud}</TableCell>
+                          <TableCell>{request.tipo_solicitud}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              )}
             </CardContent>
           </Card>
         </main>

@@ -230,6 +230,8 @@ export default function BusquedaPagos() {
                         <TableHead>Fecha del Pago</TableHead>
                         <TableHead>Banco</TableHead>
                         <TableHead>Número de Referencia</TableHead>
+                        <TableHead>Nombre Bachiller </TableHead>
+                        <TableHead>Apellido Bachiller </TableHead>
                         <TableHead>Cédula del Responsable</TableHead>
                         <TableHead className="text-right">Monto</TableHead>
                       </TableRow>
@@ -240,6 +242,10 @@ export default function BusquedaPagos() {
                           <TableCell>{payment.fecha_pago ? new Date(payment.fecha_pago).toLocaleDateString('es-VE') : 'N/A'}</TableCell>
                           <TableCell>{payment.banco_pago || 'N/A'}</TableCell>
                           <TableCell>{payment.numero_referencia || 'N/A'}</TableCell>
+                        
+                          <TableCell>{payment.nombre_estudiante  || 'N/A'}</TableCell>
+                          <TableCell>{payment.apellido_estudiante  || 'N/A'}</TableCell>
+
                           <TableCell>{payment.cedula_responsable || 'N/A'}</TableCell>
                           <TableCell className="text-right">
                             {payment.monto_pago !== undefined && payment.monto_pago !== null
