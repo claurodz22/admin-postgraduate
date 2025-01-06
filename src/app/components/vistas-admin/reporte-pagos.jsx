@@ -128,6 +128,8 @@ export default function ControlPagos() {
                         <TableHead>Banco</TableHead>
                         <TableHead>Número de Referencia</TableHead>
                         <TableHead>Cédula</TableHead>
+                        <TableHead>Nombre Estudiante</TableHead>
+                        <TableHead>Apellido Estudiante</TableHead>
                         <TableHead className="text-right">Monto</TableHead>
                       </TableRow>
                     </TableHeader>
@@ -138,8 +140,10 @@ export default function ControlPagos() {
                           <TableCell>{payment.banco_pago || 'N/A'}</TableCell>
                           <TableCell>{payment.numero_referencia || 'N/A'}</TableCell>
                           <TableCell>{payment.cedula_responsable || 'N/A'}</TableCell>
+                          <TableCell>{payment.nombre_estudiante || 'N/A'}</TableCell>
+                          <TableCell>{payment.apellido_estudiante || 'N/A'}</TableCell>
                           <TableCell className="text-right">
-                            {typeof payment.monto_pago === 'number' ? `${(payment.monto_pago / 100).toFixed(2)} Bs.` : 'N/A'}
+                            {typeof payment.monto_pago === 'number' ? `${(payment.monto_pago).toFixed(2)} Bs.` : 'N/A'}
                           </TableCell>
                         </TableRow>
                       ))}
