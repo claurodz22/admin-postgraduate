@@ -1,6 +1,5 @@
 'use client'
-
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -11,87 +10,110 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Home, UserPlus, GraduationCap, ClipboardList, CreditCard, FileText } from 'lucide-react';
 
-// Simulated function to fetch student data
-const fetchStudentData = async (cedula) => {
-  // In a real application, this would be an API call
-  await new Promise(resolve => setTimeout(resolve, 500)); // Simulate network delay
-  
-  // Dummy data for demonstration
-  const students = {
-    'V-12345678': { nombre: 'Juan Pérez', carrera: 'Ingeniería Informática', anio_ingreso: '2020' },
-    'V-87654321': { nombre: 'María González', carrera: 'Medicina', anio_ingreso: '2019' },
-  };
+const RegisterStudent = () => {
+  const router = useRouter();
 
-  return students[cedula] || null;
-};
-
-export default function RegisterStudent() {
-  const router = useRouter()
-
-  /*
-    variables para completar el registro 
-    de los estudiantes
-  */
   const [estudiante, setEstudiante] = useState({
-    cedula_estudiante: '',
-    nombre_estudiante: '',
+    nacionalidad: 'V',
+    cedula: '',
+    nombre_est: '',
+    apellido_est: '',
     carrera: '',
-    anio_ingreso: '',
-    estado: ''
-  })
+    año_ingreso: '',
+    estado_estudiante: '',
+    cod_maestria: ''
+  });
 
   const [isLoading, setIsLoading] = useState(false);
+  const [message, setMessage] = useState('');
 
   const handleChange = (e) => {
-    const { name, value } = e.target
-    setEstudiante(prev => ({ ...prev, [name]: value }))
-  }
+    const { name, value } = e.target;
+    setEstudiante(prev => ({ ...prev, [name]: value }));
+  };
 
-  const handleCedulaChange = async (e) => {
-    const cedula = e.target.value;
-    setEstudiante(prev => ({ ...prev, cedula_estudiante: cedula }));
+  const handleCedulaChange = async () => {
+    const cedula_completa = `${estudiante.nacionalidad}-${estudiante.cedula}`;
+    
+    setIsLoading(true);
+    setMessage('');
 
-    if (cedula.length >= 8) { // Assuming a minimum length for a valid cedula
-      setIsLoading(true);
-      try {
-        const studentData = await fetchStudentData(cedula);
-        if (studentData) {
-          setEstudiante(prev => ({
-            ...prev,
-            nombre_estudiante: studentData.nombre,
-            carrera: studentData.carrera,
-            anio_ingreso: studentData.anio_ingreso
-          }));
-        }
-      } catch (error) {
-        console.error('Error fetching student data:', error);
-      } finally {
-        setIsLoading(false);
+    try {
+      const response = await fetch('http://127.0.0.1:8000/api/obtenerdatos/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ cedula: cedula_completa }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setEstudiante(prev => ({
+          ...prev,
+          nombre_est: data.nombre,  // Corregido a 'nombre_est'
+          apellido_est: data.apellido,  // Corregido a 'apellido_est'
+        }));
+        setMessage('Estudiante encontrado. Puede actualizar los datos.');
+      } else {
+        const data = await response.json();
+        setMessage(`Estudiante no encontrado. ${data.message}`);
       }
+    } catch (error) {
+      setMessage('Error al realizar la búsqueda.');
+    } finally {
+      setIsLoading(false);
     }
-  }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setMessage('');
+    setIsLoading(true);
+
+    try {
+      const response = await fetch('http://127.0.0.1:8000/api/almacenarestudiante/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            cedula_estudiante: `${estudiante.nacionalidad}-${estudiante.cedula}`,
+            nombre_est: estudiante.nombre_est,
+            apellido_est: estudiante.apellido_est,
+            carrera: estudiante.carrera,
+            año_ingreso: estudiante.año_ingreso,
+            estado_estudiante: estudiante.estado_estudiante,  // Asegúrate de que esto sea correcto
+            cod_maestria: estudiante.cod_maestria
+        }),
+    });
+
+      if (!response.ok) {
+        throw new Error('Error al guardar el estudiante');
+      }
+
+      setMessage('Estudiante registrado/actualizado con éxito!');
+      setEstudiante({
+        nacionalidad: 'V',
+        cedula: '',
+        nombre_est: '',
+        apellido_est: '',
+        carrera: '',
+        año_ingreso: '',
+        estado_estudiante: '',
+        cod_maestria: ''
+      });
+    } catch (error) {
+      setMessage('Error al guardar el estudiante. Revise los datos');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const token = localStorage.getItem('token')
+    const token = localStorage.getItem('token');
     if (!token) {
-      router.push('/a-login-admin')
+      router.push('/a-login-admin');
     }
-  }, [router])
-
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    // Aquí iría la lógica para guardar el estudiante en la base de datos
-    console.log('Estudiante guardado:', estudiante)
-    // Resetear el formulario después de guardar
-    setEstudiante({
-      cedula_estudiante: '',
-      nombre_estudiante: '',
-      carrera: '',
-      anio_ingreso: '',
-      estado: ''
-    })
-    alert('Estudiante registrado con éxito!')
-  }
+  }, [router]);
 
   const menuItems = [
     { title: "Inicio", icon: Home, href: "/a-home-admin" },
@@ -104,7 +126,6 @@ export default function RegisterStudent() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      {/* encabezado de la pagina */}
       <header className="bg-[#004976] text-white py-4">
         <div className="container mx-auto px-6 flex items-center">
           <div className="flex items-center gap-4">
@@ -126,8 +147,6 @@ export default function RegisterStudent() {
               className="bg-[#FFD580] text-black hover:bg-[#FFD580] hover:text-black"
               onClick={() => {
                 localStorage.removeItem("token");
-                localStorage.removeItem("accessToken");
-                localStorage.removeItem("refreshToken");
                 router.push("/home-all");
               }}
             >
@@ -138,7 +157,6 @@ export default function RegisterStudent() {
       </header>
 
       <div className="flex flex-1">
-        {/* menu izquierdo de la pag*/ }
         <aside className="w-64 bg-[#e6f3ff]">
           <nav className="py-4">
             <ul className="space-y-1">
@@ -157,20 +175,18 @@ export default function RegisterStudent() {
           </nav>
         </aside>
 
-        {/* cuerpo principal de la pag */ }
         <main className="flex-1 p-6">
           <Card className="max-w-3xl mx-auto bg-[#FFEFD5]">
             <CardContent className="p-6">
-              <h2 className="text-2xl font-bold text-[#004976] mb-6 text-center">Registro de Estudiante</h2>
+              <h2 className="text-2xl font-bold text-[#004976] mb-6 text-center">Registro/Actualización de Estudiante</h2>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="cedula_estudiante">Cédula Estudiante</Label>
                     <div className="flex">
                       <Select 
-                        value={estudiante.cedula_estudiante.split('-')[0] || 'V'}
-                        onValueChange={(value) => setEstudiante(prev => ({ ...prev, cedula_estudiante: `${value}-${prev.cedula_estudiante.split('-')[1] || ''}` }))}
-                      >
+                        value={estudiante.nacionalidad}
+                        onValueChange={(value) => setEstudiante(prev => ({ ...prev, nacionalidad: value }))}>
                         <SelectTrigger className="w-[70px]">
                           <SelectValue placeholder="Tipo" />
                         </SelectTrigger>
@@ -180,11 +196,11 @@ export default function RegisterStudent() {
                         </SelectContent>
                       </Select>
                       <Input
-                        id="cedula_estudiante"
-                        name="cedula_estudiante"
+                        id="cedula"
+                        name="cedula"
                         type="text"
-                        value={estudiante.cedula_estudiante.split('-')[1] || ''}
-                        onChange={(e) => handleCedulaChange({ target: { value: `${estudiante.cedula_estudiante.split('-')[0]}-${e.target.value}` } })}
+                        value={estudiante.cedula}
+                        onChange={handleChange}
                         className="flex-1 ml-2"
                         required
                       />
@@ -194,7 +210,7 @@ export default function RegisterStudent() {
                     <Label htmlFor="buscar_estudiante">Buscar Estudiante</Label>
                     <Button 
                       type="button" 
-                      onClick={() => handleCedulaChange({ target: { value: estudiante.cedula_estudiante } })}
+                      onClick={handleCedulaChange}
                       disabled={isLoading}
                       className="w-full"
                     >
@@ -203,12 +219,23 @@ export default function RegisterStudent() {
                   </div>
                 </div>
                 <div>
-                  <Label htmlFor="nombre_estudiante">Nombre del Estudiante</Label>
+                  <Label htmlFor="nombre_est">Nombre del Estudiante</Label>
                   <Input
                     type="text"
-                    id="nombre_estudiante"
-                    name="nombre_estudiante"
-                    value={estudiante.nombre_estudiante}
+                    id="nombre_est"
+                    name="nombre_est"
+                    value={estudiante.nombre_est}  // Usar 'nombre_est'
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="apellido_est">Apellido del Estudiante</Label>
+                  <Input
+                    type="text"
+                    id="apellido_est"
+                    name="apellido_est"
+                    value={estudiante.apellido_est}  // Usar 'apellido_est'
                     onChange={handleChange}
                     required
                   />
@@ -225,12 +252,12 @@ export default function RegisterStudent() {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="anio_ingreso">Año de Ingreso</Label>
+                  <Label htmlFor="año_ingreso">Año de Ingreso</Label>
                   <Input
                     type="number"
-                    id="anio_ingreso"
-                    name="anio_ingreso"
-                    value={estudiante.anio_ingreso}
+                    id="año_ingreso"
+                    name="año_ingreso"
+                    value={estudiante.año_ingreso}
                     onChange={handleChange}
                     min="1900"
                     max={new Date().getFullYear()}
@@ -238,27 +265,46 @@ export default function RegisterStudent() {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="estado">Estado</Label>
-                  <Select name="estado" value={estudiante.estado} onValueChange={(value) => handleChange({ target: { name: 'estado', value } })}>
+                  <Label htmlFor="estado_estudiante">Estado</Label>
+                  <Select 
+                    name="estado_estudiante"  // Cambiado a 'estado_estudiante'
+                    value={estudiante.estado_estudiante} 
+                    onValueChange={(value) => handleChange({ target: { name: 'estado_estudiante', value } })}>
                     <SelectTrigger>
                       <SelectValue placeholder="Seleccione un estado" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="activo">Activo</SelectItem>
-                      <SelectItem value="inactivo">Inactivo</SelectItem>
+                      <SelectItem value="Activo">Activo</SelectItem>
+                      <SelectItem value="Inactivo">Inactivo</SelectItem>
                     </SelectContent>
                   </Select>
+
                 </div>
-                <div className="flex justify-center mt-6">
-                  <div className="flex items-center space-x-8">
-                    <Button asChild variant="outline">
-                      <Link href="/a-home-admin">Atrás (Menú Principal)</Link>
-                    </Button>
-                    <Button type="submit" className="bg-[#004976] text-white hover:bg-[#003357]">
-                      Guardar Estudiante
-                    </Button>
+                <div>
+                  <Label htmlFor="cod_maestria">Código de Maestría</Label>
+                  <Input
+                    type="text"
+                    id="cod_maestria"
+                    name="cod_maestria"
+                    value={estudiante.cod_maestria}
+                    onChange={handleChange}
+                  />
+                </div>
+                <div>
+                  <Button type="submit" className="w-full" disabled={isLoading}>
+                    {isLoading ? 'Guardando...' : 'Registrar/Actualizar Estudiante'}
+                  </Button>
+                </div>
+
+                {message && (
+                  <div className="text-center mt-4">
+                    {message.includes('Por favor, regístrese') ? (
+                      <Link href="/a-register-user" className="text-blue-500">Ir a Registro de Estudiante</Link>
+                    ) : (
+                      <p>{message}</p>
+                    )}
                   </div>
-                </div>
+                )}
               </form>
             </CardContent>
           </Card>
@@ -266,5 +312,6 @@ export default function RegisterStudent() {
       </div>
     </div>
   );
-}
+};
 
+export default RegisterStudent;
