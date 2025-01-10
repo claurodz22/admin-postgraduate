@@ -1,25 +1,19 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import Image from "next/image";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { Home, UserPlus, GraduationCap, ClipboardList, CreditCard, FileText } from 'lucide-react';
+import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import Image from "next/image"
+import Link from "next/link"
+import { useRouter } from "next/navigation"
+import { Home, UserPlus, GraduationCap, ClipboardList, CreditCard, FileText } from 'lucide-react'
 
 export default function RegisterUser() {
   const router = useRouter()
   
-  /* declaración de variables del formulario
-    todos inicializados en vacío a excepción de
-    la nacionalidad, estas variables se rellenan
-    en el formulario y posteriormente enviadas
-    a la bdd
-  */
   const [user, setUser] = useState({
     nombre: '',
     apellido: '',
@@ -34,9 +28,9 @@ export default function RegisterUser() {
   const [passwordError, setPasswordError] = useState('')
   const [formError, setFormError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const [userFound, setUserFound] = useState(false)
+  const [searchPerformed, setSearchPerformed] = useState(false)
 
-  /* redirige a la pagina de inicio
-  si el usuario no posee un tokem */
   useEffect(() => {
     const token = localStorage.getItem('token')
     if (!token) {
@@ -53,27 +47,63 @@ export default function RegisterUser() {
     setUser(prev => ({ ...prev, tipoUsuario: value }))
   }
 
-  /*
-    Definición de función validatePassword, esta
-    con el objetivo de que cumpla con los 
-    parametros de seguridad
-  */
+  const handleSearch = async () => {
+    setIsLoading(true);
+    setFormError('');
+    setUserFound(false);
+    setSearchPerformed(true);
+    // awaint es solo valido en funciones asynchronously
+    // if === true 
+    const fullCedula = `${user.cedulaTipo}${user.cedulaNumero}`;
+    try {
+      const response = await fetch('http://127.0.0.1:8000/api/datosbasicos/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ cedula: fullCedula }),
+      });
+
+      const result = await response.json();
+      console.log('API datos:', result);
+
+      if (response.ok && result.data) {
+        const userData = result.data;
+        setUser(prev => ({
+          ...prev,
+          nombre: userData.nombre || prev.nombre,
+          apellido: userData.apellido || prev.apellido,
+          correo: userData.correo || prev.correo,
+          password: userData.contraseña || prev.contraseña,
+          tipoUsuario: userData.tipo_usuario ? 
+            ['', 'administrativo', 'estudiante', 'profesor'][userData.tipo_usuario] : 
+            prev.tipoUsuario
+        }));
+        setUserFound(true);
+        setFormError(result.message || 'Usuario encontrado. Puede actualizar los datos.');
+      } else {
+        setFormError(result.message || 'Usuario no encontrado. Por favor, complete el registro.');
+      }
+    } catch (error) {
+      console.error('error (p1)', error);
+      setFormError('error (pto2).');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const validatePassword = (password) => {
-    const minLength = 8;
-    const hasUpperCase = /[A-Z]/.test(password);
-    const hasLowerCase = /[a-z]/.test(password);
-    const hasNumbers = /\d/.test(password);
-    const hasNonalphas = /\W/.test(password);
-    return password.length >= minLength && hasUpperCase && hasLowerCase && hasNumbers && hasNonalphas;
+    const minLength = 8
+    const hasUpperCase = /[A-Z]/.test(password)
+    const hasLowerCase = /[a-z]/.test(password)
+    const hasNumbers = /\d/.test(password)
+    const hasNonalphas = /\W/.test(password)
+    return password.length >= minLength && hasUpperCase && hasLowerCase && hasNumbers && hasNonalphas
   }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
 
-    /*
-      Utilizado para verificar que la
-      contraseña sea la misma
-    */
     if (user.password !== user.confirmPassword) {
       setPasswordError('Las contraseñas no coinciden')
       return
@@ -85,26 +115,23 @@ export default function RegisterUser() {
 
     setPasswordError('')
     setFormError('')
-    /* concatenar la nacionalidad  con la cedula */
+
     const fullCedula = `${user.cedulaTipo}${user.cedulaNumero}`
 
-
-    /* transformar el tipo de usuario a un valor numérico 
-    para la bdd esta parte es clave */
-    let tipoUsuarioValue;
+    let tipoUsuarioValue
     switch (user.tipoUsuario) {
       case 'administrativo':
-        tipoUsuarioValue = 1;
-        break;
+        tipoUsuarioValue = 1
+        break
       case 'estudiante':
-        tipoUsuarioValue = 2;
-        break;
+        tipoUsuarioValue = 2
+        break
       case 'profesor':
-        tipoUsuarioValue = 3;
-        break;
+        tipoUsuarioValue = 3
+        break
       default:
-        tipoUsuarioValue = 2;
-        break;
+        tipoUsuarioValue = 2
+        break
     }
 
     const userToSubmit = {
@@ -117,11 +144,6 @@ export default function RegisterUser() {
     }
 
     setIsLoading(true)
-
-    /*
-      luego con todos los datos se hace un post (envío/crear) datos
-      en la bdd
-    */
 
     try {
       const response = await fetch('http://127.0.0.1:8000/api/datosbasicos/', {
@@ -148,7 +170,7 @@ export default function RegisterUser() {
         alert('Usuario registrado con éxito!')
         router.push("/a-home-admin")
       } else {
-        setFormError(result.error || 'Ocurrió un error al registrar el usuario')
+        setFormError(result.message || 'Ocurrió un error al registrar el usuario')
       }
     } catch (error) {
       setFormError('Hubo un problema con la solicitud')
@@ -157,19 +179,17 @@ export default function RegisterUser() {
     }
   }
 
-  /* opcs del menu */
   const menuItems = [
     { title: "Inicio", icon: Home, href: "/a-home-admin" },
-    { title: "Registro de Usuarios Nuevos", icon: UserPlus, href: "/a-register-user" },
-    { title: "Registro de Estudiantes", icon: GraduationCap, href: "/a-register-student" },
+    { title: "Registro / Actualización de Usuarios ", icon: UserPlus, href: "/a-register-user" },
+    { title: "Registro / Actualización de Estudiantes ", icon: GraduationCap, href: "/a-register-student" },
     { title: "Control de Notas", icon: ClipboardList, href: "/a-control-notas" },
     { title: "Control de Pagos", icon: CreditCard, href: "/a-control-pagos" },
     { title: "Solicitudes Estudiantiles", icon: FileText, href: "/a-solicitudes-estudiantiles" },
-  ];
+  ]
 
   return (
     <div className="min-h-screen flex flex-col">
-      {/* encabezado */}
       <header className="bg-[#004976] text-white py-4">
         <div className="container mx-auto px-6 flex items-center">
           <div className="flex items-center gap-4">
@@ -190,10 +210,10 @@ export default function RegisterUser() {
               variant="secondary"
               className="bg-[#FFD580] text-black hover:bg-[#FFD580] hover:text-black"
               onClick={() => {
-                localStorage.removeItem("token");
-                localStorage.removeItem("accessToken");
-                localStorage.removeItem("refreshToken");
-                router.push("/home-all");
+                localStorage.removeItem("token")
+                localStorage.removeItem("accessToken")
+                localStorage.removeItem("refreshToken")
+                router.push("/home-all")
               }}
             >
               Cerrar Sesión
@@ -203,7 +223,6 @@ export default function RegisterUser() {
       </header>
 
       <div className="flex flex-1">
-        {/* menu izquierdo */}
         <aside className="w-64 bg-[#e6f3ff]">
           <nav className="py-4">
             <ul className="space-y-1">
@@ -213,7 +232,8 @@ export default function RegisterUser() {
                     href={item.href} 
                     className="flex items-center px-6 py-2 text-[#004976] gap-3"
                   >
-                    <item.icon className="h-5 w-5" />
+                    <item.icon className="h-5 w-5 shrink-0" />
+
                     <span>{item.title}</span>
                   </Link>
                 </li>
@@ -222,62 +242,80 @@ export default function RegisterUser() {
           </nav>
         </aside>
 
-        {/* formulario para el registro de usuarios 
-        nuevos en la app web */}
         <main className="flex-1 p-6">
           <Card className="max-w-3xl mx-auto bg-[#FFEFD5]">
             <CardContent className="p-6">
-              <h2 className="text-2xl font-bold text-[#004976] mb-6 text-center">Registro de Usuario</h2>
+              <h2 className="text-2xl font-bold text-[#004976] mb-6 text-center">Registro/Actualización de Usuario</h2>
+              
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="nombre">Nombre</Label>
-                    <Input
-                      id="nombre"
-                      name="nombre"
-                      value={user.nombre}
-                      onChange={handleChange}
-                      required
-                    />
+                    <Label htmlFor="cedula_estudiante">Cédula Estudiante</Label>
+                    <div className="flex">
+                      <Select 
+                        value={user.cedulaTipo} 
+                        onValueChange={(value) => setUser(prev => ({ ...prev, cedulaTipo: value }))}>
+                        <SelectTrigger className="w-[70px]">
+                          <SelectValue placeholder="Tipo" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="V-">V-</SelectItem>
+                          <SelectItem value="E-">E-</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <Input
+                        id="cedulaNumero"
+                        name="cedulaNumero"
+                        type="number"
+                        inputMode="numeric"
+                        pattern="[0-9]*"
+                        value={user.cedulaNumero}
+                        onChange={handleChange}
+                        className="flex-1 ml-2"
+                        required
+                      />
+                    </div>
                   </div>
                   <div>
-                    <Label htmlFor="apellido">Apellido</Label>
-                    <Input
-                      id="apellido"
-                      name="apellido"
-                      value={user.apellido}
-                      onChange={handleChange}
-                      required
-                    />
+                    <Label htmlFor="buscar_estudiante">Buscar Estudiante</Label>
+                    <Button 
+                      type="button" 
+                      onClick={handleSearch}
+                      disabled={isLoading}
+                      className="w-full"
+                    >
+                      {isLoading ? 'Buscando...' : 'Buscar'}
+                    </Button>
                   </div>
                 </div>
+
+                {searchPerformed && (
+                  <p className={`text-${userFound ? 'blue' : 'red'}-500 mt-2`}>
+                    {formError}
+                  </p>
+                )}
+
                 <div>
-                  <Label htmlFor="cedula">Cédula</Label>
-                  <div className="flex">
-                    <Select 
-                      value={user.cedulaTipo} 
-                      onValueChange={(value) => setUser(prev => ({ ...prev, cedulaTipo: value }))} 
-                    >
-                      <SelectTrigger className="w-[70px]">
-                        <SelectValue placeholder="Tipo" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="V-">V-</SelectItem>
-                        <SelectItem value="E-">E-</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <Input
-                      id="cedulaNumero"
-                      name="cedulaNumero"
-                      type="number"
-                      inputMode="numeric"
-                      pattern="[0-9]*"
-                      value={user.cedulaNumero}
-                      onChange={handleChange}
-                      required
-                      className="flex-1 ml-2"
-                    />
-                  </div>
+                  <Label htmlFor="nombre">Nombre</Label>
+                  <Input
+                    id="nombre"
+                    name="nombre"
+                    value={user.nombre}
+                    onChange={handleChange}
+                    required
+                    disabled={!searchPerformed}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="apellido">Apellido</Label>
+                  <Input
+                    id="apellido"
+                    name="apellido"
+                    value={user.apellido}
+                    onChange={handleChange}
+                    required
+                    disabled={!searchPerformed}
+                  />
                 </div>
                 <div>
                   <Label htmlFor="correo">Correo Electrónico</Label>
@@ -288,11 +326,16 @@ export default function RegisterUser() {
                     value={user.correo}
                     onChange={handleChange}
                     required
+                    disabled={!searchPerformed}
                   />
                 </div>
                 <div>
                   <Label htmlFor="tipoUsuario">Tipo de Usuario</Label>
-                  <Select onValueChange={handleSelectChange} value={user.tipoUsuario}>
+                  <Select 
+                    onValueChange={handleSelectChange} 
+                    value={user.tipoUsuario}
+                    disabled={!searchPerformed}
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Seleccione un tipo de usuario" />
                     </SelectTrigger>
@@ -312,6 +355,7 @@ export default function RegisterUser() {
                     value={user.password}
                     onChange={handleChange}
                     required
+                    disabled={!searchPerformed}
                   />
                 </div>
                 <div>
@@ -320,13 +364,13 @@ export default function RegisterUser() {
                     id="confirmPassword"
                     name="confirmPassword"
                     type="password"
-                    value={user.confirmPassword}
+                    value={user.password}
                     onChange={handleChange}
                     required
+                    disabled={!searchPerformed}
                   />
                 </div>
                 {passwordError && <p className="text-red-500">{passwordError}</p>}
-                {formError && <p className="text-red-500">{formError}</p>}
                 <p className="text-sm text-gray-500">
                   La contraseña debe tener al menos 8 caracteres, incluir mayúsculas, minúsculas, números y caracteres especiales.
                 </p>
@@ -338,7 +382,7 @@ export default function RegisterUser() {
                     <Button
                       type="submit"
                       className="bg-[#004976] text-white hover:bg-[#003357]"
-                      disabled={isLoading}
+                      disabled={isLoading || !searchPerformed}
                     >
                       {isLoading ? 'Registrando...' : 'Registrar Usuario'}
                     </Button>
@@ -350,6 +394,6 @@ export default function RegisterUser() {
         </main>
       </div>
     </div>
-  );
+  )
 }
 

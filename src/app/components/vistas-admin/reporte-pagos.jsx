@@ -46,8 +46,8 @@ export default function ControlPagos() {
 
   const menuItems = [
     { title: "Inicio", icon: Home, href: "/a-home-admin" },
-    { title: "Registro de Usuarios Nuevos", icon: UserPlus, href: "/a-register-user" },
-    { title: "Registro de Estudiantes", icon: GraduationCap, href: "/a-register-student" },
+    { title: "Registro / Actualización de Usuarios ", icon: UserPlus, href: "/a-register-user" },
+    { title: "Registro / Actualización de Estudiantes ", icon: GraduationCap, href: "/a-register-student" },
     { title: "Control de Notas", icon: ClipboardList, href: "/a-control-notas" },
     { title: "Control de Pagos", icon: CreditCard, href: "/a-control-pagos" },
     { title: "Solicitudes Estudiantiles", icon: FileText, href: "/a-solicitudes-estudiantiles" },
@@ -101,7 +101,8 @@ export default function ControlPagos() {
                     href={item.href} 
                     className="flex items-center px-6 py-2 text-[#004976] gap-3"
                   >
-                    <item.icon className="h-5 w-5" />
+                    <item.icon className="h-5 w-5 shrink-0" />
+
                     <span>{item.title}</span>
                   </Link>
                 </li>
