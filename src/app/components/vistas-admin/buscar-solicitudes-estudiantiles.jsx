@@ -14,41 +14,50 @@ import { Home, UserPlus, GraduationCap, ClipboardList, CreditCard, FileText, Sea
 
 export default function BuscarSolicitudes() {
   const router = useRouter()
-  const [cedulaTipo, setCedulaTipo] = useState('V')
+  // const = variable; valor actual [el  que esta en parentesis al
+  // final]; funccion para cambiar el valor
+  const [nacionalidad, setnacionalidad] = useState('V')
   const [cedulaNumero, setCedulaNumero] = useState('')
   const [fechaInicio, setFechaInicio] = useState('')
   const [fechaFin, setFechaFin] = useState('')
-  const [searchResults, setSearchResults] = useState([])
-  const [isLoading, setIsLoading] = useState(true)
+  const [buscarResul, setbuscarResul] = useState([]) // arreglo de resultados filtrados
+  
+  // para menejar estados de carga y errores
+  const [isLoading, setIsLoading] = useState(true)    
   const [error, setError] = useState(null)
-  const [allResults, setAllResults] = useState([])
+
+  const [allResults, setAllResults] = useState([])   // arreglos de resultados del servidor
 
   const menuItems = [
     { title: "Inicio", icon: Home, href: "/a-home-admin" },
-    { title: "Registro de Usuarios Nuevos", icon: UserPlus, href: "/a-register-user" },
-    { title: "Registro de Estudiantes", icon: GraduationCap, href: "/a-register-student" },
+    { title: "Registro / Actualización de Usuarios ", icon: UserPlus, href: "/a-register-user" },
+    { title: "Registro / Actualización de Estudiantes ", icon: GraduationCap, href: "/a-register-student" },
     { title: "Control de Notas", icon: ClipboardList, href: "/a-control-notas" },
     { title: "Control de Pagos", icon: CreditCard, href: "/a-control-pagos" },
     { title: "Solicitudes Estudiantiles", icon: FileText, href: "/a-solicitudes-estudiantiles" },
   ]
-
+  
+  // verificar si el usuario tiene un token de acceso
   useEffect(() => {
     const token = localStorage.getItem('token')
     if (!token) {
       router.push('/a-login-admin')
     }
   }, [router])
-
+  
+  // peticiones al servidor
   useEffect(() => {
+    // definicion de funcion fetchSolicitudes 
     const fetchSolicitudes = async () => {
       try {
-        const response = await fetch('http://127.0.0.1:8000/api/solicitudes/')
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`)
+        // definicion de variable info_obt_json de la api
+        const info_obt_json = await fetch('http://127.0.0.1:8000/api/solicitudes/')
+        if (!info_obt_json.ok) {
+          throw new Error(`HTTP error! status: ${info_obt_json.status}`)
         }
-        const data = await response.json()
-        setSearchResults(data)
-        setAllResults(data)
+        const info_obt_js = await info_obt_json.json()
+        setbuscarResul(info_obt_js)
+        setAllResults(info_obt_js)
       } catch (err) {
         setError(`Error al cargar las solicitudes: ${err.message || String(err)}`)
         console.error('Error fetching solicitudes:', err)
@@ -60,32 +69,44 @@ export default function BuscarSolicitudes() {
     fetchSolicitudes()
   }, [])
 
-  const handleSearch = (e) => {
+  
+  const buscarSoli = (e) => {
     e.preventDefault()
+
+    // trim es para eliminar espacios en blanco
     let searchCedula = cedulaNumero.trim()
     
-    // If the input starts with 'V-' or 'E-', remove it
+    // si la entrada inicia con 'V-' or 'E-', lo elimina
     if (searchCedula.startsWith('V-') || searchCedula.startsWith('E-')) {
       searchCedula = searchCedula.slice(2)
     }
     
-    const cedula = `${cedulaTipo}-${searchCedula}`
+    // concatena el tipo de cedula con el numero de la cedula
+    const cedula = `${nacionalidad}-${searchCedula}`
     
-    const filteredResults = allResults.filter(request => {
-      const cedulaMatch = searchCedula ? 
-        (request.cedula_responsable.includes(cedula) || 
-         request.cedula_responsable.includes(searchCedula)) : true
-      const dateMatch = (fechaInicio && fechaFin) ? 
-        (new Date(request.fecha_solicitud) >= new Date(fechaInicio) && 
-         new Date(request.fecha_solicitud) <= new Date(fechaFin)) : true
-      return cedulaMatch && dateMatch
+    // filter iteta en lista_solicitud [elementos del arreglo]
+    const filteredResults = allResults.filter(lista_solicitud => {
+      // verifica cedula
+      const cedulaMatch = cedula ? 
+        (lista_solicitud.cedula_responsable.includes(cedula) || 
+         lista_solicitud.cedula_responsable.includes(cedula)) : true
+      
+         // verifica rango de fechas
+      const periodoCoincide = (fechaInicio && fechaFin) ? 
+        (new Date(lista_solicitud.fecha_solicitud) >= new Date(fechaInicio) && 
+         new Date(lista_solicitud.fecha_solicitud) <= new Date(fechaFin)) : true
+      
+      return cedulaMatch && periodoCoincide
     })
-    setSearchResults(filteredResults)
+    
+    // renderizar = vuelve a representar
+    setbuscarResul(filteredResults)
   }
 
-  const handleResetSearch = () => {
-    setSearchResults(allResults)
-    setCedulaTipo('V')
+  // restablece filtros
+  const restablecer_results = () => {
+    setbuscarResul(allResults)
+    setnacionalidad('V')
     setCedulaNumero('')
     setFechaInicio('')
     setFechaFin('')
@@ -113,6 +134,8 @@ export default function BuscarSolicitudes() {
               variant="secondary"
               className="bg-[#FFD580] text-black hover:bg-[#FFD580] hover:text-black"
               onClick={() => {
+                // quitar acceso ya que se 
+                // esta cerrando sesión
                 localStorage.removeItem("token")
                 localStorage.removeItem("accessToken")
                 localStorage.removeItem("refreshToken")
@@ -128,14 +151,15 @@ export default function BuscarSolicitudes() {
       <div className="flex flex-1">
         <aside className="w-64 bg-[#e6f3ff]">
           <nav className="py-4">
-            <ul className="space-y-1">
-              {menuItems.map((item, index) => (
-                <li key={index}>
+            <ul className="space-y-1"> 
+              {menuItems.map((item, index) => ( // map itera en el arreglo menuItems
+                <li key={index}> 
                   <Link 
                     href={item.href} 
                     className="flex items-center px-6 py-2 text-[#004976] gap-3"
                   >
-                    <item.icon className="h-5 w-5" />
+                    <item.icon className="h-5 w-5 shrink-0" />
+
                     <span>{item.title}</span>
                   </Link>
                 </li>
@@ -149,15 +173,15 @@ export default function BuscarSolicitudes() {
             <CardContent className="p-6">
               <h2 className="text-2xl font-bold text-[#004976] mb-6 text-center">Búsqueda de Solicitudes Estudiantiles</h2>
               
-              <form onSubmit={handleSearch} className="mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+              <form onSubmit={buscarSoli} className="mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <Label htmlFor="cedula">Cédula</Label>
                   <div className="flex">
                     <Select 
-                      value={cedulaTipo} 
-                      onValueChange={setCedulaTipo}
+                      value={nacionalidad} 
+                      onValueChange={setnacionalidad}
                     >
-                      <SelectTrigger className="w-[70px]">
+                      <SelectTrigger className="w-[60px]">
                         <SelectValue placeholder="Tipo" />
                       </SelectTrigger>
                       <SelectContent>
@@ -169,7 +193,7 @@ export default function BuscarSolicitudes() {
                       id="cedula"
                       value={cedulaNumero}
                       onChange={(e) => setCedulaNumero(e.target.value)}
-                      placeholder="Ej: 12345678"
+                      placeholder="Ej: 012345678"
                       className="flex-1 ml-2"
                     />
                   </div>
@@ -197,7 +221,7 @@ export default function BuscarSolicitudes() {
                 </Button>
                 <Button 
                   type="button" 
-                  onClick={handleResetSearch}
+                  onClick={restablecer_results}
                   className="md:col-span-3 mt-2 bg-gray-500 text-white hover:bg-gray-600"
                 >
                   Resetear Búsqueda
@@ -208,7 +232,7 @@ export default function BuscarSolicitudes() {
                 <p className="text-center">Cargando solicitudes...</p>
               ) : error ? (
                 <p className="text-center text-red-500">{error}</p>
-              ) : searchResults.length > 0 ? (
+              ) : buscarResul.length > 0 ? (
                 <div className="overflow-x-auto">
                   <Table>
                     <TableHeader>
@@ -223,15 +247,20 @@ export default function BuscarSolicitudes() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {searchResults.map((request) => (
-                        <TableRow key={request.cod_solicitudes}>
-                          <TableCell>{request.cod_solicitudes}</TableCell>
-                          <TableCell>{request.fecha_solicitud ? new Date(request.fecha_solicitud).toLocaleDateString('es-VE') : 'N/A'}</TableCell>
-                          <TableCell>{request.cedula_responsable}</TableCell>
-                          <TableCell>{request.nombre_estudiante}</TableCell>
-                          <TableCell>{request.apellido_estudiante}</TableCell>
-                          <TableCell>{request.status_solicitud}</TableCell>
-                          <TableCell>{request.tipo_solicitud}</TableCell>
+                    {/*
+                      lista_solicitud es el arreglo y se hace referencia
+                      a la variable de acuerdo del json para evitar
+                      confusiones
+                    */}
+                      {buscarResul.map((lista_solicitud) => (
+                        <TableRow key={lista_solicitud.cod_solicitudes}>
+                          <TableCell>{lista_solicitud.cod_solicitudes}</TableCell>
+                          <TableCell>{lista_solicitud.fecha_solicitud ? new Date(lista_solicitud.fecha_solicitud).toLocaleDateString('es-VE') : 'N/A'}</TableCell>
+                          <TableCell>{lista_solicitud.cedula_responsable}</TableCell>
+                          <TableCell>{lista_solicitud.nombre_estudiante}</TableCell>
+                          <TableCell>{lista_solicitud.apellido_estudiante}</TableCell>
+                          <TableCell>{lista_solicitud.status_solicitud}</TableCell>
+                          <TableCell>{lista_solicitud.tipo_solicitud}</TableCell>
                         </TableRow>
                       ))}
                     </TableBody>

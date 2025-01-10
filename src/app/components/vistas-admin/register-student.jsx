@@ -1,5 +1,12 @@
 'use client'
+
+// importa react y los hooks (useState y useEffects) invocalos
+// en todas las vistas del jsx por si acaso
 import React, { useState, useEffect } from 'react';
+
+// estos son los componentes para navegar entre paginas, las tarjetas
+// poder insertar las listas desplegables, y botones y demas
+// todos estos se va guardando en la carpeta componentes
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -26,6 +33,7 @@ const RegisterStudent = () => {
 
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState('');
+  const [campo_activado, est_campo_activado] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -37,6 +45,7 @@ const RegisterStudent = () => {
     
     setIsLoading(true);
     setMessage('');
+    est_campo_activado(false);
 
     try {
       const response = await fetch('http://127.0.0.1:8000/api/obtenerdatos/', {
@@ -47,20 +56,28 @@ const RegisterStudent = () => {
         body: JSON.stringify({ cedula: cedula_completa }),
       });
 
+      const data = await response.json();
+
       if (response.ok) {
-        const data = await response.json();
         setEstudiante(prev => ({
           ...prev,
-          nombre_est: data.nombre,  // Corregido a 'nombre_est'
-          apellido_est: data.apellido,  // Corregido a 'apellido_est'
+          nombre_est: data.nombre || '',
+          apellido_est: data.apellido || '',
+          carrera: data.carrera || '',
+          año_ingreso: data.año_ingreso || '',
+          estado_estudiante: data.estado_estudiante || '',
+          cod_maestria: data.cod_maestria || ''
         }));
         setMessage('Estudiante encontrado. Puede actualizar los datos.');
+        est_campo_activado(true);
       } else {
-        const data = await response.json();
-        setMessage(`Estudiante no encontrado. ${data.message}`);
+        setMessage(data.message || 'Estudiante no encontrado.');
+        est_campo_activado(false);
       }
     } catch (error) {
+      console.error('Error al realizar la búsqueda:', error);
       setMessage('Error al realizar la búsqueda.');
+      est_campo_activado(false);
     } finally {
       setIsLoading(false);
     }
@@ -71,20 +88,22 @@ const RegisterStudent = () => {
     setMessage('');
     setIsLoading(true);
 
+    const userToSubmit = {
+      cedula_estudiante: `${estudiante.nacionalidad}-${estudiante.cedula}`,
+      nombre_est: estudiante.nombre_est,
+      apellido_est: estudiante.apellido_est,
+      carrera: estudiante.carrera,
+      año_ingreso: estudiante.año_ingreso,
+      estado_estudiante: estudiante.estado_estudiante,
+      cod_maestria: estudiante.cod_maestria
+    }
+
     try {
       const response = await fetch('http://127.0.0.1:8000/api/almacenarestudiante/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            cedula_estudiante: `${estudiante.nacionalidad}-${estudiante.cedula}`,
-            nombre_est: estudiante.nombre_est,
-            apellido_est: estudiante.apellido_est,
-            carrera: estudiante.carrera,
-            año_ingreso: estudiante.año_ingreso,
-            estado_estudiante: estudiante.estado_estudiante,  // Asegúrate de que esto sea correcto
-            cod_maestria: estudiante.cod_maestria
-        }),
-    });
+        body: JSON.stringify(userToSubmit),
+      });
 
       if (!response.ok) {
         throw new Error('Error al guardar el estudiante');
@@ -101,6 +120,7 @@ const RegisterStudent = () => {
         estado_estudiante: '',
         cod_maestria: ''
       });
+      est_campo_activado(false);
     } catch (error) {
       setMessage('Error al guardar el estudiante. Revise los datos');
     } finally {
@@ -117,8 +137,8 @@ const RegisterStudent = () => {
 
   const menuItems = [
     { title: "Inicio", icon: Home, href: "/a-home-admin" },
-    { title: "Registro de Usuarios Nuevos", icon: UserPlus, href: "/a-register-user" },
-    { title: "Registro de Estudiantes", icon: GraduationCap, href: "/a-register-student" },
+    { title: "Registro / Actualización de Usuarios ", icon: UserPlus, href: "/a-register-user" },
+    { title: "Registro / Actualización de Estudiantes ", icon: GraduationCap, href: "/a-register-student" },
     { title: "Control de Notas", icon: ClipboardList, href: "/a-control-notas" },
     { title: "Control de Pagos", icon: CreditCard, href: "/a-control-pagos" },
     { title: "Solicitudes Estudiantiles", icon: FileText, href: "/a-solicitudes-estudiantiles" },
@@ -166,7 +186,7 @@ const RegisterStudent = () => {
                     href={item.href} 
                     className="flex items-center px-6 py-2 text-[#004976] gap-3"
                   >
-                    <item.icon className="h-5 w-5" />
+                    <item.icon className="h-5 w-5 shrink-0" />
                     <span>{item.title}</span>
                   </Link>
                 </li>
@@ -218,15 +238,23 @@ const RegisterStudent = () => {
                     </Button>
                   </div>
                 </div>
+
+                {message && (
+                  <p className={`text-${message.includes('encontrado') ? 'blue' : 'red'}-500 mt-2`}>
+                    {message}
+                  </p>
+                )}
+
                 <div>
                   <Label htmlFor="nombre_est">Nombre del Estudiante</Label>
                   <Input
                     type="text"
                     id="nombre_est"
                     name="nombre_est"
-                    value={estudiante.nombre_est}  // Usar 'nombre_est'
+                    value={estudiante.nombre_est}
                     onChange={handleChange}
                     required
+                    disabled={true}
                   />
                 </div>
                 <div>
@@ -235,9 +263,10 @@ const RegisterStudent = () => {
                     type="text"
                     id="apellido_est"
                     name="apellido_est"
-                    value={estudiante.apellido_est}  // Usar 'apellido_est'
+                    value={estudiante.apellido_est}
                     onChange={handleChange}
                     required
+                    disabled={true}
                   />
                 </div>
                 <div>
@@ -249,6 +278,7 @@ const RegisterStudent = () => {
                     value={estudiante.carrera}
                     onChange={handleChange}
                     required
+                    disabled={!campo_activado}
                   />
                 </div>
                 <div>
@@ -262,14 +292,17 @@ const RegisterStudent = () => {
                     min="1900"
                     max={new Date().getFullYear()}
                     required
+                    disabled={!campo_activado}
                   />
                 </div>
                 <div>
                   <Label htmlFor="estado_estudiante">Estado</Label>
                   <Select 
-                    name="estado_estudiante"  // Cambiado a 'estado_estudiante'
+                    name="estado_estudiante"
                     value={estudiante.estado_estudiante} 
-                    onValueChange={(value) => handleChange({ target: { name: 'estado_estudiante', value } })}>
+                    onValueChange={(value) => handleChange({ target: { name: 'estado_estudiante', value } })}
+                    disabled={!campo_activado}
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Seleccione un estado" />
                     </SelectTrigger>
@@ -278,7 +311,6 @@ const RegisterStudent = () => {
                       <SelectItem value="Inactivo">Inactivo</SelectItem>
                     </SelectContent>
                   </Select>
-
                 </div>
                 <div>
                   <Label htmlFor="cod_maestria">Código de Maestría</Label>
@@ -288,23 +320,18 @@ const RegisterStudent = () => {
                     name="cod_maestria"
                     value={estudiante.cod_maestria}
                     onChange={handleChange}
+                    disabled={!campo_activado}
                   />
                 </div>
                 <div>
-                  <Button type="submit" className="w-full" disabled={isLoading}>
+                  <Button 
+                    type="submit" 
+                    className="w-full bg-[#004976] text-white hover:bg-[#003357]" 
+                    disabled={isLoading || !campo_activado}
+                  >
                     {isLoading ? 'Guardando...' : 'Registrar/Actualizar Estudiante'}
                   </Button>
                 </div>
-
-                {message && (
-                  <div className="text-center mt-4">
-                    {message.includes('Por favor, regístrese') ? (
-                      <Link href="/a-register-user" className="text-blue-500">Ir a Registro de Estudiante</Link>
-                    ) : (
-                      <p>{message}</p>
-                    )}
-                  </div>
-                )}
               </form>
             </CardContent>
           </Card>
