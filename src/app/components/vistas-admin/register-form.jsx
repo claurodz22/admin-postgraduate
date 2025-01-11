@@ -9,11 +9,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { Home, UserPlus, GraduationCap, ClipboardList, CreditCard, FileText } from 'lucide-react'
+import { Home, UserPlus, GraduationCap, ClipboardList, CreditCard, FileText, Lock, EyeIcon, EyeClosedIcon } from 'lucide-react'
 
 export default function RegisterUser() {
   const router = useRouter()
-  
+
   const [user, setUser] = useState({
     nombre: '',
     apellido: '',
@@ -30,6 +30,7 @@ export default function RegisterUser() {
   const [isLoading, setIsLoading] = useState(false)
   const [userFound, setUserFound] = useState(false)
   const [searchPerformed, setSearchPerformed] = useState(false)
+  const [showPassword, setShowPassword] = useState(false); // Nuevo estado para alternar la visibilidad de la contraseña
 
   useEffect(() => {
     const token = localStorage.getItem('token')
@@ -75,8 +76,8 @@ export default function RegisterUser() {
           apellido: userData.apellido || prev.apellido,
           correo: userData.correo || prev.correo,
           password: userData.contraseña || prev.contraseña,
-          tipoUsuario: userData.tipo_usuario ? 
-            ['', 'administrativo', 'estudiante', 'profesor'][userData.tipo_usuario] : 
+          tipoUsuario: userData.tipo_usuario ?
+            ['', 'administrativo', 'estudiante', 'profesor'][userData.tipo_usuario] :
             prev.tipoUsuario
         }));
         setUserFound(true);
@@ -228,8 +229,8 @@ export default function RegisterUser() {
             <ul className="space-y-1">
               {menuItems.map((item, index) => (
                 <li key={index}>
-                  <Link 
-                    href={item.href} 
+                  <Link
+                    href={item.href}
                     className="flex items-center px-6 py-2 text-[#004976] gap-3"
                   >
                     <item.icon className="h-5 w-5 shrink-0" />
@@ -246,14 +247,14 @@ export default function RegisterUser() {
           <Card className="max-w-3xl mx-auto bg-[#FFEFD5]">
             <CardContent className="p-6">
               <h2 className="text-2xl font-bold text-[#004976] mb-6 text-center">Registro/Actualización de Usuario</h2>
-              
+
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="cedula_estudiante">Cédula Estudiante</Label>
                     <div className="flex">
-                      <Select 
-                        value={user.cedulaTipo} 
+                      <Select
+                        value={user.cedulaTipo}
                         onValueChange={(value) => setUser(prev => ({ ...prev, cedulaTipo: value }))}>
                         <SelectTrigger className="w-[70px]">
                           <SelectValue placeholder="Tipo" />
@@ -278,8 +279,8 @@ export default function RegisterUser() {
                   </div>
                   <div>
                     <Label htmlFor="buscar_estudiante">Buscar Estudiante</Label>
-                    <Button 
-                      type="button" 
+                    <Button
+                      type="button"
                       onClick={handleSearch}
                       disabled={isLoading}
                       className="w-full"
@@ -331,8 +332,8 @@ export default function RegisterUser() {
                 </div>
                 <div>
                   <Label htmlFor="tipoUsuario">Tipo de Usuario</Label>
-                  <Select 
-                    onValueChange={handleSelectChange} 
+                  <Select
+                    onValueChange={handleSelectChange}
                     value={user.tipoUsuario}
                     disabled={!searchPerformed}
                   >
@@ -346,29 +347,58 @@ export default function RegisterUser() {
                     </SelectContent>
                   </Select>
                 </div>
-                <div>
-                  <Label htmlFor="password">Contraseña</Label>
-                  <Input
-                    id="password"
-                    name="password"
-                    type="password"
-                    value={user.password}
-                    onChange={handleChange}
-                    required
-                    disabled={!searchPerformed}
-                  />
+                <div style={{ display: 'flex' }}>
+                  <div
+                    style={{ width: '90%' }}
+                  >
+                    <Label htmlFor="password">Contraseña</Label>
+                    <Input
+
+                      id="password"
+                      name="password"
+                      type={showPassword ? "text" : "password"} // Cambia el tipo dinámicamente
+                      autoComplete="current-password"
+                      value={user.password}
+                      onChange={handleChange}
+                      required
+                    //disabled={!searchPerformed}
+                    />
+                  </div>
+                  <button
+                    style={{ height: '40px', marginTop: 'auto' }}
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="text-[#004976] p-2"
+                    aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                  >
+                    {!showPassword ? < EyeClosedIcon /> : <EyeIcon />}
+                  </button>
                 </div>
-                <div>
+                <div style = {{display:'flex'}}>
+                  <div
+                    style = {{ width: '90%'}}
+                    >
                   <Label htmlFor="confirmPassword">Confirmar Contraseña</Label>
                   <Input
                     id="confirmPassword"
                     name="confirmPassword"
-                    type="password"
-                    value={user.password}
+                    type={showPassword ? "text" : "password"} // Cambia el tipo dinámicamente
+                    autoComplete="current-password"
+                    //value={""}
                     onChange={handleChange}
                     required
                     disabled={!searchPerformed}
                   />
+                  </div>
+                  <button
+                    style={{ height: '40px', marginTop: 'auto' }}
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="text-[#004976] p-2"
+                    aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                  >
+                    {!showPassword ? < EyeClosedIcon /> : <EyeIcon />}
+                  </button>
                 </div>
                 {passwordError && <p className="text-red-500">{passwordError}</p>}
                 <p className="text-sm text-gray-500">

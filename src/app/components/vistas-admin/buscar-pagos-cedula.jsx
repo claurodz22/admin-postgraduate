@@ -89,7 +89,7 @@ export default function BusquedaPagos() {
     e.preventDefault()
     const cedula = `${cedulaTipo}-${cedulaNumero}`
     const results = allPayments.filter(payment => {
-      const cedulaMatch = cedulaNumero ? payment.cedula_responsable.includes(cedulaNumero) : true
+      const cedulaMatch = cedula ? payment.cedula_responsable.includes(cedula) : true
       const dateMatch = (fechaInicio && fechaFin) ? 
         (new Date(payment.fecha_pago) >= new Date(fechaInicio) && new Date(payment.fecha_pago) <= new Date(fechaFin)) : true
       return cedulaMatch && dateMatch

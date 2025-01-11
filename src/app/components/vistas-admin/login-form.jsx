@@ -7,7 +7,8 @@ import { Label } from "@/components/ui/label";
 import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
 import { useRouter } from "next/navigation";
-import { Lock } from 'lucide-react';
+import { Lock, EyeIcon, EyeClosedIcon } from 'lucide-react';
+
 
 export default function LoginForm() {
   /* declaración de variables utilizadas en
@@ -15,6 +16,7 @@ export default function LoginForm() {
   const [nationality, setNationality] = useState("V");
   const [cedula, setCedula] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false); // Nuevo estado para alternar la visibilidad de la contraseña
   const [dateTime, setDateTime] = useState("");
   const [error, setError] = useState("");
   const router = useRouter();
@@ -164,16 +166,27 @@ export default function LoginForm() {
 
               <div className="space-y-2 text-[#0F3272]">
                 <Label htmlFor="password"><b>Contraseña:</b></Label>
-                <Input
-                  id="password"
-                  name="password"
-                  type="password"
-                  autoComplete="current-password"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="border-[#004976]"
-                />
+                <div className="flex items-center gap-2">
+                  <Input
+                    id="password"
+                    name="password"
+                    type={showPassword ? "text" : "password"} // Cambia el tipo dinámicamente
+                    autoComplete="current-password"
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="border-[#004976] flex-1"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="text-[#004976] p-2"
+                    aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                  >
+                   
+                    {!showPassword ?< EyeClosedIcon  />: <EyeIcon />}
+                  </button>
+                </div>
               </div>
 
               <div className="flex gap-4 justify-center pt-4">
@@ -204,4 +217,3 @@ export default function LoginForm() {
     </div>
   );
 }
-
