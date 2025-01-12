@@ -86,11 +86,11 @@ export default function RegisterUser() {
         setFormError(result.message || 'Usuario no encontrado. Por favor, complete el registro.');
       }
     } catch (error) {
-      console.error('error (p1)', error);
-      setFormError('error (pto2).');
+      console.error('Error (p1):', error);  // Muestra el error completo en consola
+      setFormError(`Error: ${error.message || 'Algo salió mal'}.`);  // Muestra un mensaje más útil en el formulario
     } finally {
-      setIsLoading(false);
-    }
+      setIsLoading(false);  // Detiene el estado de carga independientemente de si hubo un error o no
+    }    
   };
 
   const validatePassword = (password) => {
