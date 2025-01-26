@@ -7,15 +7,13 @@ import { Label } from "@/components/ui/label"
 import Image from "next/image"
 import { Card, CardContent } from "@/components/ui/card"
 import { useRouter } from "next/navigation"
-import { Lock, EyeIcon, EyeIcon as EyeClosedIcon } from "lucide-react"
+import { Lock, EyeIcon, EyeOff } from "lucide-react"
 
 export default function LoginForm() {
-  /* declaración de variables utilizadas en
-  el login del admin */
   const [nationality, setNationality] = useState("V")
   const [cedula, setCedula] = useState("")
   const [password, setPassword] = useState("")
-  const [showPassword, setShowPassword] = useState(false) // Nuevo estado para alternar la visibilidad de la contraseña
+  const [showPassword, setShowPassword] = useState(false)
   const [dateTime, setDateTime] = useState("")
   const [error, setError] = useState("")
   const router = useRouter()
@@ -36,7 +34,7 @@ export default function LoginForm() {
   const postLogin = async () => {
     try {
       const fullCedula = `${nationality}-${cedula}`
-      const res = await fetch("http://localhost:8000/api/admin-login/", {
+      const res = await fetch("http://localhost:8000/api/admin-profe/", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -44,13 +42,12 @@ export default function LoginForm() {
         body: JSON.stringify({
           username: fullCedula,
           password: password,
-          role: "admin",
         }),
       })
 
       if (!res.ok) {
         const errorData = await res.json()
-        throw new Error(errorData.error || "Ha ocurrido un error durante la autenticación del administrador")
+        throw new Error(errorData.error || "Ha ocurrido un error durante la autenticación del profesor")
       }
 
       const data = await res.json()
@@ -67,13 +64,12 @@ export default function LoginForm() {
     setError("")
     try {
       await postLogin()
-      router.push("/admin-dashboard")
+      router.push("/teacher-dashboard")
     } catch (error) {
       console.error(error)
     }
   }
 
-  /* cuerpo del inicio de sesión */
   return (
     <div className="min-h-screen bg-white">
       <header className="bg-[#004976] border-b border-white/20 p-4">
@@ -96,8 +92,8 @@ export default function LoginForm() {
         <Card className="mx-auto max-w-md bg-[#81D4FE]">
           <CardContent className="p-6">
             <div className="text-center mb-6">
-              <h3 className="text-xl font-bold text-[#000000] mb-2">Autenticación de Administrador</h3>
-              <p className="text-xl font-bold text-[#000000] mb-2">Acceso Exclusivo</p>
+              <h3 className="text-xl font-bold text-[#000000] mb-2">Autenticación de Usuario</h3>
+              <p className="text-xl font-bold text-[#000000] mb-2">Profesor</p>
               <div className="flex justify-center">
                 <Lock className="w-16 h-16 text-yellow-500" />
               </div>
@@ -111,10 +107,7 @@ export default function LoginForm() {
                 <span className="block sm:inline">{error}</span>
               </div>
             )}
-            {/*el usuario debe de ingresar la cédula correspondiente al admin
-            y su contraseña, en caso de estar equivocado lanzará una advertencia
-            y se tiene el botón borrar para que elimine lo ingresado 
-            cedula y contraseña*/}
+
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2 text-[#0F3272]">
                 <Label htmlFor="cedula">
@@ -156,7 +149,7 @@ export default function LoginForm() {
                   <Input
                     id="password"
                     name="password"
-                    type={showPassword ? "text" : "password"} // Cambia el tipo dinámicamente
+                    type={showPassword ? "text" : "password"}
                     autoComplete="current-password"
                     required
                     value={password}
@@ -169,7 +162,7 @@ export default function LoginForm() {
                     className="text-[#004976] p-2"
                     aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
                   >
-                    {!showPassword ? <EyeClosedIcon /> : <EyeIcon />}
+                    {showPassword ? <EyeOff /> : <EyeIcon />}
                   </button>
                 </div>
               </div>

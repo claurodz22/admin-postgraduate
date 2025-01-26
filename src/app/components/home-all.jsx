@@ -66,7 +66,7 @@ export default function Page() {
               <Users className="mb-4 h-12 w-12 text-[#004976]" />
               <h3 className="mb-4 text-xl font-bold text-[#004976]">Profesores</h3>
               <Button asChild className="w-full bg-[#e85d04] hover:bg-[#dc5303]">
-                <Link href="/profesores">Ingresar como Profesor</Link>
+                <Link href="/p-login-profe">Ingresar como Profesor</Link>
               </Button>
             </CardContent>
           </Card>

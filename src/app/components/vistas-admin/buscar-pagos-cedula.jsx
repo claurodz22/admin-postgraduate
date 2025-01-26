@@ -1,37 +1,28 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import Image from "next/image";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { Home, UserPlus, GraduationCap, ClipboardList, CreditCard, FileText, Search } from 'lucide-react';
+import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import Image from "next/image"
+import Link from "next/link"
+import { useRouter } from "next/navigation"
+import { Home, UserPlus, GraduationCap, ClipboardList, CreditCard, FileText, Search } from 'lucide-react'
 
 export default function BusquedaPagos() {
-  /*
-    Variables de state que se usan en 
-    para filtrar los datos y gestión de los datos
-  */
   const router = useRouter()
   const [cedulaTipo, setCedulaTipo] = useState('V')
   const [cedulaNumero, setCedulaNumero] = useState('')
   const [fechaInicio, setFechaInicio] = useState('')
   const [fechaFin, setFechaFin] = useState('')
   const [searchResults, setSearchResults] = useState([])
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState(null)
   const [allPayments, setAllPayments] = useState([])
 
-  /*
-    Información del menú del lado izquierdo
-    con su respecto enlace. Si inica por una 'a-'
-    es que esas son vistas solo del administrador
-  */
   const menuItems = [
     { title: "Inicio", icon: Home, href: "/a-home-admin" },
     { title: "Registro / Actualización de Usuarios ", icon: UserPlus, href: "/a-register-user" },
@@ -39,68 +30,63 @@ export default function BusquedaPagos() {
     { title: "Control de Notas", icon: ClipboardList, href: "/a-control-notas" },
     { title: "Control de Pagos", icon: CreditCard, href: "/a-control-pagos" },
     { title: "Solicitudes Estudiantiles", icon: FileText, href: "/a-solicitudes-estudiantiles" },
-  ];
+  ]
 
-
-  /*
-    Objetivo de este useEffect = en caso de no tener el token
-    de acceso redirige al usuario a /a-login-admin.
-  */
   useEffect(() => {
     const token = localStorage.getItem('token')
     if (!token) {
       router.push('/a-login-admin')
     }
   }, [router])
-  
 
-  /*
-    Obtiene los datos de la BDD mediante la API
-  */
   useEffect(() => {
     const fetchPayments = async () => {
       try {
-        /*
-          Se recuerda que para completo funcionamiento, activar
-          el django, si no, lanza error de que no se encuentra
-          la información solicitada
-        */
-        const response = await fetch('http://127.0.0.1:8000/api/pagos/');
+        const response = await fetch('http://127.0.0.1:8000/api/pagos/')
         if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
+          throw new Error(`HTTP error! status: ${response.status}`)
         }
-        const data = await response.json();
-        console.log('Estructura de datos recibidos:', JSON.stringify(data, null, 2));
-        console.log('Estructura de un pago:', JSON.stringify(data[0], null, 2));
-        setAllPayments(data);
-        setSearchResults(data);
+        const data = await response.json()
+        setAllPayments(data)
+        setSearchResults(data)
       } catch (err) {
-        setError(`Error al cargar los pagos: ${err.message}`);
-        console.error('Error fetching payments:', err);
+        setError(`Error al cargar los pagos: ${err.message}`)
+        console.error('Error fetching payments:', err)
       } finally {
-        setIsLoading(false);
+        setIsLoading(false)
       }
-    };
+    }
 
-    fetchPayments();
-  }, []);
+    fetchPayments()
+  }, [])
 
   const handleSearch = (e) => {
     e.preventDefault()
-    const cedula = `${cedulaTipo}-${cedulaNumero}`
+    const cedula = cedulaNumero ? `${cedulaTipo}-${cedulaNumero}` : ''
     const results = allPayments.filter(payment => {
-      const cedulaMatch = cedula ? payment.cedula_responsable.includes(cedula) : true
-      const dateMatch = (fechaInicio && fechaFin) ? 
-        (new Date(payment.fecha_pago) >= new Date(fechaInicio) && new Date(payment.fecha_pago) <= new Date(fechaFin)) : true
+      const cedulaMatch = cedula === '' || payment.cedula_responsable.includes(cedula)
+      
+      let dateMatch = true
+      if (fechaInicio && fechaFin) {
+        const fechaPago = new Date(payment.fecha_pago)
+        dateMatch = fechaPago >= new Date(fechaInicio) && fechaPago <= new Date(fechaFin)
+      }
+      
       return cedulaMatch && dateMatch
     })
     setSearchResults(results)
   }
 
+  const resetSearch = () => {
+    setSearchResults(allPayments)
+    setCedulaTipo('V')
+    setCedulaNumero('')
+    setFechaInicio('')
+    setFechaFin('')
+  }
+
   return (
-    <div className="min-h-screen flex flex-col"> 
-      {/* Encabezado (que reuse en casi 
-      todas las vistas del admin) */}
+    <div className="min-h-screen flex flex-col">
       <header className="bg-[#004976] text-white py-4">
         <div className="container mx-auto px-6 flex items-center">
           <div className="flex items-center gap-4">
@@ -121,10 +107,10 @@ export default function BusquedaPagos() {
               variant="secondary"
               className="bg-[#FFD580] text-black hover:bg-[#FFD580] hover:text-black"
               onClick={() => {
-                localStorage.removeItem("token");
-                localStorage.removeItem("accessToken");
-                localStorage.removeItem("refreshToken");
-                router.push("/home-all");
+                localStorage.removeItem("token")
+                localStorage.removeItem("accessToken")
+                localStorage.removeItem("refreshToken")
+                router.push("/home-all")
               }}
             >
               Cerrar Sesión
@@ -134,8 +120,6 @@ export default function BusquedaPagos() {
       </header>
 
       <div className="flex flex-1">
-        {/* Menú lado izquierdo (igual reusado
-        en casi todas las vistas, lol) */}
         <aside className="w-64 bg-[#e6f3ff]">
           <nav className="py-4">
             <ul className="space-y-1">
@@ -146,7 +130,6 @@ export default function BusquedaPagos() {
                     className="flex items-center px-6 py-2 text-[#004976] gap-3"
                   >
                     <item.icon className="h-5 w-5 shrink-0" />
-
                     <span>{item.title}</span>
                   </Link>
                 </li>
@@ -155,13 +138,11 @@ export default function BusquedaPagos() {
           </nav>
         </aside>
 
-        {/* body para buscar los pagos por cédula */}
         <main className="flex-1 p-6">
           <Card className="mx-auto bg-[#FFEFD5]">
             <CardContent className="p-6">
               <h2 className="text-2xl font-bold text-[#004976] mb-6 text-center">Búsqueda de Pagos</h2>
               
-              {/* método de busqueda */}
               <form onSubmit={handleSearch} className="mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <Label htmlFor="cedula">Cédula</Label>
@@ -210,14 +191,13 @@ export default function BusquedaPagos() {
                 </Button>
                 <Button 
                   type="button" 
-                  onClick={() => setSearchResults(allPayments)} 
+                  onClick={resetSearch} 
                   className="md:col-span-3 mt-2 bg-gray-500 text-white hover:bg-gray-600"
                 >
                   Resetear Búsqueda
                 </Button>
               </form>
 
-              {/* resultados de la busqueda */}
               {isLoading ? (
                 <p className="text-center">Cargando pagos...</p>
               ) : error ? (
@@ -227,7 +207,6 @@ export default function BusquedaPagos() {
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        {/* columnas de la tabla de pagos */}
                         <TableHead>Fecha del Pago</TableHead>
                         <TableHead>Banco</TableHead>
                         <TableHead>Número de Referencia</TableHead>
@@ -243,10 +222,8 @@ export default function BusquedaPagos() {
                           <TableCell>{payment.fecha_pago ? new Date(payment.fecha_pago).toLocaleDateString('es-VE') : 'N/A'}</TableCell>
                           <TableCell>{payment.banco_pago || 'N/A'}</TableCell>
                           <TableCell>{payment.numero_referencia || 'N/A'}</TableCell>
-                        
                           <TableCell>{payment.nombre_estudiante  || 'N/A'}</TableCell>
                           <TableCell>{payment.apellido_estudiante  || 'N/A'}</TableCell>
-
                           <TableCell>{payment.cedula_responsable || 'N/A'}</TableCell>
                           <TableCell className="text-right">
                             {payment.monto_pago !== undefined && payment.monto_pago !== null
@@ -258,7 +235,7 @@ export default function BusquedaPagos() {
                     </TableBody>
                   </Table>
                 </div>
-              ) : (/* caso en el que no coincidan datos con la busuqeda */
+              ) : (
                 <p className="text-center text-gray-500 mt-4">No se encontraron resultados.</p>
               )}
             </CardContent>
@@ -266,6 +243,6 @@ export default function BusquedaPagos() {
         </main>
       </div>
     </div>
-  );
+  )
 }
 
