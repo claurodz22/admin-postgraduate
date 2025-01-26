@@ -10,35 +10,32 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Calendar } from "@/components/ui/calendar"
 import { Popover,  PopoverContent,  PopoverTrigger, } from "@/components/ui/popover"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import Image from "next/image"
 import Link from "next/link"
-import { Home, UserPlus, GraduationCap, ClipboardList, CreditCard, FileText, CalendarIcon } from 'lucide-react'
+import { Home, UserPlus, GraduationCap, ClipboardList, CreditCard, FileText, CalendarIcon, AlertCircle } from 'lucide-react'
 
-/* opciones de maestria posible*/
 const MAESTRIA_OPTIONS = {
   GG: 'Cs Administrativas / Gerencia General (GG)',
   FI: 'Cs Administrativas / Finanzas (FI)',
-  RRHH: 'Cs Administrativas / Gerencia de Recursos Humanos (RRHH)' 
+  RH: 'Cs Administrativas / Gerencia de Recursos Humanos (RRHH)' 
 }
 
-/* opciones de sede posible */
 const SEDE_OPTIONS = {
   barcelona: 'Barcelona',
   cantaura: 'Cantaura'
 }
 
-/* se le coloca el const para que no sean modificadas despues
-ambas vars [MAESTRIA_OPTIONS] y [SEDE_OPTIONS] se utilizan
-posteriormente para la generación del código del cohorte*/
-
 export default function CreacionDecohorte() {
-  /* Variables de estado utilizadas en el código */
   const router = useRouter()
   const [startDate, setStartDate] = useState(null)
   const [endDate, setEndDate] = useState(null)
   const [maestria, setMaestria] = useState('')
   const [sede, setSede] = useState('')
   const [codigo, setCodigo] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [isVerified, setIsVerified] = useState(false)
+  const [verificationMessage, setVerificationMessage] = useState('')
 
   const menuItems = [
     { title: "Inicio", icon: Home, href: "/a-home-admin" },
@@ -49,24 +46,18 @@ export default function CreacionDecohorte() {
     { title: "Solicitudes Estudiantiles", icon: FileText, href: "/a-solicitudes-estudiantiles" },
   ];
 
-  /* Definición de la función generateCódigo
-  esta con el objetivo que de acuerdo a lo escogido por el
-  usuario se cree un identificador único por cohorte.
-  Se recuerda que se debe de verificar en la BDD si existe
-  una con el mismo código*/
   const generateCodigo = () => {
     if (!maestria || !sede || !startDate) return
 
     const sedeCode = sede === 'barcelona' ? 'I' : 'II'
     const year = startDate.getFullYear()
-    
     const section = 'A'
 
     setCodigo(`${maestria}${sedeCode}${section}-${year}`)
+    setIsVerified(false)
+    setVerificationMessage('')
   }
 
-  /* Se utiliza para redirigir al usuario
-  en caso de no poseer token de acceso*/
   useEffect(() => {
     const token = localStorage.getItem('token')
     if (!token) {
@@ -74,20 +65,89 @@ export default function CreacionDecohorte() {
     }
   }, [router])
 
+  const verifyCohorte = async () => {
+    if (!codigo) {
+      alert('Por favor, genera un código de cohorte primero.')
+      return
+    }
 
-  /* recuerda en esta parte añadir la API para poder almacenar 
-  el código del cohorte en la BDD*/
-  const handleSubmit = (e) => {
+    setLoading(true)
+    try {
+      const response = await fetch('http://127.0.0.1:8000/api/verificar-codigo-cohorte/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ codigo_cohorte: codigo }),
+      })
+
+      const result = await response.json()
+
+      if (response.ok) {
+        if (result.exists) {
+          setVerificationMessage(`El código ${codigo} ya existe. Se utilizará ${result.new_code} en su lugar.`)
+          setCodigo(result.new_code)
+        } else {
+          setVerificationMessage('El código de cohorte es único y puede ser utilizado.')
+        }
+        setIsVerified(true)
+      } else {
+        setVerificationMessage(result.error || 'Error al verificar el código de cohorte')
+        setIsVerified(false)
+      }
+    } catch (error) {
+      console.error('Error al hacer la solicitud:', error)
+      setVerificationMessage('Error en la comunicación con el servidor')
+      setIsVerified(false)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    
-    console.log({ startDate, endDate, maestria, sede, codigo })
-    
-    router.push('/a-control-notas')
+    if (!isVerified) {
+      alert('Por favor, verifica el código de cohorte antes de guardar.')
+      return
+    }
+
+    setLoading(true)
+
+    const data = {
+      codigo_cohorte: codigo,
+      fecha_inicio: format(startDate, "yyyy-MM-dd"),
+      fecha_fin: format(endDate, "yyyy-MM-dd"),
+      sede_cohorte: sede,
+      tipo_maestria: maestria,
+    }
+
+    try {
+      const response = await fetch('http://127.0.0.1:8000/api/cohorte-generar-codigo/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      })
+
+      const result = await response.json()
+
+      if (response.ok) {
+        alert(`Cohorte guardado exitosamente con el código: ${result.codigo_cohorte}`)
+        router.push('/a-home-admin')  // Redirect to admin home page
+      } else {
+        alert(result.error || 'Error al guardar el cohorte')
+      }
+    } catch (error) {
+      console.error('Error al hacer la solicitud:', error)
+      alert('Error en la comunicación con el servidor')
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
     <div className="min-h-screen flex flex-col">
-      {/* encabezado */}
       <header className="bg-[#004976] text-white py-4">
         <div className="container mx-auto px-6 flex items-center">
           <div className="flex items-center gap-4">
@@ -121,7 +181,6 @@ export default function CreacionDecohorte() {
       </header>
 
       <div className="flex flex-1">
-        {/* menu de la izquierda */}
         <aside className="w-64 bg-[#e6f3ff]">
           <nav className="py-4">
             <ul className="space-y-1">
@@ -132,7 +191,6 @@ export default function CreacionDecohorte() {
                     className="flex items-center px-6 py-2 text-[#004976] gap-3"
                   >
                     <item.icon className="h-5 w-5 shrink-0" />
-
                     <span>{item.title}</span>
                   </Link>
                 </li>
@@ -141,10 +199,6 @@ export default function CreacionDecohorte() {
           </nav>
         </aside>
 
-        {/* creación del cohorte, contenido
-        lo siguiente representa el formulario que de acuerdo
-        a los datos ingresados y pasados a la función generateCodigo
-        crea el código del cohorte */}
         <main className="flex-1 p-6">
           <Card className="max-w-3xl mx-auto bg-[#FFEFD5]">
             <CardContent className="p-6">
@@ -226,13 +280,25 @@ export default function CreacionDecohorte() {
                   <Label htmlFor="codigo">Código de cohorte</Label>
                   <div className="flex space-x-2">
                     <Input id="codigo" value={codigo} readOnly className="flex-grow" />
-                    <Button type="button" onClick={generateCodigo} className="bg-[#004976] text-white hover:bg-[#003357]" disabled={!startDate}>
+                    <Button type="button" onClick={generateCodigo} className="bg-[#004976] text-white hover:bg-[#003357]" disabled={!startDate || !maestria || !sede}>
                       Generar
+                    </Button>
+                    <Button type="button" onClick={verifyCohorte} className="bg-[#004976] text-white hover:bg-[#003357]" disabled={!codigo || loading}>
+                      Verificar
                     </Button>
                   </div>
                 </div>
-                <Button type="submit" className="w-full bg-[#004976] text-white hover:bg-[#003357]">
-                  Guardar cohorte
+
+                {verificationMessage && (
+                  <Alert variant={isVerified ? "default" : "destructive"}>
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertTitle>{isVerified ? "Verificación Exitosa" : "Error de Verificación"}</AlertTitle>
+                    <AlertDescription>{verificationMessage}</AlertDescription>
+                  </Alert>
+                )}
+
+                <Button type="submit" className="w-full bg-[#004976] text-white hover:bg-[#003357]" disabled={loading || !isVerified}>
+                  {loading ? 'Guardando...' : 'Guardar cohorte'}
                 </Button>
               </form>
             </CardContent>

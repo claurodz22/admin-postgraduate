@@ -109,7 +109,7 @@ const RegisterStudent = () => {
         throw new Error('Error al guardar el estudiante');
       }
 
-      setMessage('Estudiante registrado/actualizado con éxito!');
+      setMessage('Estudiante registrado/actualizado.');
       setEstudiante({
         nacionalidad: 'V',
         cedula: '',
@@ -269,18 +269,29 @@ const RegisterStudent = () => {
                     disabled={true}
                   />
                 </div>
+
+                
                 <div>
                   <Label htmlFor="carrera">Carrera</Label>
-                  <Input
-                    type="text"
-                    id="carrera"
-                    name="carrera"
-                    value={estudiante.carrera}
-                    onChange={handleChange}
-                    required
-                    disabled={!campo_activado}
-                  />
+                  <Select
+                  id="carrera"
+                  name="carrera"
+                  type="text"
+                  value={estudiante.carrera}
+                  onValueChange={(value) => setEstudiante({ ...estudiante, carrera: value })}
+                  disabled={!campo_activado}
+                  >
+                      <SelectTrigger>
+                      <SelectValue placeholder="Seleccione carrera concluida" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Contaduría Pública">Contaduría Pública</SelectItem>
+                      <SelectItem value="Administración">Administración</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
+                
+                
                 <div>
                   <Label htmlFor="año_ingreso">Año de Ingreso</Label>
                   <Input
@@ -289,7 +300,7 @@ const RegisterStudent = () => {
                     name="año_ingreso"
                     value={estudiante.año_ingreso}
                     onChange={handleChange}
-                    min="1900"
+                    min="2000"
                     max={new Date().getFullYear()}
                     required
                     disabled={!campo_activado}
@@ -314,14 +325,21 @@ const RegisterStudent = () => {
                 </div>
                 <div>
                   <Label htmlFor="cod_maestria">Código de Maestría</Label>
-                  <Input
-                    type="text"
-                    id="cod_maestria"
-                    name="cod_maestria"
-                    value={estudiante.cod_maestria}
-                    onChange={handleChange}
-                    disabled={!campo_activado}
-                  />
+                  <Select
+                  name="cod_maestria"
+                  value={estudiante.cod_maestria}
+                  onValueChange={(value) => setEstudiante({ ...estudiante, cod_maestria: value })}
+                  disabled={!campo_activado}
+                  >
+                      <SelectTrigger>
+                      <SelectValue placeholder="Seleccione maestría a realizar" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="8207">Gerencia de RRHH</SelectItem>
+                      <SelectItem value="8306">Finanzas</SelectItem>
+                      <SelectItem value="8327">Gerencia General</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div>
                   <Button 

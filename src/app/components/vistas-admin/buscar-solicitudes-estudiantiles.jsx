@@ -72,34 +72,29 @@ export default function BuscarSolicitudes() {
   
   const buscarSoli = (e) => {
     e.preventDefault()
-
-    // trim es para eliminar espacios en blanco
+  
     let searchCedula = cedulaNumero.trim()
     
-    // si la entrada inicia con 'V-' or 'E-', lo elimina
     if (searchCedula.startsWith('V-') || searchCedula.startsWith('E-')) {
       searchCedula = searchCedula.slice(2)
     }
     
-    // concatena el tipo de cedula con el numero de la cedula
-    const cedula = `${nacionalidad}-${searchCedula}`
+    const cedula = searchCedula ? `${nacionalidad}-${searchCedula}` : ''
     
-    // filter iteta en lista_solicitud [elementos del arreglo]
     const filteredResults = allResults.filter(lista_solicitud => {
-      // verifica cedula
-      const cedulaMatch = cedula ? 
-        (lista_solicitud.cedula_responsable.includes(cedula) || 
-         lista_solicitud.cedula_responsable.includes(cedula)) : true
+      // Verifica cédula
+      const cedulaMatch = cedula === '' || lista_solicitud.cedula_responsable.includes(cedula)
       
-         // verifica rango de fechas
-      const periodoCoincide = (fechaInicio && fechaFin) ? 
-        (new Date(lista_solicitud.fecha_solicitud) >= new Date(fechaInicio) && 
-         new Date(lista_solicitud.fecha_solicitud) <= new Date(fechaFin)) : true
+      // Verifica rango de fechas
+      let periodoCoincide = true
+      if (fechaInicio && fechaFin) {
+        const fechaSolicitud = new Date(lista_solicitud.fecha_solicitud)
+        periodoCoincide = fechaSolicitud >= new Date(fechaInicio) && fechaSolicitud <= new Date(fechaFin)
+      }
       
       return cedulaMatch && periodoCoincide
     })
     
-    // renderizar = vuelve a representar
     setbuscarResul(filteredResults)
   }
 
