@@ -65,6 +65,15 @@ export default function CreacionDecohorte() {
     }
   }, [router])
 
+  // Sincronizar fecha de fin automáticamente al seleccionar fecha de inicio
+  useEffect(() => {
+    if (startDate) {
+      const calculatedEndDate = new Date(startDate);
+      calculatedEndDate.setFullYear(calculatedEndDate.getFullYear() + 4); // Sumar 4 años
+      setEndDate(calculatedEndDate);
+    }
+  }, [startDate]); // Dependencia: `startDate`
+
   const verifyCohorte = async () => {
     if (!codigo) {
       alert('Por favor, genera un código de cohorte primero.')
@@ -76,6 +85,7 @@ export default function CreacionDecohorte() {
       const response = await fetch('http://127.0.0.1:8000/api/verificar-codigo-cohorte/', {
         method: 'POST',
         headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ codigo_cohorte: codigo }),
@@ -125,6 +135,7 @@ export default function CreacionDecohorte() {
       const response = await fetch('http://127.0.0.1:8000/api/cohorte-generar-codigo/', {
         method: 'POST',
         headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(data),

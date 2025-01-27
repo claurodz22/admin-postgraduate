@@ -1,23 +1,23 @@
-'use client'
+'use client';
 
-import Image from "next/image"
-import Link from "next/link"
-import { Card, CardContent } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { GraduationCap, Users, ShieldCheck } from 'lucide-react'
-import { useState, useEffect } from 'react'
+import Image from 'next/image';
+import Link from 'next/link';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { GraduationCap, Users, ShieldCheck } from 'lucide-react';
+import { useState, useEffect } from 'react';
 
 export default function Page() {
-  const [currentTime, setCurrentTime] = useState(new Date())
+  const [currentTime, setCurrentTime] = useState(new Date());
 
   useEffect(() => {
-    const timer = setInterval(() => setCurrentTime(new Date()), 1000)
-    return () => clearInterval(timer)
-  }, [])
+    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   return (
     <div className="min-h-screen flex flex-col bg-white">
-      {/* encabezado de la pagina */}
+      {/* Encabezado de la página */}
       <header className="bg-[#004976] px-4 py-4">
         <div className="mx-auto flex max-w-7xl items-center justify-between">
           <div className="flex items-center gap-4">
@@ -41,11 +41,11 @@ export default function Page() {
         </div>
       </header>
 
-      {/* cuerpo principal de la pag */ }
+      {/* Cuerpo principal de la página */}
       <main className="flex-grow mx-auto max-w-7xl px-4 py-8">
         <div className="mb-8 rounded-lg bg-gray-100 p-4 text-center">
           <h2 className="text-2xl font-bold text-[#004976]">
-            Sistema Integral de Control de Estudios de la Universidad de Oriente
+            SISTEMA INTEGRAL DE GESTIÓN DEL POSTGRADO DE CIENCIAS ADMINISTRATIVAS (SIGPCA)
           </h2>
         </div>
 
@@ -82,11 +82,20 @@ export default function Page() {
           </Card>
         </div>
 
-        {/* Description */}
+        {/* Botón de Recuperar Contraseña */}
+        <div className="mt-8 text-center">
+          <Button asChild className="bg-[#004976] text-white hover:bg-[#003f66] px-6 py-3 rounded-md">
+            <Link href="/h-recuperar-contrasena">Recuperar Contraseña</Link>
+          </Button>
+        </div>
+
+        {/* Descripción */}
         <div className="mt-12 rounded-lg bg-gray-100 p-6">
           <h3 className="mb-4 text-xl font-bold text-[#004976]">Acerca de este portal</h3>
           <p className="text-lg text-gray-700">
-            Esta página permite a la población estudiantil mantener una constancia de su proceso de estudios de postgrado en el área administrativa de la Universidad de Oriente. Aquí podrás acceder a información importante, realizar trámites y dar seguimiento a tu progreso académico.
+            Esta página permite a la población estudiantil mantener una constancia de su proceso de estudios de
+            postgrado en el área administrativa de la Universidad de Oriente. Aquí podrás acceder a información
+            importante, realizar trámites y dar seguimiento a tu progreso académico.
           </p>
         </div>
       </main>
@@ -99,6 +108,5 @@ export default function Page() {
         </div>
       </footer>
     </div>
-  )
+  );
 }
-

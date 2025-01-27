@@ -42,7 +42,9 @@ export default function BusquedaPagos() {
   useEffect(() => {
     const fetchPayments = async () => {
       try {
-        const response = await fetch('http://127.0.0.1:8000/api/pagos/')
+        const response = await fetch('http://127.0.0.1:8000/api/pagos/', {
+          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+        })
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`)
         }
