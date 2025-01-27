@@ -51,6 +51,7 @@ const RegisterStudent = () => {
       const response = await fetch('http://127.0.0.1:8000/api/obtenerdatos/', {
         method: 'POST',
         headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ cedula: cedula_completa }),
@@ -101,7 +102,7 @@ const RegisterStudent = () => {
     try {
       const response = await fetch('http://127.0.0.1:8000/api/almacenarestudiante/', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}`, 'Content-Type': 'application/json' },
         body: JSON.stringify(userToSubmit),
       });
 
@@ -293,7 +294,7 @@ const RegisterStudent = () => {
                 
                 
                 <div>
-                  <Label htmlFor="año_ingreso">Año de Ingreso</Label>
+                  <Label htmlFor="año_ingreso">Año de Egreso</Label>
                   <Input
                     type="number"
                     id="año_ingreso"

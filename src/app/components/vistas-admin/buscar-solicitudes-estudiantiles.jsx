@@ -51,7 +51,9 @@ export default function BuscarSolicitudes() {
     const fetchSolicitudes = async () => {
       try {
         // definicion de variable info_obt_json de la api
-        const info_obt_json = await fetch('http://127.0.0.1:8000/api/solicitudes/')
+        const info_obt_json = await fetch('http://127.0.0.1:8000/api/solicitudes/', {
+          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }       
+        } )
         if (!info_obt_json.ok) {
           throw new Error(`HTTP error! status: ${info_obt_json.status}`)
         }

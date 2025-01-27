@@ -34,7 +34,12 @@ export default function UltimasSolicitudes() {
   useEffect(() => {
     const fetchSolicitudes = async () => {
       try {
-        const response = await fetch('http://127.0.0.1:8000/api/solicitudes/');
+        const response = await fetch('http://127.0.0.1:8000/api/solicitudes/', 
+          {
+            headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }       
+          } 
+        );
+        
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
