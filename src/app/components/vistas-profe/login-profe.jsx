@@ -34,7 +34,7 @@ export default function LoginForm() {
   const postLogin = async () => {
     try {
       const fullCedula = `${nationality}-${cedula}`;
-      const res = await fetch("http://localhost:8000/api/admin-profe/", { // Cambié la URL para reflejar el login del profesor
+      const res = await fetch("http://localhost:8000/api/login_profesor/", { // Cambié la URL para reflejar el login del profesor
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -1,4 +1,4 @@
-'use client'
+'use client';
 
 import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
@@ -15,8 +15,6 @@ export default function ReporteNotas() {
   const [notas, setNotas] = useState([]);
   const [cohortes, setCohortes] = useState([]);
   const [codigosMaterias, setCodigosMaterias] = useState([]);
-
-
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [filtroCohorte, setFiltroCohorte] = useState('');
@@ -25,34 +23,48 @@ export default function ReporteNotas() {
   const notasPorPagina = 10;
 
   const resetSearch = () => {
-    setNotas([])
-    // setCohortes([])
-    // setCodigosMaterias([])
-    fetchNotas()
-  }
+    setNotas([]);
+    fetchNotas();
+  };
 
   const fetchNotas = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/listado_estudiantes/?' + new URLSearchParams({
-        q_code: filtroCohorte == 'all' ? '' : filtroCohorte,
-        m_code: filtroCodigoMateria == 'all' ? '' : filtroCodigoMateria,
-      }).toString());
+      // Construcción de los parámetros de consulta
+      const queryParams = new URLSearchParams({
+        q_code: filtroCohorte === 'all' ? '' : filtroCohorte,
+        m_code: filtroCodigoMateria === 'all' ? '' : filtroCodigoMateria,
+      }).toString();
+
+      // Solicitud para obtener las notas filtradas
+      const response = await fetch(`http://127.0.0.1:8000/api/listado_estudiantes/?${queryParams}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`, // Header con el token
+        },
+      });
+
       if (!response.ok) {
-        throw new Error('Error al cargar los datos');
+        throw new Error('Error al cargar las notas');
       }
-      const dataFiltersSelectsResponse = await fetch('http://127.0.0.1:8000/api/listado_estudiantes/');
+
+      // Solicitud para obtener datos para los selects
+      const dataFiltersSelectsResponse = await fetch('http://127.0.0.1:8000/api/listado_estudiantes/', {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`, // Header con el token
+        },
+      });
+
       if (!dataFiltersSelectsResponse.ok) {
-        throw new Error('Error al cargar los datos');
+        throw new Error('Error al cargar los datos para filtros');
       }
+
       const dataFiltersSelects = await dataFiltersSelectsResponse.json();
 
-      const cohortes = [...new Set(dataFiltersSelects.map(nota => nota.codigo_cohorte))];
-      const codigosMaterias = [...new Set(dataFiltersSelects.map(nota => nota.cod_materia))];
-      setCohortes(cohortes)
-      setCodigosMaterias(codigosMaterias)
+      const cohortes = [...new Set(dataFiltersSelects.map((nota) => nota.codigo_cohorte))];
+      const codigosMaterias = [...new Set(dataFiltersSelects.map((nota) => nota.cod_materia))];
+      setCohortes(cohortes);
+      setCodigosMaterias(codigosMaterias);
 
-      console.log({ cohortes, codigosMaterias })
       const data = await response.json();
       setNotas(data);
     } catch (error) {
@@ -61,9 +73,8 @@ export default function ReporteNotas() {
       setIsLoading(false);
     }
   };
+
   useEffect(() => {
-
-
     fetchNotas();
   }, [filtroCohorte, filtroCodigoMateria]);
 
@@ -76,7 +87,7 @@ export default function ReporteNotas() {
     { title: "Solicitudes Estudiantiles", icon: FileText, href: "/a-solicitudes-estudiantiles" },
   ];
 
-  const notasFiltradas = notas.filter(nota =>
+  const notasFiltradas = notas.filter((nota) =>
     (!filtroCohorte || nota.codigo_cohorte === filtroCohorte) &&
     (!filtroCodigoMateria || nota.cod_materia === filtroCodigoMateria)
   );
@@ -86,10 +97,10 @@ export default function ReporteNotas() {
   const indiceFinal = indiceInicial + notasPorPagina;
   const notasPaginadas = notasFiltradas.slice(indiceInicial, indiceFinal);
 
-
   const cambiarPagina = (nuevaPagina) => {
     setPaginaActual(nuevaPagina);
   };
+
 
   return (
     <div className="min-h-screen flex flex-col">
