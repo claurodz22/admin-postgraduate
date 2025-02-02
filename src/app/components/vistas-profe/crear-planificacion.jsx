@@ -11,52 +11,99 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Input } from "@/components/ui/input"
 import { FileText, ClipboardList, BookOpen, User, Home } from "lucide-react"
 import axios from "axios"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 
 export default function CrearPlanificacion() {
   const router = useRouter()
   const [userData, setUserData] = useState(null)
+  const [materias, setMaterias] = useState([])
+  const [cohortes, setCohortes] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const [cohorte, setCohorte] = useState("")
   const [materia, setMateria] = useState("")
   const [evaluaciones, setEvaluaciones] = useState([{ numero: 1, tipo: "", porcentaje: 0, otroTipo: "" }])
+  const [error, setError] = useState("")
+  const [success, setSuccess] = useState("")
 
   useEffect(() => {
-    const fetchUserData = async () => {
-      const token = localStorage.getItem("token");
+    const token = localStorage.getItem("token")
+    if (!token) {
+      router.push("/p-login-profe")
+      return
+    }
 
-      if (!token) {
-        // Redirige al login si no hay token
-        router.push("/p-login-profe");
-        return;
-      }
-
+    const fetchData = async () => {
       try {
-        const response = await axios.get("http://localhost:8000/api/user-info/", {
-          headers: {
-            Authorization: `Bearer ${token}`, // Agrega el token al header4
-          },
-        });
-        setUserData(response.data); // Actualiza el estado con los datos del usuario
-        const cedula = response.data.cedula_usuario;
-        console.log(cedula);
+        await fetchUserData(token)
+        await fetchMaterias(token)
+        await fetchCohortes(token)
       } catch (error) {
-        console.error("Error al obtener los datos del usuario:", error);
-        // Redirige al login si ocurre un error no autorizado
+        console.error("Error fetching data:", error)
         if (error.response && error.response.status === 401) {
-          //localStorage.removeItem("token");
-          //router.push("/p-login-profe");
+          localStorage.removeItem("token")
+          router.push("/p-login-profe")
         }
       } finally {
-        setIsLoading(false); // Finaliza la carga
+        setIsLoading(false)
       }
-    };
+    }
 
-    fetchUserData();
-  }, [router]);
+    fetchData()
+  }, [router])
 
   const fetchUserData = async (token) => {
-    // Simulando la obtención de datos del usuario
-    setUserData({ nombre: "Juan", apellido: "Pérez" })
+    try {
+      const response = await axios.get("http://localhost:8000/api/user-info/", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      setUserData(response.data)
+      console.log("Cédula del usuario:", response.data.cedula)
+    } catch (error) {
+      console.error("Error al obtener los datos del usuario:", error)
+      throw error
+    }
+  }
+
+  const fetchMaterias = async (token) => {
+    try {
+      const response = await axios.get("http://127.0.0.1:8000/api/profe-materias/", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+
+      if (response.status === 200) {
+        setMaterias(response.data)
+        console.log("Materias obtenidas:", response.data)
+      } else {
+        throw new Error("Failed to fetch materias")
+      }
+    } catch (error) {
+      console.error("Error al obtener las materias:", error)
+      throw error
+    }
+  }
+
+  const fetchCohortes = async (token) => {
+    try {
+      const response = await axios.get("http://127.0.0.1:8000/api/cohortes/", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+
+      if (response.status === 200) {
+        setCohortes(response.data)
+        console.log("Cohortes obtenidos:", response.data)
+      } else {
+        throw new Error("Failed to fetch cohortes")
+      }
+    } catch (error) {
+      console.error("Error al obtener los cohortes:", error)
+      throw error
+    }
   }
 
   const menuItems = [
@@ -67,8 +114,6 @@ export default function CrearPlanificacion() {
     { title: "Mis Datos", icon: User, href: "/p-datos-profe" },
   ]
 
-  const cohortesEjemplo = ["2023-1", "2023-2", "2024-1"]
-  const materiasEjemplo = ["Matemáticas I", "Física I", "Programación I"]
   const tiposEvaluacion = ["Exposición", "Trabajo", "Examen", "Taller", "Otro"]
 
   const handleAddEvaluacion = () => {
@@ -85,9 +130,67 @@ export default function CrearPlanificacion() {
     return evaluaciones.reduce((total, evaluacion) => total + Number(evaluacion.porcentaje), 0)
   }
 
-  const handleGuardar = () => {
-    console.log("Planificación guardada:", { cohorte, materia, evaluaciones })
-    // Aquí iría la lógica para enviar los datos al backend
+  const handleGuardar = async () => {
+    setError("")
+    setSuccess("")
+    const token = localStorage.getItem("token")
+    if (!token) {
+      setError("No se encontró el token de autenticación")
+      return
+    }
+
+    const actividades_planificacion = evaluaciones
+      .map((e) => (e.tipo === "Otro" ? e.otroTipo : e.tipo))
+      .filter((tipo) => tipo !== "")
+      .join("-")
+
+    const actividades_porcentaje = evaluaciones
+      .map((e) => e.porcentaje)
+      .filter((porcentaje) => porcentaje > 0)
+      .join("-")
+
+    const planificacion = {
+      codplanificacion: `${cohorte}-${materia}`,
+      actividades_planificacion,
+      actividades_porcentaje,
+      cod_materia: materia,
+      codigo_cohorte: cohorte,
+      cedula_profesor: userData.cedula, // Add this line
+    }
+
+    console.log("Datos de planificación a enviar:", planificacion)
+
+    try {
+      const response = await axios.post("http://127.0.0.1:8000/api/profe-plan/", planificacion, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      })
+
+      if (response.status === 201) {
+        console.log("Planificación guardada exitosamente:", response.data)
+        setSuccess("Planificación creada exitosamente")
+        setTimeout(() => {
+          router.push("/p-home-profe")
+        }, 2000)
+      } else {
+        console.error("Error al guardar la planificación:", response.data)
+        setError("Error al guardar la planificación")
+      }
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        console.error("Error al enviar la planificación:", error.response?.data)
+        if (error.response?.status === 400 && error.response?.data?.detail?.includes("already exists")) {
+          setError("Ya existe una planificación con este código")
+        } else {
+          setError(`Error al guardar la planificación: ${error.response?.data?.detail || error.message}`)
+        }
+      } else {
+        console.error("Error desconocido:", error)
+        setError("Ocurrió un error desconocido al guardar la planificación")
+      }
+    }
   }
 
   if (isLoading) {
@@ -138,7 +241,7 @@ export default function CrearPlanificacion() {
       <nav className="bg-[#e6f3ff] py-4">
         <ul className="container mx-auto px-6 flex justify-center space-x-8 py-2">
           {menuItems.map((item, index) => (
-            <li key={index}>
+            <li key={`${item.title}-${index}`}>
               <Link
                 href={item.href}
                 className="flex items-center px-4 py-2 text-[#004976] hover:bg-[#c8e1ff] rounded-md transition-all duration-300 ease-in-out"
@@ -157,6 +260,18 @@ export default function CrearPlanificacion() {
             <CardTitle className="text-2xl font-bold text-center text-[#004976]">Crear Planificación</CardTitle>
           </CardHeader>
           <CardContent>
+            {error && (
+              <Alert variant="destructive" className="mb-4">
+                <AlertTitle>Error</AlertTitle>
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
+            {success && (
+              <Alert variant="default" className="mb-4">
+                <AlertTitle>Éxito</AlertTitle>
+                <AlertDescription>{success}</AlertDescription>
+              </Alert>
+            )}
             <div className="grid grid-cols-2 gap-4 mb-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Cohorte</label>
@@ -165,9 +280,9 @@ export default function CrearPlanificacion() {
                     <SelectValue placeholder="Seleccione cohorte" />
                   </SelectTrigger>
                   <SelectContent>
-                    {cohortesEjemplo.map((c) => (
-                      <SelectItem key={c} value={c}>
-                        {c}
+                    {cohortes.map((c) => (
+                      <SelectItem key={`cohorte-${c.codigo_cohorte}`} value={c.codigo_cohorte}>
+                        {c.codigo_cohorte}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -180,9 +295,9 @@ export default function CrearPlanificacion() {
                     <SelectValue placeholder="Seleccione materia" />
                   </SelectTrigger>
                   <SelectContent>
-                    {materiasEjemplo.map((m) => (
-                      <SelectItem key={m} value={m}>
-                        {m}
+                    {materias.map((m) => (
+                      <SelectItem key={`materia-${m.id}`} value={m.cod_materia}>
+                        {m.nombre_materia}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -202,7 +317,7 @@ export default function CrearPlanificacion() {
                   </TableHeader>
                   <TableBody>
                     {evaluaciones.map((evaluacion, index) => (
-                      <TableRow key={index}>
+                      <TableRow key={`evaluacion-${index}`}>
                         <TableCell>{evaluacion.numero}</TableCell>
                         <TableCell>
                           <Select
@@ -214,7 +329,7 @@ export default function CrearPlanificacion() {
                             </SelectTrigger>
                             <SelectContent>
                               {tiposEvaluacion.map((tipo) => (
-                                <SelectItem key={tipo} value={tipo}>
+                                <SelectItem key={`tipo-${tipo}`} value={tipo}>
                                   {tipo}
                                 </SelectItem>
                               ))}
