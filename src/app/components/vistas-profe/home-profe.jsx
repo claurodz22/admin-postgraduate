@@ -33,6 +33,14 @@ export default function ProfesorHomePage() {
         setUserData(response.data); // Actualiza el estado con los datos del usuario
         const cedula = response.data.cedula_usuario;
         console.log(cedula);
+
+        // funciona pero no es la solucion adecuada segun cristian
+        if (response.data.tipo_usuario == 1 || response.data.tipo_usuario == 2){
+          router.push("/home-all");
+          localStorage.removeItem("token")
+        return;
+        }
+        
       } catch (error) {
         console.error("Error al obtener los datos del usuario:", error);
         // Redirige al login si ocurre un error no autorizado

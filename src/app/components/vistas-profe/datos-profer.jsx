@@ -30,6 +30,14 @@ export default function MisDatos() {
             Authorization: `Bearer ${token}`, // Agrega el token al header4
           },
         });
+
+        // funciona pero no es la solucion adecuada segun cristian
+        if (response.data.tipo_usuario == 1 || response.data.tipo_usuario == 2){
+          router.push("/home-all");
+          localStorage.removeItem("token")
+        return;
+        }
+        
         setUserData(response.data); // Actualiza el estado con los datos del usuario
         const cedula = response.data.cedula_usuario;
         console.log(cedula);

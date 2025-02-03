@@ -24,6 +24,14 @@ export default function ListarMaterias() {
           Authorization: `Bearer ${token}`,
         },
       });
+
+      // funciona pero no es la solucion adecuada segun cristian
+      if (response.data.tipo_usuario == 1 || response.data.tipo_usuario == 2){
+        router.push("/home-all");
+        localStorage.removeItem("token")
+      return;
+      }
+      
       setUserData(response.data); // Actualiza los datos del usuario
       console.log("Cédula del usuario:", response.data.cedula_usuario);
     } catch (error) {

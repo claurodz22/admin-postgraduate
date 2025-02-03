@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input"
 import { FileText, ClipboardList, BookOpen, User, Home } from "lucide-react"
 import axios from "axios"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { url } from "../urls"
 
 export default function CrearPlanificacion() {
   const router = useRouter()
@@ -58,6 +59,13 @@ export default function CrearPlanificacion() {
           Authorization: `Bearer ${token}`,
         },
       })
+      // funciona pero no es la solucion adecuada segun cristian
+      if (response.data.tipo_usuario == 1 || response.data.tipo_usuario == 2){
+        router.push("/home-all");
+        localStorage.removeItem("token")
+      return;
+      }
+      
       setUserData(response.data)
       console.log("Cédula del usuario:", response.data.cedula)
     } catch (error) {
@@ -161,7 +169,7 @@ export default function CrearPlanificacion() {
     console.log("Datos de planificación a enviar:", planificacion)
 
     try {
-      const response = await axios.post("http://127.0.0.1:8000/api/profe-plan/", planificacion, {
+      const response = await axios.post(url.code_planing, planificacion, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
