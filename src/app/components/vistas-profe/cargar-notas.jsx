@@ -11,6 +11,65 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Input } from "@/components/ui/input"
 import { FileText, ClipboardList, BookOpen, User, Home } from "lucide-react"
 import axios from "axios"
+import { url } from "../urls"
+
+const planificationsCodesController = async ({
+  token,
+  data }) => {
+  try {
+
+    const response = await axios.get(url.code_planing, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+
+    // Filtrar solo los planes que coincidan con la cédula del usuario logueado
+    const data = response.data
+
+    console.log(data)
+
+    return data
+  } catch (error) {
+    console.error("Error fetching codigos de planificacion:", error)
+  }
+}
+// const planificationsCodesHandler = async ({
+//   state // esto es el M de MCV en el caso del use de esta arquitecutra en el front end
+// }) => {
+//   try {
+
+//     const token = localStorage.getItem("token")
+//     const data = await planificationsCodesController({ token })
+//     setCodigosPlanificacion(data)
+
+//   } catch (error) {
+//     alert(error?.message)
+//   }
+// }
+
+// const fetchCodigosPlanificacion = async () => {
+//   const token = localStorage.getItem("token")
+//   if (token && userData) {
+//     console.log(userData)
+//     try {
+
+//       const response = await axios.get(url.code_planing, {
+//         headers: {
+//           Authorization: `Bearer ${token}`,
+//         },
+//       })
+
+//       // Filtrar solo los planes que coincidan con la cédula del usuario logueado
+//       const filteredPlans = response.data.filter((plan) => plan.cedula_profesor === userData.cedula)
+
+//       setCodigosPlanificacion(filteredPlans)
+//       console.log(filteredPlans)
+//     } catch (error) {
+//       console.error("Error fetching codigos de planificacion:", error)
+//     }
+//   }
+// }
 
 export default function CargarNotas() {
   const router = useRouter()
@@ -22,27 +81,32 @@ export default function CargarNotas() {
   const [planificacion, setPlanificacion] = useState(null)
   const [codigosPlanificacion, setCodigosPlanificacion] = useState([])
 
-  const fetchCodigosPlanificacion = async () => {
-    const token = localStorage.getItem("token")
-    if (token && userData) {
-      console.log(userData)
+  const [error,setError] = useState("")
+
+  // esto es un state handler de la capa de ui o vista, tambien se puede interpretar como COntroller
+  const planificationsCodesHandler = async () => {
       try {
-        const response = await axios.get("http://127.0.0.1:8000/api/profe-plan/", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        })
-
-        // Filtrar solo los planes que coincidan con la cédula del usuario logueado
-        const filteredPlans = response.data.filter((plan) => plan.cedula_profesor === userData.cedula)
-
-        setCodigosPlanificacion(filteredPlans)
-        console.log(filteredPlans)
+        const token = localStorage.getItem("token")
+        let data = await planificationsCodesController({ token })
+        data = data.filter((plan) => plan.cedula_profesor === userData.cedula)
+        setCodigosPlanificacion(data)
       } catch (error) {
-        console.error("Error fetching codigos de planificacion:", error)
+        setError(error.message)
       }
     }
-  }
+
+    // esto se puede interpretar como un observador de estado que reaccionara a los cambios de estado y ciclo de vida del componente
+    useEffect(()=> {
+      if (error) {
+        // showSnackBar(srror, { variant: "error" }) // implementa un snackbar
+      }
+    },[error])
+
+    useEffect(() => {
+      if (userData) {
+        planificationsCodesHandler()
+      }
+    }, [userData]) 
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -59,9 +123,18 @@ export default function CargarNotas() {
             Authorization: `Bearer ${token}`,
           },
         })
+
+        // funciona pero no es la solucion adecuada segun cristian
+        if (response.data.tipo_usuario == 1 || response.data.tipo_usuario == 2){
+          router.push("/home-all");
+          localStorage.removeItem("token")
+        return;
+        }
+        
         setUserData(response.data)
         const cedula = response.data.cedula_usuario
         console.log(cedula)
+        
       } catch (error) {
         console.error("Error al obtener los datos del usuario:", error)
         if (error.response && error.response.status === 401) {
@@ -74,13 +147,7 @@ export default function CargarNotas() {
     }
 
     fetchUserData()
-  }, [router])
-
-  useEffect(() => {
-    if (userData) {
-      fetchCodigosPlanificacion()
-    }
-  }, [userData, fetchCodigosPlanificacion]) // Added fetchCodigosPlanificacion to dependencies
+  }, [])
 
   const fetchPlanificacion = async (codPlanificacion, token) => {
     try {
@@ -309,11 +376,10 @@ export default function CargarNotas() {
                               step="0.01"
                               value={estudiante.notas?.[evaluacion.id] || ""}
                               onChange={(e) => handleNotaChange(estudiante.id, evaluacion.id, e.target.value)}
-                              className={`w-20 ${
-                                estudiante.notas?.[evaluacion.id] < 0 || estudiante.notas?.[evaluacion.id] > 10
+                              className={`w-20 ${estudiante.notas?.[evaluacion.id] < 0 || estudiante.notas?.[evaluacion.id] > 10
                                   ? "border-red-500"
                                   : ""
-                              }`}
+                                }`}
                             />
                             {estudiante.notas?.[evaluacion.id] && (
                               <span className="ml-2">
