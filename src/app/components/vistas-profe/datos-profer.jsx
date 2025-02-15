@@ -91,9 +91,9 @@ export default function MisDatos() {
           </div>
           <div className="flex items-center gap-4">
             {userData && (
-              <span className="text-lg">
-                Bienvenido, {userData.nombre} {userData.apellido}
-              </span>
+               <span className="text-lg font-bold uppercase">
+               Bienvenido, PROFESOR: {userData.nombre} {userData.apellido}
+             </span>
             )}
             <Button
               variant="secondary"

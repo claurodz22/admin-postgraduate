@@ -272,8 +272,8 @@ export default function CargarNotas() {
           </div>
           <div className="flex items-center gap-4">
             {userData && (
-              <span className="text-lg">
-                Bienvenido, {userData.nombre} {userData.apellido}
+              <span className="text-lg font-bold uppercase">
+                Bienvenido, PROFESOR: {userData.nombre} {userData.apellido}
               </span>
             )}
             <Button
@@ -332,10 +332,13 @@ export default function CargarNotas() {
               <div className="mb-6">
                 <h3 className="text-lg font-semibold mb-2">Detalles de la Planificación</h3>
                 <p>
-                  <strong>Código de Materia:</strong> {planificacion.cod_materia}
+                  <strong>Código del Cohorte:</strong> {planificacion.codigo_cohorte}
                 </p>
                 <p>
-                  <strong>Código de Cohorte:</strong> {planificacion.codigo_cohorte}
+                  <strong>Código de la Materia:</strong> {planificacion.cod_materia}
+                </p>
+                <p>
+                  <strong>Nombre de la Materia:</strong> {planificacion.nombre_materia}
                 </p>
                 <h4 className="text-md font-semibold mt-2 mb-1">Actividades y Porcentajes:</h4>
                 <ul>

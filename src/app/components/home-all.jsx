@@ -31,7 +31,7 @@ export default function Page() {
             <div className="text-white">
               <h1 className="text-xl font-bold">UNIVERSIDAD DE ORIENTE</h1>
               <p className="text-sm">NÚCLEO DE ANZOÁTEGUI</p>
-              <p className="text-xs">DACE</p>
+              <p className="text-xs">SIGPCA</p>
             </div>
           </div>
           <div className="text-white text-right">

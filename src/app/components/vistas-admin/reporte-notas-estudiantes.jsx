@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Home, UserPlus, GraduationCap, ClipboardList, CreditCard, FileText, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Home, UserPlus, GraduationCap, ClipboardList, CreditCard, FileText, BookOpen, ChevronLeft, ChevronRight } from 'lucide-react';
 
 export default function ReporteNotas() {
   const router = useRouter();
@@ -84,7 +84,8 @@ export default function ReporteNotas() {
     { title: "Registro / Actualización de Estudiantes ", icon: GraduationCap, href: "/a-register-student" },
     { title: "Control de Notas", icon: ClipboardList, href: "/a-control-notas" },
     { title: "Control de Pagos", icon: CreditCard, href: "/a-control-pagos" },
-    { title: "Solicitudes Estudiantiles", icon: FileText, href: "/a-solicitudes-estudiantiles" },
+    { title: "Solicitudes Estudiantiles", icon: FileText, href: "/a-solicitudes-estudiantiles" }, 
+    {title: "Asignar Materia", icon: BookOpen, href: "/a-asignar-materia" },
   ];
 
   const notasFiltradas = notas.filter((nota) =>

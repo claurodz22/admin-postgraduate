@@ -15,7 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Home, UserPlus, GraduationCap, ClipboardList, CreditCard, FileText } from 'lucide-react';
+import { Home, UserPlus, GraduationCap, ClipboardList, CreditCard, FileText, BookOpen } from 'lucide-react';
 
 const RegisterStudent = () => {
   const router = useRouter();
@@ -142,7 +142,8 @@ const RegisterStudent = () => {
     { title: "Registro / Actualización de Estudiantes ", icon: GraduationCap, href: "/a-register-student" },
     { title: "Control de Notas", icon: ClipboardList, href: "/a-control-notas" },
     { title: "Control de Pagos", icon: CreditCard, href: "/a-control-pagos" },
-    { title: "Solicitudes Estudiantiles", icon: FileText, href: "/a-solicitudes-estudiantiles" },
+    { title: "Solicitudes Estudiantiles", icon: FileText, href: "/a-solicitudes-estudiantiles" }, 
+    {title: "Asignar Materia", icon: BookOpen, href: "/a-asignar-materia" },
   ];
 
   return (
@@ -219,7 +220,7 @@ const RegisterStudent = () => {
                       <Input
                         id="cedula"
                         name="cedula"
-                        type="text"
+                        type="number"
                         value={estudiante.cedula}
                         onChange={handleChange}
                         className="flex-1 ml-2"
@@ -288,6 +289,7 @@ const RegisterStudent = () => {
                     <SelectContent>
                       <SelectItem value="Contaduría Pública">Contaduría Pública</SelectItem>
                       <SelectItem value="Administración">Administración</SelectItem>
+                      <SelectItem value="Ingeniería en Computación">Ingeniería en Computación</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>

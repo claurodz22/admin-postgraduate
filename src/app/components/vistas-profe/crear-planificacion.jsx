@@ -17,8 +17,7 @@ import { url } from "../urls"
 export default function CrearPlanificacion() {
   const router = useRouter()
   const [userData, setUserData] = useState(null)
-  const [materias, setMaterias] = useState([])
-  const [cohortes, setCohortes] = useState([])
+  const [assignedCourses, setAssignedCourses] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const [cohorte, setCohorte] = useState("")
   const [materia, setMateria] = useState("")
@@ -36,8 +35,6 @@ export default function CrearPlanificacion() {
     const fetchData = async () => {
       try {
         await fetchUserData(token)
-        await fetchMaterias(token)
-        await fetchCohortes(token)
       } catch (error) {
         console.error("Error fetching data:", error)
         if (error.response && error.response.status === 401) {
@@ -52,6 +49,12 @@ export default function CrearPlanificacion() {
     fetchData()
   }, [router])
 
+  useEffect(() => {
+    if (userData) {
+      fetchAssignedCourses(localStorage.getItem("token"), userData.cedula)
+    }
+  }, [userData])
+
   const fetchUserData = async (token) => {
     try {
       const response = await axios.get("http://localhost:8000/api/user-info/", {
@@ -59,13 +62,12 @@ export default function CrearPlanificacion() {
           Authorization: `Bearer ${token}`,
         },
       })
-      // funciona pero no es la solucion adecuada segun cristian
-      if (response.data.tipo_usuario == 1 || response.data.tipo_usuario == 2){
-        router.push("/home-all");
+      if (response.data.tipo_usuario == 1 || response.data.tipo_usuario == 2) {
+        router.push("/home-all")
         localStorage.removeItem("token")
-      return;
+        return
       }
-      
+
       setUserData(response.data)
       console.log("Cédula del usuario:", response.data.cedula)
     } catch (error) {
@@ -74,42 +76,24 @@ export default function CrearPlanificacion() {
     }
   }
 
-  const fetchMaterias = async (token) => {
+  const fetchAssignedCourses = async (token, cedula) => {
     try {
-      const response = await axios.get("http://127.0.0.1:8000/api/profe-materias/", {
+      const response = await axios.get("http://127.0.0.1:8000/api/asignar-profesor-materia/", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       })
 
       if (response.status === 200) {
-        setMaterias(response.data)
-        console.log("Materias obtenidas:", response.data)
+        // Filtrar los cursos asignados por la cédula del profesor
+        const filteredCourses = response.data.filter((course) => course.cedula_profesor === cedula)
+        setAssignedCourses(filteredCourses)
+        console.log("Cursos asignados obtenidos:", filteredCourses)
       } else {
-        throw new Error("Failed to fetch materias")
+        throw new Error("Failed to fetch assigned courses")
       }
     } catch (error) {
-      console.error("Error al obtener las materias:", error)
-      throw error
-    }
-  }
-
-  const fetchCohortes = async (token) => {
-    try {
-      const response = await axios.get("http://127.0.0.1:8000/api/cohortes/", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-
-      if (response.status === 200) {
-        setCohortes(response.data)
-        console.log("Cohortes obtenidos:", response.data)
-      } else {
-        throw new Error("Failed to fetch cohortes")
-      }
-    } catch (error) {
-      console.error("Error al obtener los cohortes:", error)
+      console.error("Error al obtener los cursos asignados:", error)
       throw error
     }
   }
@@ -147,6 +131,13 @@ export default function CrearPlanificacion() {
       return
     }
 
+    // Find the selected course to get its name
+    const selectedCourse = assignedCourses.find(course => course.cod_materia === materia)
+    if (!selectedCourse) {
+      setError("No se encontró la información de la materia seleccionada")
+      return
+    }
+
     const actividades_planificacion = evaluaciones
       .map((e) => (e.tipo === "Otro" ? e.otroTipo : e.tipo))
       .filter((tipo) => tipo !== "")
@@ -163,7 +154,8 @@ export default function CrearPlanificacion() {
       actividades_porcentaje,
       cod_materia: materia,
       codigo_cohorte: cohorte,
-      cedula_profesor: userData.cedula, // Add this line
+      cedula_profesor: userData.cedula,
+      nombre_materia: selectedCourse.nom_materia
     }
 
     console.log("Datos de planificación a enviar:", planificacion)
@@ -228,9 +220,9 @@ export default function CrearPlanificacion() {
           </div>
           <div className="flex items-center gap-4">
             {userData && (
-              <span className="text-lg">
-                Bienvenido, {userData.nombre} {userData.apellido}
-              </span>
+              <span className="text-lg font-bold uppercase">
+              Bienvenido, PROFESOR: {userData.nombre} {userData.apellido}
+            </span>
             )}
             <Button
               variant="secondary"
@@ -288,9 +280,9 @@ export default function CrearPlanificacion() {
                     <SelectValue placeholder="Seleccione cohorte" />
                   </SelectTrigger>
                   <SelectContent>
-                    {cohortes.map((c) => (
-                      <SelectItem key={`cohorte-${c.codigo_cohorte}`} value={c.codigo_cohorte}>
-                        {c.codigo_cohorte}
+                    {[...new Set(assignedCourses.map((course) => course.codigo_cohorte))].map((cohort) => (
+                      <SelectItem key={`cohorte-${cohort}`} value={cohort}>
+                        {cohort}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -303,11 +295,13 @@ export default function CrearPlanificacion() {
                     <SelectValue placeholder="Seleccione materia" />
                   </SelectTrigger>
                   <SelectContent>
-                    {materias.map((m) => (
-                      <SelectItem key={`materia-${m.id}`} value={m.cod_materia}>
-                        {m.nombre_materia}
-                      </SelectItem>
-                    ))}
+                    {assignedCourses
+                      .filter((course) => course.codigo_cohorte === cohorte)
+                      .map((course) => (
+                        <SelectItem key={`materia-${course.cod_materia}`} value={course.cod_materia}>
+                          {course.nom_materia}
+                        </SelectItem>
+                      ))}
                   </SelectContent>
                 </Select>
               </div>

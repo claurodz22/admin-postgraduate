@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Home, UserPlus, GraduationCap, ClipboardList, CreditCard, FileText } from 'lucide-react';
+import { Home, UserPlus, GraduationCap, ClipboardList, CreditCard, FileText, BookOpen } from 'lucide-react';
 import { useState, useEffect } from 'react'
 
 export default function ControlNotas() {
@@ -17,7 +17,8 @@ export default function ControlNotas() {
     { title: "Registro / Actualización de Estudiantes ", icon: GraduationCap, href: "/a-register-student" },
     { title: "Control de Notas", icon: ClipboardList, href: "/a-control-notas" },
     { title: "Control de Pagos", icon: CreditCard, href: "/a-control-pagos" },
-    { title: "Solicitudes Estudiantiles", icon: FileText, href: "/a-solicitudes-estudiantiles" },
+    { title: "Solicitudes Estudiantiles", icon: FileText, href: "/a-solicitudes-estudiantiles" }, 
+    {title: "Asignar Materia", icon: BookOpen, href: "/a-asignar-materia" },
   ];
 
   useEffect(() => {

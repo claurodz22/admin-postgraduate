@@ -7,7 +7,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { FileText, ClipboardList, BookOpen, User, Home } from "lucide-react";
+import { FileText, ClipboardList, BookOpen, User, Home } from 'lucide-react';
 import axios from "axios";
 
 export default function ListarMaterias() {
@@ -15,6 +15,22 @@ export default function ListarMaterias() {
   const [userData, setUserData] = useState(null);
   const [materias, setMaterias] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+
+  const getMaestriaName = (cod_materia) => {
+    const maestriaCode = cod_materia.slice(0, 4); // Extraemos los primeros 4 caracteres
+
+    // Asignamos el nombre de la maestría según el código
+    switch (maestriaCode) {
+      case "8207":
+        return "Gerencia en RRHH";
+      case "8306":
+        return "Finanzas";
+      case "8327":
+        return "Gerencia General";
+      default:
+        return "Desconocida"; // Si el código no coincide con ninguno de los anteriores
+    }
+  };
 
   // Fetch User Data
   const fetchUserData = async (token) => {
@@ -25,14 +41,13 @@ export default function ListarMaterias() {
         },
       });
 
-      // funciona pero no es la solucion adecuada segun cristian
-      if (response.data.tipo_usuario == 1 || response.data.tipo_usuario == 2){
+      if (response.data.tipo_usuario == 1 || response.data.tipo_usuario == 2) {
         router.push("/home-all");
         localStorage.removeItem("token")
-      return;
+        return;
       }
-      
-      setUserData(response.data); // Actualiza los datos del usuario
+
+      setUserData(response.data);
       console.log("Cédula del usuario:", response.data.cedula_usuario);
     } catch (error) {
       console.error("Error al obtener los datos del usuario:", error);
@@ -43,27 +58,32 @@ export default function ListarMaterias() {
     }
   };
 
-  // Fetch Materias
-  const fetchMaterias = async (token) => {
+  // Fetch Materias Asignadas
+  const fetchfilteredCourses = async (token) => {
     try {
-      const response = await axios.get("http://127.0.0.1:8000/api/profe-materias/", {
+      const response = await axios.get("http://127.0.0.1:8000/api/asignar-profesor-materia/", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
 
       if (response.status === 200) {
-        setMaterias(response.data);
-        console.log("Materias obtenidas:", response.data);
+
+        console.log(response.data);  // Verifica la respuesta de la API
+        // Filtrar las materias por la cédula del profesor
+        const filteredCourses = response.data.filter((course) => course.cedula_profesor === userData.cedula)
+        console.log("Materias asignadas filtradas:", filteredCourses);  // Verifica las materias filtradas
+        setMaterias(filteredCourses);
       } else {
-        throw new Error("Failed to fetch materias");
+        throw new Error("Failed to fetch materias asignadas");
       }
     } catch (error) {
-      console.error("Error al obtener las materias:", error);
+      console.error("Error al obtener las materias asignadas:", error);
     } finally {
       setIsLoading(false);
     }
   };
+
 
   // Unified useEffect to Fetch User and Materias
   useEffect(() => {
@@ -74,9 +94,15 @@ export default function ListarMaterias() {
     } else {
       setIsLoading(true);
       fetchUserData(token);
-      fetchMaterias(token);
     }
   }, [router]);
+
+  useEffect(() => {
+    if (userData) {
+      const token = localStorage.getItem("token");
+      fetchfilteredCourses(token);
+    }
+  }, [userData]);
 
   const menuItems = [
     { title: "Inicio", icon: Home, href: "/p-home-profe" },
@@ -113,9 +139,9 @@ export default function ListarMaterias() {
           </div>
           <div className="flex items-center gap-4">
             {userData && (
-              <span className="text-lg">
-                Bienvenido, {userData.nombre} {userData.apellido}
-              </span>
+              <span className="text-lg font-bold uppercase">
+              Bienvenido, PROFESOR: {userData.nombre} {userData.apellido}
+            </span>
             )}
             <Button
               variant="secondary"
@@ -158,22 +184,26 @@ export default function ListarMaterias() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Código Maestría</TableHead>
+                  <TableHead>Maestría</TableHead>
                   <TableHead>Nombre de la Materia</TableHead>
                   <TableHead>Código de la Materia</TableHead>
+                  <TableHead>Cohorte</TableHead>
                   <TableHead>Observaciones</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {materias.map((materia, index) => (
                   <TableRow key={index}>
-                    <TableCell>{materia.cod_maestria}</TableCell>
-                    <TableCell>{materia.nombre_materia}</TableCell>
+                    {/* Llamamos a la función para obtener el nombre de la maestría */}
+                    <TableCell>{getMaestriaName(materia.cod_materia)}</TableCell>
+                    <TableCell>{materia.nom_materia}</TableCell>
                     <TableCell>{materia.cod_materia}</TableCell>
+                    <TableCell>{materia.codigo_cohorte}</TableCell>
                     <TableCell>{"N/A"}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
+
             </Table>
           </CardContent>
         </Card>
