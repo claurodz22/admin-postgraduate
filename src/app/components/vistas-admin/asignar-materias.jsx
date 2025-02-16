@@ -23,6 +23,7 @@ export default function AsignarMaterias() {
     {
       codigoMateria: "",
       nombreMateria: "",
+      duracion: "",
       fechaInicio: "",
       fechaFin: "",
       profesor: "",
@@ -145,6 +146,7 @@ export default function AsignarMaterias() {
       {
         codigoMateria: "",
         nombreMateria: "",
+        duracion: "",
         fechaInicio: "",
         fechaFin: "",
         profesor: "",
@@ -155,6 +157,18 @@ export default function AsignarMaterias() {
   const handleRowChange = (index, field, value) => {
     const newRows = [...planningRows]
     newRows[index][field] = value
+
+    if (field === "fechaInicio" || field === "duracion") {
+      if (newRows[index].fechaInicio && newRows[index].duracion) {
+        const startDate = new Date(newRows[index].fechaInicio)
+        const durationWeeks = Number.parseInt(newRows[index].duracion)
+        if (!isNaN(durationWeeks)) {
+          const endDate = new Date(startDate.getTime() + durationWeeks * 7 * 24 * 60 * 60 * 1000)
+          newRows[index].fechaFin = endDate.toISOString().split("T")[0]
+        }
+      }
+    }
+
     setPlanningRows(newRows)
   }
 
@@ -163,7 +177,8 @@ export default function AsignarMaterias() {
 
     // Validate that all required fields are filled
     const isValid = planningRows.every(
-      (row) => row.codigoMateria && row.nombreMateria && row.fechaInicio && row.fechaFin && row.profesor,
+      (row) =>
+        row.codigoMateria && row.nombreMateria && row.duracion && row.fechaInicio && row.fechaFin && row.profesor,
     )
 
     if (!isValid) {
@@ -176,6 +191,7 @@ export default function AsignarMaterias() {
       planning: planningRows.map((row) => ({
         cod_materia: row.codigoMateria,
         nom_materia: row.nombreMateria,
+        duracion: row.duracion,
         cedula_profesor: row.profesor,
         nombre_profesor: row.profesor
           ? professors.find((p) => p.ci_profesor.toString() === row.profesor)?.nom_profesor_materia
@@ -228,6 +244,7 @@ export default function AsignarMaterias() {
         {
           codigoMateria: "",
           nombreMateria: "",
+          duracion: "",
           fechaInicio: "",
           fechaFin: "",
           profesor: "",
@@ -329,7 +346,7 @@ export default function AsignarMaterias() {
                       <SelectContent>
                         {cohorts.map((cohort) => (
                           <SelectItem key={cohort.codigo_cohorte} value={cohort.codigo_cohorte}>
-                            {`${cohort.codigo_cohorte} - ${cohort.tipo_maestria} (${cohort.sede_cohorte})`}
+                            {`${cohort.codigo_cohorte}`}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -339,11 +356,12 @@ export default function AsignarMaterias() {
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead className="w-1/5">Código Materia</TableHead>
-                        <TableHead className="w-1/5">Nombre Materia</TableHead>
-                        <TableHead className="w-1/5">Fecha Inicio</TableHead>
-                        <TableHead className="w-1/5">Fecha Fin</TableHead>
-                        <TableHead className="w-1/5">Profesor</TableHead>
+                        <TableHead className="w-1/6">Código Materia</TableHead>
+                        <TableHead className="w-1/6">Nombre Materia</TableHead>
+                        <TableHead className="w-1/6">Duración (semanas)</TableHead>
+                        <TableHead className="w-1/6">Fecha Inicio</TableHead>
+                        <TableHead className="w-1/6">Fecha Fin</TableHead>
+                        <TableHead className="w-1/6">Profesor</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -390,11 +408,31 @@ export default function AsignarMaterias() {
                           </TableCell>
                           <TableCell>
                             <Input
+                              type="number"
+                              value={row.duracion}
+                              onChange={(e) => handleRowChange(index, "duracion", e.target.value)}
+                              className="w-full"
+                              min="1"
+                              max="52"
+                            />
+                          </TableCell>
+                          <TableCell>
+                            <Input
                               type="date"
                               value={row.fechaInicio}
-                              onChange={(e) => handleRowChange(index, "fechaInicio", e.target.value)}
+                              onChange={(e) => {
+                                const selectedDate = new Date(e.target.value)
+                                const day = selectedDate.getDay()
+                                if (day ===  6 || day === 5) {
+                                  handleRowChange(index, "fechaInicio", e.target.value)
+                                } else {
+                                  alert("Por favor, seleccione sólo sábado o domingo.")
+                                }
+                              }}
                               className="w-full"
+                              min={new Date().toISOString().split("T")[0]} // Set min date to today
                             />
+                            <p className="text-xs text-gray-500 mt-1">Sólo sábado o domingo</p>
                           </TableCell>
                           <TableCell>
                             <Input
@@ -402,6 +440,7 @@ export default function AsignarMaterias() {
                               value={row.fechaFin}
                               onChange={(e) => handleRowChange(index, "fechaFin", e.target.value)}
                               className="w-full"
+                              readOnly
                             />
                           </TableCell>
                           <TableCell>

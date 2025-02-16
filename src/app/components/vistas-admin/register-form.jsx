@@ -1,6 +1,6 @@
-'use client'
+"use client"
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -9,90 +9,106 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { Home, UserPlus, GraduationCap, ClipboardList, CreditCard, FileText, BookOpen, Lock, EyeIcon, EyeClosedIcon } from 'lucide-react'
+import {
+  Home,
+  UserPlus,
+  GraduationCap,
+  ClipboardList,
+  CreditCard,
+  FileText,
+  BookOpen,
+  EyeIcon,
+  EyeIcon as EyeClosedIcon,
+} from "lucide-react"
 
 export default function RegisterUser() {
   const router = useRouter()
 
   const [user, setUser] = useState({
-    nombre: '',
-    apellido: '',
-    cedulaTipo: 'V-',
-    cedulaNumero: '',
-    correo: '',
-    tipoUsuario: '',
-    password: '',
-    confirmPassword: ''
+    nombre: "",
+    apellido: "",
+    cedulaTipo: "V-",
+    cedulaNumero: "",
+    correo: "",
+    tipoUsuario: "",
+    password: "",
+    confirmPassword: "",
   })
 
-  const [passwordError, setPasswordError] = useState('')
-  const [formError, setFormError] = useState('')
+  const [passwordError, setPasswordError] = useState("")
+  const [formError, setFormError] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [userFound, setUserFound] = useState(false)
   const [searchPerformed, setSearchPerformed] = useState(false)
-  const [showPassword, setShowPassword] = useState(false); // Nuevo estado para alternar la visibilidad de la contraseña
+  const [showPassword, setShowPassword] = useState(false) // Nuevo estado para alternar la visibilidad de la contraseña
 
   useEffect(() => {
-    const token = localStorage.getItem('token')
+    const token = localStorage.getItem("token")
     if (!token) {
-      router.push('/a-login-admin')
+      router.push("/a-login-admin")
     }
   }, [router])
 
   const handleChange = (e) => {
     const { name, value } = e.target
-    setUser(prev => ({ ...prev, [name]: value }))
+    if (name === "nombre" || name === "apellido") {
+      // Only allow letters and spaces
+      const onlyLetters = value.replace(/[^a-zA-Z\s]/g, "")
+      setUser((prev) => ({ ...prev, [name]: onlyLetters }))
+    } else {
+      setUser((prev) => ({ ...prev, [name]: value }))
+    }
   }
 
   const handleSelectChange = (value) => {
-    setUser(prev => ({ ...prev, tipoUsuario: value }))
+    setUser((prev) => ({ ...prev, tipoUsuario: value }))
   }
 
   const handleSearch = async () => {
-    setIsLoading(true);
-    setFormError('');
-    setUserFound(false);
-    setSearchPerformed(true);
+    setIsLoading(true)
+    setFormError("")
+    setUserFound(false)
+    setSearchPerformed(true)
     // awaint es solo valido en funciones asynchronously
-    // if === true 
-    const fullCedula = `${user.cedulaTipo}${user.cedulaNumero}`;
+    // if === true
+    const fullCedula = `${user.cedulaTipo}${user.cedulaNumero}`
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/datosbasicos/', {
-        method: 'POST',
+      const response = await fetch("http://127.0.0.1:8000/api/datosbasicos/", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('token')}`
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
         body: JSON.stringify({ cedula: fullCedula }),
-      });
+      })
 
-      const result = await response.json();
-      console.log('API datos:', result);
+      const result = await response.json()
+      console.log("API datos:", result)
 
       if (response.ok && result.data) {
-        const userData = result.data;
-        setUser(prev => ({
+        const userData = result.data
+        setUser((prev) => ({
           ...prev,
           nombre: userData.nombre || prev.nombre,
           apellido: userData.apellido || prev.apellido,
           correo: userData.correo || prev.correo,
           password: userData.contraseña || prev.contraseña,
-          tipoUsuario: userData.tipo_usuario ?
-            ['', 'administrativo', 'estudiante', 'profesor'][userData.tipo_usuario] :
-            prev.tipoUsuario
-        }));
-        setUserFound(true);
-        setFormError(result.message || 'Usuario encontrado. Puede actualizar los datos.');
+          tipoUsuario: userData.tipo_usuario
+            ? ["", "administrativo", "estudiante", "profesor"][userData.tipo_usuario]
+            : prev.tipoUsuario,
+        }))
+        setUserFound(true)
+        setFormError(result.message || "Usuario encontrado. Puede actualizar los datos.")
       } else {
-        setFormError(result.message || 'Usuario no encontrado. Por favor, complete el registro.');
+        setFormError(result.message || "Usuario no encontrado. Por favor, complete el registro.")
       }
     } catch (error) {
-      console.error('Error (p1):', error);  // Muestra el error completo en consola
-      setFormError(`Error: ${error.message || 'Algo salió mal'}.`);  // Muestra un mensaje más útil en el formulario
+      console.error("Error (p1):", error) // Muestra el error completo en consola
+      setFormError(`Error: ${error.message || "Algo salió mal"}.`) // Muestra un mensaje más útil en el formulario
     } finally {
-      setIsLoading(false);  // Detiene el estado de carga independientemente de si hubo un error o no
-    }    
-  };
+      setIsLoading(false) // Detiene el estado de carga independientemente de si hubo un error o no
+    }
+  }
 
   const validatePassword = (password) => {
     const minLength = 8
@@ -107,28 +123,28 @@ export default function RegisterUser() {
     e.preventDefault()
 
     if (user.password !== user.confirmPassword) {
-      setPasswordError('Las contraseñas no coinciden')
+      setPasswordError("Las contraseñas no coinciden")
       return
     }
     if (!validatePassword(user.password)) {
-      setPasswordError('La contraseña no cumple con los requisitos')
+      setPasswordError("La contraseña no cumple con los requisitos")
       return
     }
 
-    setPasswordError('')
-    setFormError('')
+    setPasswordError("")
+    setFormError("")
 
     const fullCedula = `${user.cedulaTipo}${user.cedulaNumero}`
 
     let tipoUsuarioValue
     switch (user.tipoUsuario) {
-      case 'administrativo':
+      case "administrativo":
         tipoUsuarioValue = 1
         break
-      case 'estudiante':
+      case "estudiante":
         tipoUsuarioValue = 2
         break
-      case 'profesor':
+      case "profesor":
         tipoUsuarioValue = 3
         break
       default:
@@ -142,17 +158,17 @@ export default function RegisterUser() {
       cedula: fullCedula,
       correo: user.correo,
       tipo_usuario: tipoUsuarioValue,
-      contraseña: user.password
+      contraseña: user.password,
     }
 
     setIsLoading(true)
 
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/datosbasicos/', {
-        method: 'POST',
+      const response = await fetch("http://127.0.0.1:8000/api/datosbasicos/", {
+        method: "POST",
         headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`, 
-          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(userToSubmit),
       })
@@ -161,22 +177,22 @@ export default function RegisterUser() {
 
       if (response.ok) {
         setUser({
-          nombre: '',
-          apellido: '',
-          cedulaTipo: 'V-',
-          cedulaNumero: '',
-          correo: '',
-          tipoUsuario: '',
-          password: '',
-          confirmPassword: ''
+          nombre: "",
+          apellido: "",
+          cedulaTipo: "V-",
+          cedulaNumero: "",
+          correo: "",
+          tipoUsuario: "",
+          password: "",
+          confirmPassword: "",
         })
-        alert('Usuario registrado con éxito!')
+        alert("Usuario registrado con éxito!")
         router.push("/a-home-admin")
       } else {
-        setFormError(result.message || 'Ocurrió un error al registrar el usuario')
+        setFormError(result.message || "Ocurrió un error al registrar el usuario")
       }
     } catch (error) {
-      setFormError('Hubo un problema con la solicitud')
+      setFormError("Hubo un problema con la solicitud")
     } finally {
       setIsLoading(false)
     }
@@ -188,8 +204,8 @@ export default function RegisterUser() {
     { title: "Registro / Actualización de Estudiantes ", icon: GraduationCap, href: "/a-register-student" },
     { title: "Control de Notas", icon: ClipboardList, href: "/a-control-notas" },
     { title: "Control de Pagos", icon: CreditCard, href: "/a-control-pagos" },
-    { title: "Solicitudes Estudiantiles", icon: FileText, href: "/a-solicitudes-estudiantiles" }, 
-    {title: "Asignar Materia", icon: BookOpen, href: "/a-asignar-materia" },
+    { title: "Solicitudes Estudiantiles", icon: FileText, href: "/a-solicitudes-estudiantiles" },
+    { title: "Asignar Materia", icon: BookOpen, href: "/a-asignar-materia" },
   ]
 
   return (
@@ -232,10 +248,7 @@ export default function RegisterUser() {
             <ul className="space-y-1">
               {menuItems.map((item, index) => (
                 <li key={index}>
-                  <Link
-                    href={item.href}
-                    className="flex items-center px-6 py-2 text-[#004976] gap-3"
-                  >
+                  <Link href={item.href} className="flex items-center px-6 py-2 text-[#004976] gap-3">
                     <item.icon className="h-5 w-5 shrink-0" />
 
                     <span>{item.title}</span>
@@ -258,7 +271,8 @@ export default function RegisterUser() {
                     <div className="flex">
                       <Select
                         value={user.cedulaTipo}
-                        onValueChange={(value) => setUser(prev => ({ ...prev, cedulaTipo: value }))}>
+                        onValueChange={(value) => setUser((prev) => ({ ...prev, cedulaTipo: value }))}
+                      >
                         <SelectTrigger className="w-[70px]">
                           <SelectValue placeholder="Tipo" />
                         </SelectTrigger>
@@ -282,22 +296,13 @@ export default function RegisterUser() {
                   </div>
                   <div>
                     <Label htmlFor="buscar_estudiante">Buscar Estudiante</Label>
-                    <Button
-                      type="button"
-                      onClick={handleSearch}
-                      disabled={isLoading}
-                      className="w-full"
-                    >
-                      {isLoading ? 'Buscando...' : 'Buscar'}
+                    <Button type="button" onClick={handleSearch} disabled={isLoading} className="w-full">
+                      {isLoading ? "Buscando..." : "Buscar"}
                     </Button>
                   </div>
                 </div>
 
-                {searchPerformed && (
-                  <p className={`text-${userFound ? 'blue' : 'red'}-500 mt-2`}>
-                    {formError}
-                  </p>
-                )}
+                {searchPerformed && <p className={`text-${userFound ? "blue" : "red"}-500 mt-2`}>{formError}</p>}
 
                 <div>
                   <Label htmlFor="nombre">Nombre</Label>
@@ -335,11 +340,7 @@ export default function RegisterUser() {
                 </div>
                 <div>
                   <Label htmlFor="tipoUsuario">Tipo de Usuario</Label>
-                  <Select
-                    onValueChange={handleSelectChange}
-                    value={user.tipoUsuario}
-                    disabled={!searchPerformed}
-                  >
+                  <Select onValueChange={handleSelectChange} value={user.tipoUsuario} disabled={!searchPerformed}>
                     <SelectTrigger>
                       <SelectValue placeholder="Seleccione un tipo de usuario" />
                     </SelectTrigger>
@@ -350,13 +351,10 @@ export default function RegisterUser() {
                     </SelectContent>
                   </Select>
                 </div>
-                <div style={{ display: 'flex' }}>
-                  <div
-                    style={{ width: '90%' }}
-                  >
+                <div style={{ display: "flex" }}>
+                  <div style={{ width: "90%" }}>
                     <Label htmlFor="password">Contraseña</Label>
                     <Input
-
                       id="password"
                       name="password"
                       type={showPassword ? "text" : "password"} // Cambia el tipo dinámicamente
@@ -364,48 +362,47 @@ export default function RegisterUser() {
                       value={user.password}
                       onChange={handleChange}
                       required
-                    //disabled={!searchPerformed}
+                      //disabled={!searchPerformed}
                     />
                   </div>
                   <button
-                    style={{ height: '40px', marginTop: 'auto' }}
+                    style={{ height: "40px", marginTop: "auto" }}
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
                     className="text-[#004976] p-2"
                     aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
                   >
-                    {!showPassword ? < EyeClosedIcon /> : <EyeIcon />}
+                    {!showPassword ? <EyeClosedIcon /> : <EyeIcon />}
                   </button>
                 </div>
-                <div style = {{display:'flex'}}>
-                  <div
-                    style = {{ width: '90%'}}
-                    >
-                  <Label htmlFor="confirmPassword">Confirmar Contraseña</Label>
-                  <Input
-                    id="confirmPassword"
-                    name="confirmPassword"
-                    type={showPassword ? "text" : "password"} // Cambia el tipo dinámicamente
-                    autoComplete="current-password"
-                    //value={""}
-                    onChange={handleChange}
-                    required
-                    disabled={!searchPerformed}
-                  />
+                <div style={{ display: "flex" }}>
+                  <div style={{ width: "90%" }}>
+                    <Label htmlFor="confirmPassword">Confirmar Contraseña</Label>
+                    <Input
+                      id="confirmPassword"
+                      name="confirmPassword"
+                      type={showPassword ? "text" : "password"} // Cambia el tipo dinámicamente
+                      autoComplete="current-password"
+                      //value={""}
+                      onChange={handleChange}
+                      required
+                      disabled={!searchPerformed}
+                    />
                   </div>
                   <button
-                    style={{ height: '40px', marginTop: 'auto' }}
+                    style={{ height: "40px", marginTop: "auto" }}
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
                     className="text-[#004976] p-2"
                     aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
                   >
-                    {!showPassword ? < EyeClosedIcon /> : <EyeIcon />}
+                    {!showPassword ? <EyeClosedIcon /> : <EyeIcon />}
                   </button>
                 </div>
                 {passwordError && <p className="text-red-500">{passwordError}</p>}
                 <p className="text-sm text-gray-500">
-                  La contraseña debe tener al menos 8 caracteres, incluir mayúsculas, minúsculas, números y caracteres especiales.
+                  La contraseña debe tener al menos 8 caracteres, incluir mayúsculas, minúsculas, números y caracteres
+                  especiales.
                 </p>
                 <div className="flex justify-center mt-6">
                   <div className="flex items-center space-x-8">
@@ -417,7 +414,7 @@ export default function RegisterUser() {
                       className="bg-[#004976] text-white hover:bg-[#003357]"
                       disabled={isLoading || !searchPerformed}
                     >
-                      {isLoading ? 'Registrando...' : 'Registrar Usuario'}
+                      {isLoading ? "Registrando..." : "Registrar Usuario"}
                     </Button>
                   </div>
                 </div>
