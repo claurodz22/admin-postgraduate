@@ -24,6 +24,7 @@ export default function CrearPlanificacion() {
   const [evaluaciones, setEvaluaciones] = useState([{ numero: 1, tipo: "", porcentaje: 0, otroTipo: "" }])
   const [error, setError] = useState("")
   const [success, setSuccess] = useState("")
+  const [percentageAlert, setPercentageAlert] = useState("")
 
   useEffect(() => {
     const token = localStorage.getItem("token")
@@ -54,6 +55,11 @@ export default function CrearPlanificacion() {
       fetchAssignedCourses(localStorage.getItem("token"), userData.cedula)
     }
   }, [userData])
+
+  // Removed useEffect hook
+  // useEffect(() => {
+  //   calcularTotalPorcentaje()
+  // }, [evaluaciones])
 
   const fetchUserData = async (token) => {
     try {
@@ -116,10 +122,23 @@ export default function CrearPlanificacion() {
     const newEvaluaciones = [...evaluaciones]
     newEvaluaciones[index][field] = value
     setEvaluaciones(newEvaluaciones)
+    const total = calcularTotalPorcentaje()
+    updatePercentageAlert(total)
   }
 
   const calcularTotalPorcentaje = () => {
-    return evaluaciones.reduce((total, evaluacion) => total + Number(evaluacion.porcentaje), 0)
+    const total = evaluaciones.reduce((total, evaluacion) => total + Number(evaluacion.porcentaje), 0)
+    return total
+  }
+
+  const updatePercentageAlert = (total) => {
+    if (total < 100) {
+      setPercentageAlert(`Falta ${100 - total}% para completar el 100%`)
+    } else if (total > 100) {
+      setPercentageAlert(`Se ha excedido en ${total - 100}% del 100% permitido`)
+    } else {
+      setPercentageAlert("")
+    }
   }
 
   const handleGuardar = async () => {
@@ -132,7 +151,7 @@ export default function CrearPlanificacion() {
     }
 
     // Find the selected course to get its name
-    const selectedCourse = assignedCourses.find(course => course.cod_materia === materia)
+    const selectedCourse = assignedCourses.find((course) => course.cod_materia === materia)
     if (!selectedCourse) {
       setError("No se encontró la información de la materia seleccionada")
       return
@@ -155,7 +174,7 @@ export default function CrearPlanificacion() {
       cod_materia: materia,
       codigo_cohorte: cohorte,
       cedula_profesor: userData.cedula,
-      nombre_materia: selectedCourse.nom_materia
+      nombre_materia: selectedCourse.nom_materia,
     }
 
     console.log("Datos de planificación a enviar:", planificacion)
@@ -221,8 +240,8 @@ export default function CrearPlanificacion() {
           <div className="flex items-center gap-4">
             {userData && (
               <span className="text-lg font-bold uppercase">
-              Bienvenido, PROFESOR: {userData.nombre} {userData.apellido}
-            </span>
+                Bienvenido, PROFESOR: {userData.nombre} {userData.apellido}
+              </span>
             )}
             <Button
               variant="secondary"
@@ -270,6 +289,12 @@ export default function CrearPlanificacion() {
               <Alert variant="default" className="mb-4">
                 <AlertTitle>Éxito</AlertTitle>
                 <AlertDescription>{success}</AlertDescription>
+              </Alert>
+            )}
+            {percentageAlert && (
+              <Alert variant="warning" className="mb-4">
+                <AlertTitle>Advertencia</AlertTitle>
+                <AlertDescription>{percentageAlert}</AlertDescription>
               </Alert>
             )}
             <div className="grid grid-cols-2 gap-4 mb-6">
