@@ -7,60 +7,68 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FileText, ClipboardList, BookOpen, User } from "lucide-react";
-import axios from "axios"
+import axios from "axios";
+import { useCallback } from "react";
 
 export default function ProfesorHomePage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
   const [userData, setUserData] = useState(null);
 
+  const fetchUserData = async () => {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      // Redirige al login si no hay token
+      router.push("/p-login-profe");
+      return;
+    }
+
+    try {
+      const response = await axios.get("http://localhost:8000/api/user-info/", {
+        headers: {
+          Authorization: `Bearer ${token}`, // Agrega el token al header4
+        },
+      });
+      setUserData(response.data); // Actualiza el estado con los datos del usuario
+      const cedula = response.data.cedula_usuario;
+      console.log(cedula);
+
+      // funciona pero no es la solucion adecuada segun cristian
+      if (response.data.tipo_usuario == 1 || response.data.tipo_usuario == 2) {
+        router.push("/home-all");
+        localStorage.removeItem("token");
+        return;
+      }
+    } catch (error) {
+      console.error("Error al obtener los datos del usuario:", error);
+      // Redirige al login si ocurre un error no autorizado
+      if (error.response && error.response.status === 401) {
+        //localStorage.removeItem("token");
+        //router.push("/p-login-profe");
+      }
+    } finally {
+      setIsLoading(false); // Finaliza la carga
+    }
+  };
+  const memoizedCallback = useCallback(fetchUserData, []);
   useEffect(() => {
-    const fetchUserData = async () => {
-      const token = localStorage.getItem("token");
-
-      if (!token) {
-        // Redirige al login si no hay token
-        router.push("/p-login-profe");
-        return;
-      }
-
-      try {
-        const response = await axios.get("http://localhost:8000/api/user-info/", {
-          headers: {
-            Authorization: `Bearer ${token}`, // Agrega el token al header4
-          },
-        });
-        setUserData(response.data); // Actualiza el estado con los datos del usuario
-        const cedula = response.data.cedula_usuario;
-        console.log(cedula);
-
-        // funciona pero no es la solucion adecuada segun cristian
-        if (response.data.tipo_usuario == 1 || response.data.tipo_usuario == 2){
-          router.push("/home-all");
-          localStorage.removeItem("token")
-        return;
-        }
-        
-      } catch (error) {
-        console.error("Error al obtener los datos del usuario:", error);
-        // Redirige al login si ocurre un error no autorizado
-        if (error.response && error.response.status === 401) {
-          //localStorage.removeItem("token");
-          //router.push("/p-login-profe");
-        }
-      } finally {
-        setIsLoading(false); // Finaliza la carga
-      }
-    };
-
     fetchUserData();
   }, [router]);
 
   const menuItems = [
     { title: "Inicio", icon: FileText, href: "/p-home-profe" },
-    { title: "Crear Planificación", icon: FileText, href: "/p-crear-planificacion" },
+    {
+      title: "Crear Planificación",
+      icon: FileText,
+      href: "/p-crear-planificacion",
+    },
     { title: "Cargar Notas", icon: ClipboardList, href: "/p-cargar-notas" },
-    { title: "Listar Materias Asignadas", icon: BookOpen, href: "/p-listar-materias" },
+    {
+      title: "Listar Materias Asignadas",
+      icon: BookOpen,
+      href: "/p-listar-materias",
+    },
     { title: "Mis Datos", icon: User, href: "/p-datos-profe" },
   ];
 
@@ -93,8 +101,8 @@ export default function ProfesorHomePage() {
           <div className="flex items-center gap-4">
             {userData && (
               <span className="text-lg font-bold uppercase">
-              Bienvenido, PROFESOR: {userData.nombre} {userData.apellido}
-            </span>
+                Bienvenido, PROFESOR: {userData.nombre} {userData.apellido}
+              </span>
             )}
             <Button
               variant="secondary"
@@ -132,14 +140,20 @@ export default function ProfesorHomePage() {
         <Card className="max-w-3xl mx-auto bg-[#FFEFD5]">
           <CardContent className="p-6 text-center">
             <h2 className="text-3xl font-bold text-[#004976] mb-4">
-              Bienvenido, {userData ? `${userData.nombre} ${userData.apellido}` : "Profesor"}
+              Bienvenido,{" "}
+              {userData
+                ? `${userData.nombre} ${userData.apellido}`
+                : "Profesor"}
             </h2>
             <p className="text-lg text-gray-600 mb-4">
-              Bienvenido a su panel de control. Aquí puede gestionar sus cursos, calificaciones y más.
+              Bienvenido a su panel de control. Aquí puede gestionar sus cursos,
+              calificaciones y más.
             </p>
             {userData && (
               <div className="text-left bg-white p-4 rounded-lg shadow">
-                <h3 className="text-xl font-semibold mb-2">Información del Usuario:</h3>
+                <h3 className="text-xl font-semibold mb-2">
+                  Información del Usuario:
+                </h3>
                 <p>
                   <strong>Cédula:</strong> {userData.cedula}
                 </p>
@@ -150,10 +164,12 @@ export default function ProfesorHomePage() {
                   <strong>Apellido:</strong> {userData.apellido}
                 </p>
                 <p>
-                  <strong>Correo:</strong> {userData.correo || "No especificado"}
+                  <strong>Correo:</strong>{" "}
+                  {userData.correo || "No especificado"}
                 </p>
                 <p>
-                  <strong>Tipo de Usuario:</strong> {userData.tipo_usuario === 3 ? "Profesor" : "Otro"}
+                  <strong>Tipo de Usuario:</strong>{" "}
+                  {userData.tipo_usuario === 3 ? "Profesor" : "Otro"}
                 </p>
               </div>
             )}

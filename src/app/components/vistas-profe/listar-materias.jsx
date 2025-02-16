@@ -6,16 +6,46 @@ import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { FileText, ClipboardList, BookOpen, User, Home } from 'lucide-react';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { FileText, ClipboardList, BookOpen, User, Home } from "lucide-react";
 import axios from "axios";
+import { url } from "../urls";
 
 export default function ListarMaterias() {
   const router = useRouter();
   const [userData, setUserData] = useState(null);
   const [materias, setMaterias] = useState([]);
+  const [maestrias, setMaestrias] = useState([]);
+  const [maestriasIndexedByCode, setMaestriasIndexedByCode] = useState({});
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingMaterias, setLoadingMaterias] = useState(false);
 
+  const fetchMaestrias = async () => {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      throw new Error("No hay token");
+    }
+
+    try {
+      const response = await axios.get(url.maestrias, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.error("fetchMaestrias:", error);
+      throw error;
+    }
+  };
   const getMaestriaName = (cod_materia) => {
     const maestriaCode = cod_materia.slice(0, 4); // Extraemos los primeros 4 caracteres
 
@@ -30,8 +60,37 @@ export default function ListarMaterias() {
       default:
         return "Desconocida"; // Si el código no coincide con ninguno de los anteriores
     }
+    // return maestriasIndexedByCode[cod_materia]?.nombre_maestria;
   };
 
+  async function handleFetchMaestrias() {
+    try {
+      const data = await fetchMaestrias();
+      setMaestrias(data);
+      setMaestriasIndexedByCode(
+        data.reduce((acc, maestria) => {
+          acc[maestria.cod_maestria] = maestria;
+          return acc;
+        }, {})
+      );
+    } catch (error) {
+      alert(error.message);
+    } finally {
+      setLoadingMaterias(false);
+    }
+  }
+
+  useEffect(() => {
+    handleFetchMaestrias();
+  }, [router]);
+
+  useEffect(() => {
+    if (maestrias.length) {
+      console.log("[getMaestriaName]", "8207", getMaestriaName("8207"));
+      console.log("[getMaestriaName]", "8327", getMaestriaName("8327"));
+      console.log("[getMaestriaName]", "8306", getMaestriaName("8306"));
+    }
+  }, [maestrias]);
   // Fetch User Data
   const fetchUserData = async (token) => {
     try {
@@ -43,7 +102,7 @@ export default function ListarMaterias() {
 
       if (response.data.tipo_usuario == 1 || response.data.tipo_usuario == 2) {
         router.push("/home-all");
-        localStorage.removeItem("token")
+        localStorage.removeItem("token");
         return;
       }
 
@@ -61,18 +120,22 @@ export default function ListarMaterias() {
   // Fetch Materias Asignadas
   const fetchfilteredCourses = async (token) => {
     try {
-      const response = await axios.get("http://127.0.0.1:8000/api/asignar-profesor-materia/", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await axios.get(
+        "http://127.0.0.1:8000/api/asignar-profesor-materia/",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
       if (response.status === 200) {
-
-        console.log(response.data);  // Verifica la respuesta de la API
+        console.log(response.data); // Verifica la respuesta de la API
         // Filtrar las materias por la cédula del profesor
-        const filteredCourses = response.data.filter((course) => course.cedula_profesor === userData.cedula)
-        console.log("Materias asignadas filtradas:", filteredCourses);  // Verifica las materias filtradas
+        const filteredCourses = response.data.filter(
+          (course) => course.cedula_profesor === userData.cedula
+        );
+        console.log("Materias asignadas filtradas:", filteredCourses); // Verifica las materias filtradas
         setMaterias(filteredCourses);
       } else {
         throw new Error("Failed to fetch materias asignadas");
@@ -83,7 +146,6 @@ export default function ListarMaterias() {
       setIsLoading(false);
     }
   };
-
 
   // Unified useEffect to Fetch User and Materias
   useEffect(() => {
@@ -106,9 +168,17 @@ export default function ListarMaterias() {
 
   const menuItems = [
     { title: "Inicio", icon: Home, href: "/p-home-profe" },
-    { title: "Crear Planificación", icon: FileText, href: "/p-crear-planificacion" },
+    {
+      title: "Crear Planificación",
+      icon: FileText,
+      href: "/p-crear-planificacion",
+    },
     { title: "Cargar Notas", icon: ClipboardList, href: "/p-cargar-notas" },
-    { title: "Listar Materias Asignadas", icon: BookOpen, href: "/p-listar-materias" },
+    {
+      title: "Listar Materias Asignadas",
+      icon: BookOpen,
+      href: "/p-listar-materias",
+    },
     { title: "Mis Datos", icon: User, href: "/p-datos-profe" },
   ];
 
@@ -140,8 +210,8 @@ export default function ListarMaterias() {
           <div className="flex items-center gap-4">
             {userData && (
               <span className="text-lg font-bold uppercase">
-              Bienvenido, PROFESOR: {userData.nombre} {userData.apellido}
-            </span>
+                Bienvenido, PROFESOR: {userData.nombre} {userData.apellido}
+              </span>
             )}
             <Button
               variant="secondary"
@@ -195,7 +265,9 @@ export default function ListarMaterias() {
                 {materias.map((materia, index) => (
                   <TableRow key={index}>
                     {/* Llamamos a la función para obtener el nombre de la maestría */}
-                    <TableCell>{getMaestriaName(materia.cod_materia)}</TableCell>
+                    <TableCell>
+                      {getMaestriaName(materia.cod_materia)}
+                    </TableCell>
                     <TableCell>{materia.nom_materia}</TableCell>
                     <TableCell>{materia.cod_materia}</TableCell>
                     <TableCell>{materia.codigo_cohorte}</TableCell>
@@ -203,7 +275,6 @@ export default function ListarMaterias() {
                   </TableRow>
                 ))}
               </TableBody>
-
             </Table>
           </CardContent>
         </Card>
