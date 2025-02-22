@@ -11,6 +11,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Home, UserPlus, GraduationCap, ClipboardList, CreditCard, FileText, BookOpen, Search } from 'lucide-react'
+import { urls } from '../urls'
 
 export default function BuscarSolicitudes() {
   const router = useRouter()
@@ -52,7 +53,7 @@ export default function BuscarSolicitudes() {
     const fetchSolicitudes = async () => {
       try {
         // definicion de variable info_obt_json de la api
-        const info_obt_json = await fetch('http://127.0.0.1:8000/api/solicitudes/', {
+        const info_obt_json = await fetch(urls.solicitudes/* 'solicitudes/' */, {
           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }       
         } )
         if (!info_obt_json.ok) {

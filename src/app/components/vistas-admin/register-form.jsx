@@ -20,6 +20,7 @@ import {
   EyeIcon,
   EyeIcon as EyeClosedIcon,
 } from "lucide-react"
+import { urls } from "../urls"
 
 export default function RegisterUser() {
   const router = useRouter()
@@ -73,7 +74,7 @@ export default function RegisterUser() {
     // if === true
     const fullCedula = `${user.cedulaTipo}${user.cedulaNumero}`
     try {
-      const response = await fetch("http://127.0.0.1:8000/api/datosbasicos/", {
+      const response = await fetch(urls.datosbasicos, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -164,7 +165,7 @@ export default function RegisterUser() {
     setIsLoading(true)
 
     try {
-      const response = await fetch("http://127.0.0.1:8000/api/datosbasicos/", {
+      const response = await fetch(urls.datosbasicos, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,

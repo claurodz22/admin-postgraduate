@@ -14,6 +14,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import Image from "next/image"
 import Link from "next/link"
 import { Home, UserPlus, GraduationCap, ClipboardList, CreditCard, FileText, BookOpen, CalendarIcon, AlertCircle } from 'lucide-react'
+import { urls } from '../urls'
 
 const MAESTRIA_OPTIONS = {
   GG: 'Cs Administrativas / Gerencia General (GG)',
@@ -83,7 +84,7 @@ export default function CreacionDecohorte() {
 
     setLoading(true)
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/verificar-codigo-cohorte/', {
+      const response = await fetch(urls.verificarCodigoCohort, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`,
@@ -133,7 +134,7 @@ export default function CreacionDecohorte() {
     }
 
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/cohorte-generar-codigo/', {
+      const response = await fetch(urls.cohorte_generar_codigo, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`,

@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useRouter } from 'next/navigation';
+import { urls } from './urls';
 
 export default function RecuperarContraseña() {
   const [cedula, setCedula] = useState('');
@@ -19,7 +20,7 @@ export default function RecuperarContraseña() {
 
     try {
       // Realizar la petición al backend para verificar la cédula
-      const response = await fetch('http://127.0.0.1:8000/api/recuperar-contrasena/', {
+      const response = await fetch(urls.recuperar_contrasena, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

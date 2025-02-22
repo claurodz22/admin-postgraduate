@@ -9,6 +9,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Home, UserPlus, GraduationCap, ClipboardList, CreditCard, FileText, BookOpen, ChevronLeft, ChevronRight } from 'lucide-react';
+import { urls } from '../urls';
 
 export default function ReporteNotas() {
   const router = useRouter();
@@ -37,7 +38,7 @@ export default function ReporteNotas() {
       }).toString();
 
       // Solicitud para obtener las notas filtradas
-      const response = await fetch(`http://127.0.0.1:8000/api/listado_estudiantes/?${queryParams}`, {
+      const response = await fetch(`${urls.listado_estudiantes}?${queryParams}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`, // Header con el token
         },
@@ -48,7 +49,7 @@ export default function ReporteNotas() {
       }
 
       // Solicitud para obtener datos para los selects
-      const dataFiltersSelectsResponse = await fetch('http://127.0.0.1:8000/api/listado_estudiantes/', {
+      const dataFiltersSelectsResponse = await fetch(urls.listado_estudiantes, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`, // Header con el token
         },

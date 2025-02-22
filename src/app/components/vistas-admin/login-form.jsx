@@ -42,7 +42,7 @@ export default function LoginForm() {
       los datos de inicio de sesión, para iniciar sesión en el
       login admin el tipo_usuario = 1, una vez confirmado eso,
       manda los datos para ver si corresponden*/
-      const res = await fetch("http://localhost:8000/api/admin-login/", {
+      const res = await fetch(urls.login_admin , {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

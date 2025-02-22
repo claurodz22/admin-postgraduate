@@ -8,6 +8,7 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Home, UserPlus, GraduationCap, ClipboardList, CreditCard, FileText, BookOpen } from "lucide-react"
 import { useEffect, useState } from "react"
+import { urls } from "../urls"
 
 export default function ControlPagos() {
   const router = useRouter()
@@ -25,7 +26,7 @@ export default function ControlPagos() {
   useEffect(() => {
     const fetchPayments = async () => {
       try {
-        const response = await fetch("http://127.0.0.1:8000/api/pagos/", {
+        const response = await fetch(urls.pagos, {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         })
         if (!response.ok) {

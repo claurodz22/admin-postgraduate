@@ -8,6 +8,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Home, UserPlus, GraduationCap, ClipboardList, CreditCard, FileText, BookOpen } from 'lucide-react';
 import { useState, useEffect } from 'react'
+import { urls } from "../urls";
 
 export default function UltimasSolicitudes() {
   const router = useRouter()
@@ -35,7 +36,7 @@ export default function UltimasSolicitudes() {
   useEffect(() => {
     const fetchSolicitudes = async () => {
       try {
-        const response = await fetch('http://127.0.0.1:8000/api/solicitudes/', 
+        const response = await fetch(urls.solicitudes, 
           {
             headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }       
           } 

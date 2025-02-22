@@ -16,6 +16,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Home, UserPlus, GraduationCap, ClipboardList, CreditCard, FileText, BookOpen } from 'lucide-react';
+import { urls } from '../urls';
 
 const RegisterStudent = () => {
   const router = useRouter();
@@ -48,7 +49,7 @@ const RegisterStudent = () => {
     est_campo_activado(false);
 
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/obtenerdatos/', {
+      const response = await fetch(urls.obtenerdatosbasicos, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`,
@@ -100,7 +101,7 @@ const RegisterStudent = () => {
     }
 
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/almacenarestudiante/', {
+      const response = await fetch(urls.almacenarestudiante, {
         method: 'POST',
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}`, 'Content-Type': 'application/json' },
         body: JSON.stringify(userToSubmit),

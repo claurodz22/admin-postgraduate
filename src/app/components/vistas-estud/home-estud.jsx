@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 import { FileText, ClipboardList, BookOpen, User } from "lucide-react";
 import axios from "axios";
 import { useCallback } from "react";
+import { urls } from "../urls";
 
 export default function ProfesorHomePage() {
   const router = useRouter();
@@ -25,7 +26,7 @@ export default function ProfesorHomePage() {
     }
 
     try {
-      const response = await axios.get("http://localhost:8000/api/user-info/", {
+      const response = await axios.get(urls.userInfo, {
         headers: {
           Authorization: `Bearer ${token}`, // Agrega el token al header4
         },

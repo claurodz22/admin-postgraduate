@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/table";
 import { FileText, ClipboardList, BookOpen, User, Home } from "lucide-react";
 import axios from "axios";
-import { url } from "../urls";
+import { urls } from "../urls";
 
 export default function ListarMaterias() {
   const router = useRouter();
@@ -35,7 +35,7 @@ export default function ListarMaterias() {
     }
 
     try {
-      const response = await axios.get(url.maestrias, {
+      const response = await axios.get(urls.maestrias, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -121,7 +121,7 @@ export default function ListarMaterias() {
   const fetchfilteredCourses = async (token) => {
     try {
       const response = await axios.get(
-        "http://127.0.0.1:8000/api/asignar-profesor-materia/",
+        urls.asignar_profesor_materia,
         {
           headers: {
             Authorization: `Bearer ${token}`,

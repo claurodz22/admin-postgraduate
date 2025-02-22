@@ -13,6 +13,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Home, UserPlus, GraduationCap, ClipboardList, CreditCard, FileText, BookOpen } from "lucide-react"
+import { urls } from "../urls"
 
 export default function AsignarMaterias() {
   const router = useRouter()
@@ -66,7 +67,7 @@ export default function AsignarMaterias() {
     setIsLoading(true)
     setError(null)
     try {
-      const response = await fetch("http://127.0.0.1:8000/api/cohortes/", {
+      const response = await fetch(urls.cohortes, { // cohortes/"
         method: "GET",
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -92,7 +93,7 @@ export default function AsignarMaterias() {
 
   const fetchProfessors = async () => {
     try {
-      const response = await fetch("http://127.0.0.1:8000/api/listado-profesores/", {
+      const response = await fetch(urls.listado_profesores, { // listado-profesores/"
         method: "GET",
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -111,7 +112,7 @@ export default function AsignarMaterias() {
 
   const fetchCourses = async () => {
     try {
-      const response = await fetch("http://127.0.0.1:8000/api/listado-materias/", {
+      const response = await fetch(urls.listado_materias, { // listado-materias/"
         method: "GET",
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -208,7 +209,7 @@ export default function AsignarMaterias() {
     console.log("Datos enviados:", requestData)
 
     try {
-      const response = await fetch("http://127.0.0.1:8000/api/asignar-profesor-materia/", {
+      const response = await fetch(urls.asignar_profesor_materia, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
