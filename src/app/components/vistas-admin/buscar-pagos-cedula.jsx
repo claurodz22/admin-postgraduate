@@ -64,29 +64,29 @@ export default function BusquedaPagos() {
   const [allPayments, setAllPayments] = useState([]);
 
   const menuItems = [
-    { title: "Inicio", icon: Home, href: "/a-home-admin" },
+    { title: "Inicio", icon: Home, href: "/administrador/a-home-admin" },
     {
       title: "Registro / Actualización de Usuarios ",
       icon: UserPlus,
-      href: "/a-register-user",
+      href: "/administrador/a-register-user",
     },
     {
       title: "Registro / Actualización de Estudiantes ",
       icon: GraduationCap,
-      href: "/a-register-student",
+      href: "/administrador/a-register-student",
     },
     {
       title: "Control de Notas",
       icon: ClipboardList,
-      href: "/a-control-notas",
+      href: "/administrador/a-control-notas",
     },
-    { title: "Control de Pagos", icon: CreditCard, href: "/a-control-pagos" },
+    { title: "Control de Pagos", icon: CreditCard, href: "/administrador/a-control-pagos" },
     {
       title: "Solicitudes Estudiantiles",
       icon: FileText,
-      href: "/a-solicitudes-estudiantiles",
+      href: "/administrador/a-solicitudes-estudiantiles",
     },
-    { title: "Asignar Materia", icon: BookOpen, href: "/a-asignar-materia" },
+    { title: "Asignar Materia", icon: BookOpen, href: "/administrador/a-asignar-materia" },
   ];
 
   const handleFetchPayments = async () => {
@@ -104,7 +104,7 @@ export default function BusquedaPagos() {
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) {
-      router.push("/a-login-admin");
+      router.push("/administrador/a-login-admin");
     }
   }, [router]);
 

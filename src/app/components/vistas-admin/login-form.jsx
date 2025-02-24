@@ -89,7 +89,7 @@ export default function LoginForm() {
     setError("");
     try {
       await postLogin();
-      router.push("/a-home-admin");
+      router.push("/administrador/a-home-admin");
     } catch (error) {
       console.error(error);
     }

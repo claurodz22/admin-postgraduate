@@ -66,7 +66,7 @@ export default function LoginForm() {
     setError("");
     try {
       await postLogin();
-      router.push("/p-home-profe"); // Cambié la ruta de redirección al home del profesor
+      router.push("/profesor/p-home-profe"); // Cambié la ruta de redirección al home del profesor
     } catch (error) {
       console.error(error);
     }

@@ -44,7 +44,7 @@ export default function CrearPlanificacion() {
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) {
-      router.push("/p-login-profe");
+      router.push("/profesor/p-login-profe");
       return;
     }
 
@@ -55,7 +55,7 @@ export default function CrearPlanificacion() {
         console.error("Error fetching data:", error);
         if (error.response && error.response.status === 401) {
           localStorage.removeItem("token");
-          router.push("/p-login-profe");
+          router.push("/profesor/p-login-profe");
         }
       } finally {
         setIsLoading(false);
@@ -125,19 +125,19 @@ export default function CrearPlanificacion() {
   };
 
   const menuItems = [
-    { title: "Inicio", icon: Home, href: "/p-home-profe" },
+    { title: "Inicio", icon: Home, href: "/profesor/p-home-profe" },
     {
       title: "Crear Planificación",
       icon: FileText,
-      href: "/p-crear-planificacion",
+      href: "/profesor/p-crear-planificacion",
     },
-    { title: "Cargar Notas", icon: ClipboardList, href: "/p-cargar-notas" },
+    { title: "Cargar Notas", icon: ClipboardList, href: "/profesor/p-cargar-notas" },
     {
       title: "Listar Materias Asignadas",
       icon: BookOpen,
-      href: "/p-listar-materias",
+      href: "/profesor/p-listar-materias",
     },
-    { title: "Mis Datos", icon: User, href: "/p-datos-profe" },
+    { title: "Mis Datos", icon: User, href: "/profesor/p-datos-profe" },
   ];
 
   const tiposEvaluacion = ["Exposición", "Trabajo", "Examen", "Taller", "Otro"];
@@ -234,7 +234,7 @@ export default function CrearPlanificacion() {
         console.log("Planificación guardada exitosamente:", response.data);
         setSuccess("Planificación creada exitosamente");
         setTimeout(() => {
-          router.push("/p-home-profe");
+          router.push("/profesor/p-home-profe");
         }, 2000);
       } else {
         console.error("Error al guardar la planificación:", response.data);

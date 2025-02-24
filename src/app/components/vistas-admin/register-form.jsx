@@ -46,7 +46,7 @@ export default function RegisterUser() {
   useEffect(() => {
     const token = localStorage.getItem("token")
     if (!token) {
-      router.push("/a-login-admin")
+      router.push("/administrador/a-login-admin")
     }
   }, [router])
 
@@ -188,7 +188,7 @@ export default function RegisterUser() {
           confirmPassword: "",
         })
         alert("Usuario registrado con éxito!")
-        router.push("/a-home-admin")
+        router.push("/administrador/a-home-admin")
       } else {
         setFormError(result.message || "Ocurrió un error al registrar el usuario")
       }
@@ -200,13 +200,13 @@ export default function RegisterUser() {
   }
 
   const menuItems = [
-    { title: "Inicio", icon: Home, href: "/a-home-admin" },
-    { title: "Registro / Actualización de Usuarios ", icon: UserPlus, href: "/a-register-user" },
-    { title: "Registro / Actualización de Estudiantes ", icon: GraduationCap, href: "/a-register-student" },
-    { title: "Control de Notas", icon: ClipboardList, href: "/a-control-notas" },
-    { title: "Control de Pagos", icon: CreditCard, href: "/a-control-pagos" },
-    { title: "Solicitudes Estudiantiles", icon: FileText, href: "/a-solicitudes-estudiantiles" },
-    { title: "Asignar Materia", icon: BookOpen, href: "/a-asignar-materia" },
+    { title: "Inicio", icon: Home, href: "/administrador/a-home-admin" },
+    { title: "Registro / Actualización de Usuarios ", icon: UserPlus, href: "/administrador/a-register-user" },
+    { title: "Registro / Actualización de Estudiantes ", icon: GraduationCap, href: "/administrador/a-register-student" },
+    { title: "Control de Notas", icon: ClipboardList, href: "/administrador/a-control-notas" },
+    { title: "Control de Pagos", icon: CreditCard, href: "/administrador/a-control-pagos" },
+    { title: "Solicitudes Estudiantiles", icon: FileText, href: "/administrador/a-solicitudes-estudiantiles" },
+    { title: "Asignar Materia", icon: BookOpen, href: "/administrador/a-asignar-materia" },
   ]
 
   return (
@@ -408,7 +408,7 @@ export default function RegisterUser() {
                 <div className="flex justify-center mt-6">
                   <div className="flex items-center space-x-8">
                     <Button asChild variant="outline">
-                      <Link href="/a-home-admin">Atrás (Menú Principal)</Link>
+                      <Link href="/administrador/a-home-admin">Atrás (Menú Principal)</Link>
                     </Button>
                     <Button
                       type="submit"

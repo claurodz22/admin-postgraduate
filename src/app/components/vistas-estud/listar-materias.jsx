@@ -112,7 +112,7 @@ export default function ListarMaterias() {
       console.error("Error al obtener los datos del usuario:", error);
       if (error.response && error.response.status === 401) {
         localStorage.removeItem("token");
-        router.push("/p-login-profe");
+        router.push("/profesor/p-login-profe");
       }
     }
   };
@@ -152,7 +152,7 @@ export default function ListarMaterias() {
     const token = localStorage.getItem("token");
 
     if (!token) {
-      router.push("/p-login-profe");
+      router.push("/profesor/p-login-profe");
     } else {
       setIsLoading(true);
       fetchUserData(token);
@@ -167,19 +167,19 @@ export default function ListarMaterias() {
   }, [userData]);
 
   const menuItems = [
-    { title: "Inicio", icon: Home, href: "/p-home-profe" },
+    { title: "Inicio", icon: Home, href: "/profesor/p-home-profe" },
     {
       title: "Crear Planificación",
       icon: FileText,
-      href: "/p-crear-planificacion",
+      href: "/profesor/p-crear-planificacion",
     },
-    { title: "Cargar Notas", icon: ClipboardList, href: "/p-cargar-notas" },
+    { title: "Cargar Notas", icon: ClipboardList, href: "/profesor/p-cargar-notas" },
     {
       title: "Listar Materias Asignadas",
       icon: BookOpen,
-      href: "/p-listar-materias",
+      href: "/profesor/p-listar-materias",
     },
-    { title: "Mis Datos", icon: User, href: "/p-datos-profe" },
+    { title: "Mis Datos", icon: User, href: "/profesor/p-datos-profe" },
   ];
 
   if (isLoading) {

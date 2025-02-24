@@ -12,13 +12,13 @@ export default function ControlNotas() {
   const router = useRouter()
 
   const menuItems = [
-    { title: "Inicio", icon: Home, href: "/a-home-admin" },
-    { title: "Registro / Actualización de Usuarios ", icon: UserPlus, href: "/a-register-user" },
-    { title: "Registro / Actualización de Estudiantes ", icon: GraduationCap, href: "/a-register-student" },
-    { title: "Control de Notas", icon: ClipboardList, href: "/a-control-notas" },
-    { title: "Control de Pagos", icon: CreditCard, href: "/a-control-pagos" },
-    { title: "Solicitudes Estudiantiles", icon: FileText, href: "/a-solicitudes-estudiantiles" }, 
-    {title: "Asignar Materia", icon: BookOpen, href: "/a-asignar-materia" },
+    { title: "Inicio", icon: Home, href: "/administrador/a-home-admin" },
+    { title: "Registro / Actualización de Usuarios ", icon: UserPlus, href: "/administrador/a-register-user" },
+    { title: "Registro / Actualización de Estudiantes ", icon: GraduationCap, href: "/administrador/a-register-student" },
+    { title: "Control de Notas", icon: ClipboardList, href: "/administrador/a-control-notas" },
+    { title: "Control de Pagos", icon: CreditCard, href: "/administrador/a-control-pagos" },
+    { title: "Solicitudes Estudiantiles", icon: FileText, href: "/administrador/a-solicitudes-estudiantiles" }, 
+    {title: "Asignar Materia", icon: BookOpen, href: "/administrador/a-asignar-materia" },
   ];
 
   useEffect(() => {
@@ -35,9 +35,9 @@ export default function ControlNotas() {
     De las opciones, la única que cuenta con frontend es 'Creación de chohorte'
   */
   const notasOptions = [
-    { title: "Creación de cohorte", description: "El administrador crea un cohorte de acuerdo a los requerimientos", href: "/a-crear-cohorte" },
+    { title: "Creación de cohorte", description: "El administrador crea un cohorte de acuerdo a los requerimientos", href: "/administrador/a-crear-cohorte" },
     { title: "Habilitación de cohorte", description: "Habilitar o deshabilitar períodos de cohorte para ingreso de notas", href: "/habilitar-cohorte" },
-    { title: "Reportes de Notas", description: "Generar reportes de notas por estudiante, asignatura o cohorte", href: "/a-reportes-notas" },
+    { title: "Reportes de Notas", description: "Generar reportes de notas por estudiante, asignatura o cohorte", href: "/administrador/a-reportes-notas" },
     { title: "Modificación de Notas", description: "Modificar notas existentes con autorización", href: "/modificar-notas" },
   ];
 
