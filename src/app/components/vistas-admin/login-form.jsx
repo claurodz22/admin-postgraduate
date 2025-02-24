@@ -8,6 +8,7 @@ import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
 import { useRouter } from "next/navigation";
 import { Lock, EyeIcon, EyeClosedIcon } from 'lucide-react';
+import { urls } from "../urls";
 
 
 export default function LoginForm() {
