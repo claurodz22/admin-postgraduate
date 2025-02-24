@@ -19,6 +19,8 @@ export const urls = {
   datosbasicos: `${base_url}/api/datosbasicos/`,
   obtenerdatosbasicos: `${base_url}/api/obtenerdatosbasicos/`,
   almacenarestudiante: `${base_url}/api/almacenarestudiante/`,
+  login_estudiante: `${base_url}/api/login_estudiante/`,
+  login_profesor: `${base_url}/api/login_profesor/`,
   // estudiantes: `${base_url}/api/estudiantes/`,
   // notas: `${base_url}/api/notas/`,
   // profesores: `${base_url}/api/profesores/`,

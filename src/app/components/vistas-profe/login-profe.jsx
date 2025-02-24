@@ -8,6 +8,7 @@ import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
 import { useRouter } from "next/navigation";
 import { Lock, EyeIcon, EyeClosedIcon } from 'lucide-react';
+import { urls } from "../urls";
 
 export default function LoginForm() {
   const [nationality, setNationality] = useState("V");
@@ -34,7 +35,7 @@ export default function LoginForm() {
   const postLogin = async () => {
     try {
       const fullCedula = `${nationality}-${cedula}`;
-      const res = await fetch("http://localhost:8000/api/login_profesor/", { // Cambié la URL para reflejar el login del profesor
+      const res = await fetch(urls.login_profesor, { // Cambié la URL para reflejar el login del profesor
         method: "POST",
         headers: {
           "Content-Type": "application/json",

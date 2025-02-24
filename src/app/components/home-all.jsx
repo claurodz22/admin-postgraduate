@@ -1,4 +1,4 @@
-'use client';
+'use client'; 
 
 import Image from 'next/image';
 import Link from 'next/link';
@@ -56,7 +56,7 @@ export default function Page() {
               <GraduationCap className="mb-4 h-12 w-12 text-[#004976]" />
               <h3 className="mb-4 text-xl font-bold text-[#004976]">Estudiantes</h3>
               <Button asChild className="w-full bg-[#e85d04] hover:bg-[#dc5303]">
-                <Link href="/estudiantes">Ingresar como Estudiante</Link>
+                <Link href="/estudiantes/e-login-estudiante">Ingresar como Estudiante</Link>
               </Button>
             </CardContent>
           </Card>

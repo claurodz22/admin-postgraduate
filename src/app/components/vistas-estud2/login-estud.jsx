@@ -8,7 +8,6 @@ import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
 import { useRouter } from "next/navigation";
 import { Lock, EyeIcon, EyeClosedIcon } from 'lucide-react';
-import { urls } from "../urls";
 
 export default function LoginForm() {
   const [nationality, setNationality] = useState("V");
@@ -35,7 +34,7 @@ export default function LoginForm() {
   const postLogin = async () => {
     try {
       const fullCedula = `${nationality}-${cedula}`;
-      const res = await fetch(urls.login_estudiante, { // Cambié la URL para reflejar el login del profesor
+      const res = await fetch("http://localhost:8000/api/login_profesor/", { // Cambié la URL para reflejar el login del profesor
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -67,7 +66,7 @@ export default function LoginForm() {
     setError("");
     try {
       await postLogin();
-      router.push("/estudiantes/e-home-estudiante"); // Cambié la ruta de redirección al home del profesor
+      router.push("/p-home-profe"); // Cambié la ruta de redirección al home del profesor
     } catch (error) {
       console.error(error);
     }
@@ -96,7 +95,7 @@ export default function LoginForm() {
           <CardContent className="p-6">
             <div className="text-center mb-6">
               <h3 className="text-xl font-bold text-[#000000] mb-2">Autenticación de Usuario </h3>
-              <p className="text-xl font-bold text-[#000000] mb-2"> Estudiante</p> {/* Cambié "Administrador" por "Profesor" */}
+              <p className="text-xl font-bold text-[#000000] mb-2"> Profesor</p> {/* Cambié "Administrador" por "Profesor" */}
               <div className="flex justify-center">
                 <Lock className="w-16 h-16 text-yellow-500" />
               </div>
