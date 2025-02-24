@@ -20,7 +20,7 @@ export default function MisDatos() {
 
       if (!token) {
         // Redirige al login si no hay token
-        router.push("/p-login-profe");
+        router.push("/e-login-estudiante");
         return;
       }
 
@@ -32,7 +32,7 @@ export default function MisDatos() {
         });
 
         // funciona pero no es la solucion adecuada segun cristian
-        if (response.data.tipo_usuario == 1 || response.data.tipo_usuario == 2){
+        if (response.data.tipo_usuario == 1 || response.data.tipo_usuario == 3){
           router.push("/home-all");
           localStorage.removeItem("token")
         return;
@@ -57,12 +57,20 @@ export default function MisDatos() {
   }, [router]);
 
   const menuItems = [
-    { title: "Inicio", icon: FileText, href: "/p-home-profe" },
-    { title: "Crear Planificación", icon: FileText, href: "/p-crear-planificacion" },
-    { title: "Cargar Notas", icon: ClipboardList, href: "/p-cargar-notas" },
-    { title: "Listar Materias Asignadas", icon: BookOpen, href: "/p-listar-materias" },
-    { title: "Mis Datos", icon: User, href: "/p-datos-profe" },
-  ]
+    { title: "Inicio", icon: FileText, href: "/estudiantes/e-home-estudiante" },
+    {
+      title: "Ver Pesum",
+      icon: FileText,
+      href: "/estudiantes/e-ver-pensum",
+    },
+    { title: "Cargar Notas", icon: ClipboardList, href: "/estudiantes/e-ver-notas" },
+    {
+      title: "Listar Materias Asignadas",
+      icon: BookOpen,
+      href: "/e-listar-materias",
+    },
+    { title: "Mis Datos", icon: User, href: "/estudiantes/e-datos-estudiante" },
+  ];
 
   if (isLoading) {
     return (
@@ -92,7 +100,7 @@ export default function MisDatos() {
           <div className="flex items-center gap-4">
             {userData && (
                <span className="text-lg font-bold uppercase">
-               Bienvenido, PROFESOR: {userData.nombre} {userData.apellido}
+               Bienvenido, Estudiante: {userData.nombre} {userData.apellido}
              </span>
             )}
             <Button
@@ -138,7 +146,7 @@ export default function MisDatos() {
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <p className="font-semibold text-gray-600">CI del Profesor:</p>
+                    <p className="font-semibold text-gray-600">CI del Estudiante:</p>
                     <p>{userData.cedula}</p>
                   </div>
                   <div>
@@ -151,7 +159,7 @@ export default function MisDatos() {
                   </div>
                   <div>
                     <p className="font-semibold text-gray-600">Rol en la App Web:</p>
-                    <p>{userData.tipo_usuario === 3 ? "Profesor" : "Otro"}</p>
+                    <p>{userData.tipo_usuario === 2 ? "Estudiante" : "Otro"}</p>
                   </div>
                   <div>
                     <p className="font-semibold text-gray-600">Correo:</p>

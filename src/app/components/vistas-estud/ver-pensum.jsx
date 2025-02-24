@@ -27,7 +27,7 @@ import axios from "axios";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { urls } from "../urls";
 
-export default function CrearPlanificacion() {
+export default function VerPensum() {
   const router = useRouter();
   const [userData, setUserData] = useState(null);
   const [assignedCourses, setAssignedCourses] = useState([]);
@@ -44,7 +44,7 @@ export default function CrearPlanificacion() {
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) {
-      router.push("/p-login-profe");
+      router.push("/e-login-estudiante");
       return;
     }
 
@@ -55,7 +55,7 @@ export default function CrearPlanificacion() {
         console.error("Error fetching data:", error);
         if (error.response && error.response.status === 401) {
           localStorage.removeItem("token");
-          router.push("/p-login-profe");
+          router.push("/e-login-estudiante");
         }
       } finally {
         setIsLoading(false);
@@ -83,7 +83,7 @@ export default function CrearPlanificacion() {
           Authorization: `Bearer ${token}`,
         },
       });
-      if (response.data.tipo_usuario == 1 || response.data.tipo_usuario == 2) {
+      if (response.data.tipo_usuario == 1 || response.data.tipo_usuario == 3) {
         router.push("/home-all");
         localStorage.removeItem("token");
         return;
@@ -125,19 +125,19 @@ export default function CrearPlanificacion() {
   };
 
   const menuItems = [
-    { title: "Inicio", icon: Home, href: "/p-home-profe" },
+    { title: "Inicio", icon: FileText, href: "/estudiantes/e-home-estudiante" },
     {
-      title: "Crear Planificación",
+      title: "Ver Pesum",
       icon: FileText,
-      href: "/p-crear-planificacion",
+      href: "/estudiantes/e-ver-pensum",
     },
-    { title: "Cargar Notas", icon: ClipboardList, href: "/p-cargar-notas" },
+    { title: "Cargar Notas", icon: ClipboardList, href: "/estudiantes/e-ver-notas" },
     {
       title: "Listar Materias Asignadas",
       icon: BookOpen,
-      href: "/p-listar-materias",
+      href: "/e-listar-materias",
     },
-    { title: "Mis Datos", icon: User, href: "/p-datos-profe" },
+    { title: "Mis Datos", icon: User, href: "/estudiantes/e-datos-estudiante" },
   ];
 
   const tiposEvaluacion = ["Exposición", "Trabajo", "Examen", "Taller", "Otro"];
@@ -234,7 +234,7 @@ export default function CrearPlanificacion() {
         console.log("Planificación guardada exitosamente:", response.data);
         setSuccess("Planificación creada exitosamente");
         setTimeout(() => {
-          router.push("/p-home-profe");
+          router.push("/e-home-estudiante");
         }, 2000);
       } else {
         console.error("Error al guardar la planificación:", response.data);

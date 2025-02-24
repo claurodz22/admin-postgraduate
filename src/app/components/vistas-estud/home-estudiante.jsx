@@ -57,19 +57,19 @@ export default function EstudianteHomePage() {
   }, [router]);
 
   const menuItems = [
-    { title: "Inicio", icon: FileText, href: "/e-home-estudiante" },
+    { title: "Inicio", icon: FileText, href: "/estudiantes/e-home-estudiante" },
     {
       title: "Ver Pesum",
       icon: FileText,
-      href: "/e-ver-Pensum",
+      href: "/estudiantes/e-ver-pensum",
     },
-    { title: "Cargar Notas", icon: ClipboardList, href: "/e-ver-notas" },
+    { title: "Cargar Notas", icon: ClipboardList, href: "/estudiantes/e-ver-notas" },
     {
       title: "Listar Materias Asignadas",
       icon: BookOpen,
       href: "/e-listar-materias",
     },
-    { title: "Mis Datos", icon: User, href: "/e-datos-estudiante" },
+    { title: "Mis Datos", icon: User, href: "/estudiantes/e-datos-estudiante" },
   ];
 
   if (isLoading) {
@@ -143,7 +143,7 @@ export default function EstudianteHomePage() {
               Bienvenido,{" "}
               {userData
                 ? `${userData.nombre} ${userData.apellido}`
-                : "Profesor"}
+                : "Estudiante"}
             </h2>
             <p className="text-lg text-gray-600 mb-4">
               Bienvenido a su panel de control. Aquí puede gestionar sus cursos,
