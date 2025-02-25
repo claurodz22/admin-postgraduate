@@ -1,108 +1,136 @@
-'use client';
+"use client"
 
-import { useState, useEffect } from 'react';
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import Image from "next/image";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { Home, UserPlus, GraduationCap, ClipboardList, CreditCard, FileText, BookOpen, ChevronLeft, ChevronRight } from 'lucide-react';
-import { urls } from '../urls';
+import { useState, useEffect, useCallback } from "react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import Image from "next/image"
+import Link from "next/link"
+import { useRouter } from "next/navigation"
+import {
+  Home,
+  UserPlus,
+  GraduationCap,
+  ClipboardList,
+  CreditCard,
+  FileText,
+  BookOpen,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react"
+import { urls } from "../urls"
 
 export default function ReporteNotas() {
-  const router = useRouter();
-  const [notas, setNotas] = useState([]);
-  const [cohortes, setCohortes] = useState([]);
-  const [codigosMaterias, setCodigosMaterias] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [filtroCohorte, setFiltroCohorte] = useState('');
-  const [filtroCodigoMateria, setFiltroCodigoMateria] = useState('');
-  const [paginaActual, setPaginaActual] = useState(1);
-  const notasPorPagina = 10;
-
-  const resetSearch = () => {
-    setNotas([]);
-    fetchNotas();
-  };
-
-  const fetchNotas = async () => {
-    setIsLoading(true);
-    try {
-      // Construcción de los parámetros de consulta
-      const queryParams = new URLSearchParams({
-        q_code: filtroCohorte === 'all' ? '' : filtroCohorte,
-        m_code: filtroCodigoMateria === 'all' ? '' : filtroCodigoMateria,
-      }).toString();
-
-      // Solicitud para obtener las notas filtradas
-      const response = await fetch(`${urls.listado_estudiantes}?${queryParams}`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`, // Header con el token
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error('Error al cargar las notas');
-      }
-
-      // Solicitud para obtener datos para los selects
-      const dataFiltersSelectsResponse = await fetch(urls.listado_estudiantes, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`, // Header con el token
-        },
-      });
-
-      if (!dataFiltersSelectsResponse.ok) {
-        throw new Error('Error al cargar los datos para filtros');
-      }
-
-      const dataFiltersSelects = await dataFiltersSelectsResponse.json();
-
-      const cohortes = [...new Set(dataFiltersSelects.map((nota) => nota.codigo_cohorte))];
-      const codigosMaterias = [...new Set(dataFiltersSelects.map((nota) => nota.cod_materia))];
-      setCohortes(cohortes);
-      setCodigosMaterias(codigosMaterias);
-
-      const data = await response.json();
-      setNotas(data);
-    } catch (error) {
-      setError(error.message);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const router = useRouter()
+  const [notas, setNotas] = useState([])
+  const [cohortes, setCohortes] = useState([])
+  const [codigosMaterias, setCodigosMaterias] = useState([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState(null)
+  const [filtroCohorte, setFiltroCohorte] = useState("")
+  const [filtroCodigoMateria, setFiltroCodigoMateria] = useState("")
+  const [paginaActual, setPaginaActual] = useState(1)
+  const notasPorPagina = 10
 
   useEffect(() => {
-    fetchNotas();
-  }, [filtroCohorte, filtroCodigoMateria]);
+    console.log("Current API URL:", urls.listado_estudiantes)
+  }, [])
+
+  const resetSearch = () => {
+    setNotas([])
+    fetchNotas()
+  }
+
+  const fetchNotas = useCallback(async () => {
+    setIsLoading(true)
+    setError(null)
+    try {
+      const token = localStorage.getItem("token")
+      if (!token) {
+        throw new Error("No authentication token found")
+      }
+
+      const queryParams = new URLSearchParams({
+        q_code: filtroCohorte === "all" ? "" : filtroCohorte,
+        m_code: filtroCodigoMateria === "all" ? "" : filtroCodigoMateria,
+      }).toString()
+
+      const fullUrl = `${urls.listado_estudiantes}?${queryParams}`
+      console.log("Fetching from URL:", fullUrl) // Log the full URL
+
+      const response = await fetch(fullUrl, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+
+      if (!response.ok) {
+        if (response.status === 404) {
+          throw new Error("La ruta de la API no fue encontrada. Por favor, verifique la URL del endpoint.")
+        } else {
+          throw new Error(`HTTP error! status: ${response.status}`)
+        }
+      }
+
+      const data = await response.json()
+      if (!Array.isArray(data)) {
+        throw new Error("La respuesta de la API no es un array como se esperaba")
+      }
+
+      setNotas(data)
+
+      const cohortes = [...new Set(data.map((nota) => nota.codigo_cohorte))]
+      const codigosMaterias = [...new Set(data.map((nota) => nota.cod_materia))]
+      setCohortes(cohortes)
+      setCodigosMaterias(codigosMaterias)
+    } catch (error) {
+      console.error("Error fetching notas:", error)
+      setError(`Error al cargar las notas: ${error.message}`)
+    } finally {
+      setIsLoading(false)
+    }
+  }, [filtroCohorte, filtroCodigoMateria])
+
+  useEffect(() => {
+    fetchNotas()
+  }, [fetchNotas])
+
+  useEffect(() => {
+    const token = localStorage.getItem("token")
+    if (!token) {
+      router.push("/administrador/a-login-admin")
+    }
+  }, [router])
 
   const menuItems = [
     { title: "Inicio", icon: Home, href: "/administrador/a-home-admin" },
     { title: "Registro / Actualización de Usuarios ", icon: UserPlus, href: "/administrador/a-register-user" },
-    { title: "Registro / Actualización de Estudiantes ", icon: GraduationCap, href: "/administrador/a-register-student" },
+    {
+      title: "Registro / Actualización de Estudiantes ",
+      icon: GraduationCap,
+      href: "/administrador/a-register-student",
+    },
     { title: "Control de Notas", icon: ClipboardList, href: "/administrador/a-control-notas" },
     { title: "Control de Pagos", icon: CreditCard, href: "/administrador/a-control-pagos" },
-    { title: "Solicitudes Estudiantiles", icon: FileText, href: "/administrador/a-solicitudes-estudiantiles" }, 
-    {title: "Asignar Materia", icon: BookOpen, href: "/administrador/a-asignar-materia" },
-  ];
+    { title: "Solicitudes Estudiantiles", icon: FileText, href: "/administrador/a-solicitudes-estudiantiles" },
+    { title: "Asignar Materia", icon: BookOpen, href: "/administrador/a-asignar-materia" },
+  ]
 
-  const notasFiltradas = notas.filter((nota) =>
-    (!filtroCohorte || nota.codigo_cohorte === filtroCohorte) &&
-    (!filtroCodigoMateria || nota.cod_materia === filtroCodigoMateria)
-  );
+  const notasFiltradas = notas.filter(
+    (nota) =>
+      (!filtroCohorte || nota.codigo_cohorte === filtroCohorte) &&
+      (!filtroCodigoMateria || nota.cod_materia === filtroCodigoMateria),
+  )
 
-  const totalPaginas = Math.ceil(notasFiltradas.length / notasPorPagina);
-  const indiceInicial = (paginaActual - 1) * notasPorPagina;
-  const indiceFinal = indiceInicial + notasPorPagina;
-  const notasPaginadas = notasFiltradas.slice(indiceInicial, indiceFinal);
+  const totalPaginas = Math.ceil(notasFiltradas.length / notasPorPagina)
+  const indiceInicial = (paginaActual - 1) * notasPorPagina
+  const indiceFinal = indiceInicial + notasPorPagina
+  const notasPaginadas = notasFiltradas.slice(indiceInicial, indiceFinal)
 
   const cambiarPagina = (nuevaPagina) => {
-    setPaginaActual(nuevaPagina);
-  };
-
+    setPaginaActual(nuevaPagina)
+  }
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -126,10 +154,10 @@ export default function ReporteNotas() {
               variant="secondary"
               className="bg-[#FFD580] text-black hover:bg-[#FFD580] hover:text-black"
               onClick={() => {
-                localStorage.removeItem("token");
-                localStorage.removeItem("accessToken");
-                localStorage.removeItem("refreshToken");
-                router.push("/home-all");
+                localStorage.removeItem("token")
+                localStorage.removeItem("accessToken")
+                localStorage.removeItem("refreshToken")
+                router.push("/home-all")
               }}
             >
               Cerrar Sesión
@@ -144,10 +172,7 @@ export default function ReporteNotas() {
             <ul className="space-y-1">
               {menuItems.map((item) => (
                 <li key={item.title}>
-                  <Link
-                    href={item.href}
-                    className="flex items-center px-6 py-2 text-[#004976] gap-3"
-                  >
+                  <Link href={item.href} className="flex items-center px-6 py-2 text-[#004976] gap-3">
                     <item.icon className="h-5 w-5 shrink-0" />
                     <span>{item.title}</span>
                   </Link>
@@ -162,14 +187,16 @@ export default function ReporteNotas() {
             <CardContent className="p-6">
               <h2 className="text-2xl font-bold text-[#004976] mb-6 text-center">Reporte de Notas</h2>
               <div className="flex justify-between mb-4">
-                <Select onValueChange={(v) => setFiltroCohorte(v == 'all' ? '' : v)}>
+                <Select onValueChange={(v) => setFiltroCohorte(v == "all" ? "" : v)}>
                   <SelectTrigger className="w-[180px]">
                     <SelectValue placeholder="Filtrar por Cohorte" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">Todas las Cohortes</SelectItem>
-                    {cohortes.map(cohorte => (
-                      <SelectItem key={cohorte} value={cohorte}>{cohorte}</SelectItem>
+                    {cohortes.map((cohorte) => (
+                      <SelectItem key={cohorte} value={cohorte}>
+                        {cohorte}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -180,14 +207,16 @@ export default function ReporteNotas() {
                 >
                   Resetear Búsqueda
                 </Button>
-                <Select onValueChange={(v) => setFiltroCodigoMateria(v == 'all' ? '' : v)}>
+                <Select onValueChange={(v) => setFiltroCodigoMateria(v == "all" ? "" : v)}>
                   <SelectTrigger className="w-[180px]">
                     <SelectValue placeholder="Filtrar por Código de Materia" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">Todas las Materias</SelectItem>
-                    {codigosMaterias.map(codigo => (
-                      <SelectItem key={codigo} value={codigo}>{codigo}</SelectItem>
+                    {codigosMaterias.map((codigo) => (
+                      <SelectItem key={codigo} value={codigo}>
+                        {codigo}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -236,7 +265,9 @@ export default function ReporteNotas() {
                 >
                   <ChevronLeft className="mr-2 h-4 w-4" /> Anterior
                 </Button>
-                <span>Página {paginaActual} de {totalPaginas}</span>
+                <span>
+                  Página {paginaActual} de {totalPaginas}
+                </span>
                 <Button
                   onClick={() => cambiarPagina(paginaActual + 1)}
                   disabled={paginaActual === totalPaginas}
@@ -250,6 +281,6 @@ export default function ReporteNotas() {
         </main>
       </div>
     </div>
-  );
+  )
 }
 
