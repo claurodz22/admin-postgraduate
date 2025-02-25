@@ -133,9 +133,9 @@ export default function VerPensum() {
     },
     { title: "Cargar Notas", icon: ClipboardList, href: "/estudiantes/e-ver-notas" },
     {
-      title: "Listar Materias Asignadas",
+      title: "Control Pago",
       icon: BookOpen,
-      href: "/e-listar-materias",
+      href: "/estudiantes/e-control-pagos",
     },
     { title: "Mis Datos", icon: User, href: "/estudiantes/e-datos-estudiante" },
   ];

@@ -79,7 +79,7 @@ export default function CargarNotas() {
       const token = localStorage.getItem("token");
 
       if (!token) {
-        router.push("/profesor/p-login-profe");
+        router.push("/estudiantes/e-login-estudiante");
         return;
       }
 
@@ -247,19 +247,19 @@ export default function CargarNotas() {
   };
 
   const menuItems = [
-    { title: "Inicio", icon: Home, href: "/profesor/p-home-profe" },
+    { title: "Inicio", icon: FileText, href: "/estudiantes/e-home-estudiante" },
     {
-      title: "Crear Planificación",
+      title: "Ver Pesum",
       icon: FileText,
-      href: "/profesor/p-crear-planificacion",
+      href: "/estudiantes/e-ver-pensum",
     },
-    { title: "Cargar Notas", icon: ClipboardList, href: "/profesor/p-cargar-notas" },
+    { title: "Cargar Notas", icon: ClipboardList, href: "/estudiantes/e-ver-notas" },
     {
-      title: "Listar Materias Asignadas",
+      title: "Control Pago",
       icon: BookOpen,
-      href: "/profesor/p-listar-materias",
+      href: "/estudiantes/e-control-pagos",
     },
-    { title: "Mis Datos", icon: User, href: "/profesor/p-datos-profe" },
+    { title: "Mis Datos", icon: User, href: "/estudiantes/e-datos-estudiante" },
   ];
 
   if (isLoading) {
