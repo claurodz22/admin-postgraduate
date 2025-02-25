@@ -45,7 +45,7 @@ export default function EstudianteHomePage() {
       // Redirige al login si ocurre un error no autorizado
       if (error.response && error.response.status === 401) {
         //localStorage.removeItem("token");
-        //router.push("/p-login-profe");
+        //router.push("/profesor/p-login-profe");
       }
     } finally {
       setIsLoading(false); // Finaliza la carga

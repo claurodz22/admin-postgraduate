@@ -20,7 +20,7 @@ export default function MisDatos() {
 
       if (!token) {
         // Redirige al login si no hay token
-        router.push("/e-login-estudiante");
+        router.push("/estudiantes/e-login-estudiante");
         return;
       }
 
@@ -46,7 +46,7 @@ export default function MisDatos() {
         // Redirige al login si ocurre un error no autorizado
         if (error.response && error.response.status === 401) {
           //localStorage.removeItem("token");
-          //router.push("/p-login-profe");
+          //router.push("/profesor/p-login-profe");
         }
       } finally {
         setIsLoading(false); // Finaliza la carga

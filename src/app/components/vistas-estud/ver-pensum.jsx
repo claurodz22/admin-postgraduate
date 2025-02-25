@@ -44,7 +44,7 @@ export default function VerPensum() {
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) {
-      router.push("/e-login-estudiante");
+      router.push("/estudiantes/e-login-estudiante");
       return;
     }
 
@@ -55,7 +55,7 @@ export default function VerPensum() {
         console.error("Error fetching data:", error);
         if (error.response && error.response.status === 401) {
           localStorage.removeItem("token");
-          router.push("/e-login-estudiante");
+          router.push("/estudiantes/e-login-estudiante");
         }
       } finally {
         setIsLoading(false);
@@ -234,7 +234,7 @@ export default function VerPensum() {
         console.log("Planificación guardada exitosamente:", response.data);
         setSuccess("Planificación creada exitosamente");
         setTimeout(() => {
-          router.push("/e-home-estudiante");
+          router.push("/estudiantes/e-home-estudiante");
         }, 2000);
       } else {
         console.error("Error al guardar la planificación:", response.data);

@@ -12,13 +12,13 @@ export default function ControlNotas() {
   const router = useRouter()
 
   const menuItems = [
-    { title: "Inicio", icon: Home, href: "/a-home-admin" },
-    { title: "Registro / Actualización de Usuarios ", icon: UserPlus, href: "/a-register-user" },
-    { title: "Registro / Actualización de Estudiantes ", icon: GraduationCap, href: "/a-register-student" },
-    { title: "Control de Notas", icon: ClipboardList, href: "/a-control-notas" },
-    { title: "Control de Pagos", icon: CreditCard, href: "/a-control-pagos" },
-    { title: "Solicitudes Estudiantiles", icon: FileText, href: "/a-solicitudes-estudiantiles" }, 
-    {title: "Asignar Materia", icon: BookOpen, href: "/a-asignar-materia" },
+    { title: "Inicio", icon: Home, href: "/administrador/a-home-admin" },
+    { title: "Registro / Actualización de Usuarios ", icon: UserPlus, href: "/administrador/a-register-user" },
+    { title: "Registro / Actualización de Estudiantes ", icon: GraduationCap, href: "/administrador/a-register-student" },
+    { title: "Control de Notas", icon: ClipboardList, href: "/administrador/a-control-notas" },
+    { title: "Control de Pagos", icon: CreditCard, href: "/administrador/a-control-pagos" },
+    { title: "Solicitudes Estudiantiles", icon: FileText, href: "/administrador/a-solicitudes-estudiantiles" }, 
+    {title: "Asignar Materia", icon: BookOpen, href: "/administrador/a-asignar-materia" },
   ];
 
   useEffect(() => {
@@ -29,8 +29,8 @@ export default function ControlNotas() {
   }, [router])
 
   const notasOptions = [
-    { title: "Generar Reporte de Solicitudes Estudiantiles", description: "Generar un reporte de las últimas solicitudes estudiantiles ingresadas", href: "/a-reporte-solicitudes-estudiantiles" },
-    { title: "Buscar Solicitudes por Cédula", description: "Buscar las solicitudes estudiantiles realizados por un estudiante usando su número de cédula en un período de tiempo.", href: "/a-buscar-solicitudes-estudiantiles" },
+    { title: "Generar Reporte de Solicitudes Estudiantiles", description: "Generar un reporte de las últimas solicitudes estudiantiles ingresadas", href: "/administrador/a-reporte-solicitudes-estudiantiles" },
+    { title: "Buscar Solicitudes por Cédula", description: "Buscar las solicitudes estudiantiles realizados por un estudiante usando su número de cédula en un período de tiempo.", href: "/administrador/a-buscar-solicitudes-estudiantiles" },
   ];
 
   return (
