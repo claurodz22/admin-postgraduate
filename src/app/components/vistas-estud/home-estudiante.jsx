@@ -62,7 +62,7 @@ export default function EstudianteHomePage() {
       icon: FileText,
       href: "/estudiantes/e-ver-pensum",
     },*/
-    { title: "Cargar Notas", icon: ClipboardList, href: "/estudiantes/e-ver-notas" },
+    { title: "Ver Notas", icon: ClipboardList, href: "/estudiantes/e-ver-notas" },
     {
       title: "Control Pago",
       icon: BookOpen,

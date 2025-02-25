@@ -4,7 +4,8 @@ import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { FileText, ClipboardList, BookOpen, User } from "lucide-react"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { FileText, ClipboardList, BookOpen, User, FileDown, ChevronDown } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import axios from "axios";
@@ -58,19 +59,27 @@ export default function MisDatos() {
 
   const menuItems = [
     { title: "Inicio", icon: FileText, href: "/estudiantes/e-home-estudiante" },
-    {
+    /*{
       title: "Ver Pesum",
       icon: FileText,
       href: "/estudiantes/e-ver-pensum",
-    },
-    { title: "Cargar Notas", icon: ClipboardList, href: "/estudiantes/e-ver-notas" },
+    },*/
+    { title: "Ver Notas", icon: ClipboardList, href: "/estudiantes/e-ver-notas" },
     {
       title: "Control Pago",
       icon: BookOpen,
       href: "/estudiantes/e-control-pagos",
     },
     { title: "Mis Datos", icon: User, href: "/estudiantes/e-datos-estudiante" },
-  ];
+  ]
+
+  const solicitudesItems = [
+    { title: "Registro de Calificaciones", href: "/estudiantes/solicitudes/carta-culminacion" },
+    { title: "Solvencia", href: "/estudiantes/solicitudes/solvencia" },
+    { title: "Pensum", href: "/estudiantes/e-ver-pensum" },
+    { title: "Constancia de Inscripción", href: "/estudiantes/solicitudes/constancia-inscripcion" },
+    { title: "Elaboración de Expediente", href: "/estudiantes/solicitudes/carnet-estudiantil" },
+  ]
 
   if (isLoading) {
     return (
@@ -117,6 +126,7 @@ export default function MisDatos() {
         </div>
       </header>
 
+      {/* Menú de navegación */}
       <nav className="bg-[#e6f3ff] py-4">
         <ul className="container mx-auto px-6 flex justify-center space-x-8 py-2">
           {menuItems.map((item, index) => (
@@ -130,6 +140,29 @@ export default function MisDatos() {
               </Link>
             </li>
           ))}
+          <li>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="flex items-center px-4 py-2 text-[#004976] hover:bg-[#c8e1ff] rounded-md transition-all duration-300 ease-in-out">
+                  <FileDown className="h-5 w-5 mr-2" />
+                  <span>Solicitudes</span>
+                  <ChevronDown className="h-4 w-4 ml-1" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56 bg-white">
+                {solicitudesItems.map((item, index) => (
+                  <DropdownMenuItem key={index} asChild>
+                    <Link
+                      href={item.href}
+                      className="flex items-center px-2 py-2 text-[#004976] hover:bg-[#e6f3ff] cursor-pointer"
+                    >
+                      {item.title}
+                    </Link>
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </li>
         </ul>
       </nav>
 
