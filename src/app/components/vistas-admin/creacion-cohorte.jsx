@@ -13,7 +13,8 @@ import { Popover,  PopoverContent,  PopoverTrigger, } from "@/components/ui/popo
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import Image from "next/image"
 import Link from "next/link"
-import { Home, UserPlus, GraduationCap, ClipboardList, CreditCard, FileText, BookOpen, CalendarIcon, AlertCircle } from 'lucide-react'
+import { menuItems } from "../../constants/menuItemsADM"; 
+import { CalendarIcon, AlertCircle } from 'lucide-react'
 import { urls } from '../urls'
 
 const MAESTRIA_OPTIONS = {
@@ -37,16 +38,6 @@ export default function CreacionDecohorte() {
   const [loading, setLoading] = useState(false)
   const [isVerified, setIsVerified] = useState(false)
   const [verificationMessage, setVerificationMessage] = useState('')
-
-  const menuItems = [
-    { title: "Inicio", icon: Home, href: "/administrador/a-home-admin" },
-    { title: "Registro / Actualización de Usuarios ", icon: UserPlus, href: "/administrador/a-register-user" },
-    { title: "Registro / Actualización de Estudiantes ", icon: GraduationCap, href: "/administrador/a-register-student" },
-    { title: "Control de Notas", icon: ClipboardList, href: "/administrador/a-control-notas" },
-    { title: "Control de Pagos", icon: CreditCard, href: "/administrador/a-control-pagos" },
-    { title: "Solicitudes Estudiantiles", icon: FileText, href: "/administrador/a-solicitudes-estudiantiles" }, 
-    {title: "Asignar Materia", icon: BookOpen, href: "/administrador/a-asignar-materia" },
-  ];
 
   const generateCodigo = () => {
     if (!maestria || !sede || !startDate) return

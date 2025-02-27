@@ -21,9 +21,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { FileText, ClipboardList, BookOpen, User, Home } from "lucide-react";
+
 import axios from "axios";
 import { urls } from "../urls";
+import { menuItems } from "../../constants/menuItemsPRF"; 
 
 const planificationsCodesController = async ({ token, data }) => {
   try {
@@ -245,22 +246,6 @@ export default function CargarNotas() {
     console.log("Notas guardadas:", estudiantes);
     // Aquí iría la lógica para enviar las notas al backend
   };
-
-  const menuItems = [
-    { title: "Inicio", icon: Home, href: "/profesor/p-home-profe" },
-    {
-      title: "Crear Planificación",
-      icon: FileText,
-      href: "/profesor/p-crear-planificacion",
-    },
-    { title: "Cargar Notas", icon: ClipboardList, href: "/profesor/p-cargar-notas" },
-    {
-      title: "Listar Materias Asignadas",
-      icon: BookOpen,
-      href: "/profesor/p-listar-materias",
-    },
-    { title: "Mis Datos", icon: User, href: "/profesor/p-datos-profe" },
-  ];
 
   if (isLoading) {
     return (

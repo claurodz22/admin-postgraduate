@@ -12,8 +12,8 @@ import { ReloadIcon } from "@radix-ui/react-icons"
 import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { Home, UserPlus, GraduationCap, ClipboardList, CreditCard, FileText, BookOpen } from "lucide-react"
 import { urls } from "../urls"
+import { menuItems } from "../../constants/menuItemsADM"; 
 
 export default function AsignarMaterias() {
   const router = useRouter()
@@ -258,16 +258,7 @@ export default function AsignarMaterias() {
     }
   }
 
-  const menuItems = [
-    { title: "Inicio", icon: Home, href: "/administrador/a-home-admin" },
-    { title: "Registro / Actualización de Usuarios ", icon: UserPlus, href: "/administrador/a-register-user" },
-    { title: "Registro / Actualización de Estudiantes ", icon: GraduationCap, href: "/administrador/a-register-student" },
-    { title: "Control de Notas", icon: ClipboardList, href: "/administrador/a-control-notas" },
-    { title: "Control de Pagos", icon: CreditCard, href: "/administrador/a-control-pagos" },
-    { title: "Solicitudes Estudiantiles", icon: FileText, href: "/administrador/a-solicitudes-estudiantiles" },
-    { title: "Asignar Materia", icon: BookOpen, href: "/administrador/a-asignar-materia" },
-  ]
-
+  
   return (
     <div className="min-h-screen flex flex-col">
       <header className="bg-[#004976] text-white py-4">

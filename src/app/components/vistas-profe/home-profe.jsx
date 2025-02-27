@@ -6,7 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { FileText, ClipboardList, BookOpen, User } from "lucide-react";
+import { menuItems } from "../../constants/menuItemsPRF"; 
 import axios from "axios";
 import { useCallback } from "react";
 
@@ -56,22 +56,7 @@ export default function ProfesorHomePage() {
     fetchUserData();
   }, [router]);
 
-  const menuItems = [
-    { title: "Inicio", icon: FileText, href: "/profesor/p-home-profe" },
-    {
-      title: "Crear Planificación",
-      icon: FileText,
-      href: "/profesor/p-crear-planificacion",
-    },
-    { title: "Cargar Notas", icon: ClipboardList, href: "/profesor/p-cargar-notas" },
-    {
-      title: "Listar Materias Asignadas",
-      icon: BookOpen,
-      href: "/profesor/p-listar-materias",
-    },
-    { title: "Mis Datos", icon: User, href: "/profesor/p-datos-profe" },
-  ];
-
+  
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">

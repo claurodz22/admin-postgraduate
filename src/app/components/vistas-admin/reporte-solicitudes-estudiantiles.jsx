@@ -6,7 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Home, UserPlus, GraduationCap, ClipboardList, CreditCard, FileText, BookOpen } from 'lucide-react';
+import { menuItems } from "../../constants/menuItemsADM"; 
 import { useState, useEffect } from 'react'
 import { urls } from "../urls";
 
@@ -15,16 +15,6 @@ export default function UltimasSolicitudes() {
   const [studentRequests, setStudentRequests] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState(null)
-
-  const menuItems = [
-    { title: "Inicio", icon: Home, href: "/administrador/a-home-admin" },
-    { title: "Registro / Actualización de Usuarios ", icon: UserPlus, href: "/administrador/a-register-user" },
-    { title: "Registro / Actualización de Estudiantes ", icon: GraduationCap, href: "/administrador/a-register-student" },
-    { title: "Control de Notas", icon: ClipboardList, href: "/administrador/a-control-notas" },
-    { title: "Control de Pagos", icon: CreditCard, href: "/administrador/a-control-pagos" },
-    { title: "Solicitudes Estudiantiles", icon: FileText, href: "/administrador/a-solicitudes-estudiantiles" }, 
-    {title: "Asignar Materia", icon: BookOpen, href: "/administrador/a-asignar-materia" },
-  ];
 
   useEffect(() => {
     const token = localStorage.getItem('token')

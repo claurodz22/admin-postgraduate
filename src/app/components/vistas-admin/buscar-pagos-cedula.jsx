@@ -10,8 +10,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { Home, UserPlus, GraduationCap, ClipboardList, CreditCard, FileText, BookOpen, Search } from "lucide-react"
+import { Search } from "lucide-react"
 import { urls } from "../urls"
+import { menuItems } from "../../constants/menuItemsADM"; 
 
 export default function BusquedaPagos() {
   const router = useRouter()
@@ -41,32 +42,6 @@ export default function BusquedaPagos() {
       setIsLoading(false)
     }
   }
-
-  const menuItems = [
-    { title: "Inicio", icon: Home, href: "/administrador/a-home-admin" },
-    {
-      title: "Registro / Actualización de Usuarios ",
-      icon: UserPlus,
-      href: "/administrador/a-register-user",
-    },
-    {
-      title: "Registro / Actualización de Estudiantes ",
-      icon: GraduationCap,
-      href: "/administrador/a-register-student",
-    },
-    {
-      title: "Control de Notas",
-      icon: ClipboardList,
-      href: "/administrador/a-control-notas",
-    },
-    { title: "Control de Pagos", icon: CreditCard, href: "/administrador/a-control-pagos" },
-    {
-      title: "Solicitudes Estudiantiles",
-      icon: FileText,
-      href: "/administrador/a-solicitudes-estudiantiles",
-    },
-    { title: "Asignar Materia", icon: BookOpen, href: "/administrador/a-asignar-materia" },
-  ]
 
   const handleFetchPayments = async () => {
     setIsLoading(true)

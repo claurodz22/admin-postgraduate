@@ -4,10 +4,11 @@ import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { FileText, ClipboardList, BookOpen, User } from "lucide-react"
+import { User } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import axios from "axios";
+import { menuItems } from "../../constants/menuItemsPRF"; 
 
 export default function MisDatos() {
   const router = useRouter()
@@ -56,13 +57,7 @@ export default function MisDatos() {
     fetchUserData();
   }, [router]);
 
-  const menuItems = [
-    { title: "Inicio", icon: FileText, href: "/profesor/p-home-profe" },
-    { title: "Crear Planificación", icon: FileText, href: "/profesor/p-crear-planificacion" },
-    { title: "Cargar Notas", icon: ClipboardList, href: "/profesor/p-cargar-notas" },
-    { title: "Listar Materias Asignadas", icon: BookOpen, href: "/profesor/p-listar-materias" },
-    { title: "Mis Datos", icon: User, href: "/profesor/p-datos-profe" },
-  ]
+  
 
   if (isLoading) {
     return (

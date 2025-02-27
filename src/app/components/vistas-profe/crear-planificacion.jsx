@@ -22,10 +22,11 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
-import { FileText, ClipboardList, BookOpen, User, Home } from "lucide-react";
+
 import axios from "axios";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { urls } from "../urls";
+import { menuItems } from "../../constants/menuItemsPRF"; 
 
 export default function CrearPlanificacion() {
   const router = useRouter();
@@ -123,22 +124,6 @@ export default function CrearPlanificacion() {
       throw error;
     }
   };
-
-  const menuItems = [
-    { title: "Inicio", icon: Home, href: "/profesor/p-home-profe" },
-    {
-      title: "Crear Planificación",
-      icon: FileText,
-      href: "/profesor/p-crear-planificacion",
-    },
-    { title: "Cargar Notas", icon: ClipboardList, href: "/profesor/p-cargar-notas" },
-    {
-      title: "Listar Materias Asignadas",
-      icon: BookOpen,
-      href: "/profesor/p-listar-materias",
-    },
-    { title: "Mis Datos", icon: User, href: "/profesor/p-datos-profe" },
-  ];
 
   const tiposEvaluacion = ["Exposición", "Trabajo", "Examen", "Taller", "Otro"];
 
