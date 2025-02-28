@@ -10,6 +10,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { FileText, ClipboardList, BookOpen, User, FileDown, ChevronDown } from "lucide-react"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
+import { menuItems, solicitudesItems } from "../../constants/menuItemsEstud";
 import axios from "axios"
 
 export default function VerNotas() {
@@ -90,29 +91,7 @@ export default function VerNotas() {
     fetchUserData()
   }, [fetchUserData])
 
-  const menuItems = [
-    { title: "Inicio", icon: FileText, href: "/estudiantes/e-home-estudiante" },
-    /*{
-      title: "Ver Pesum",
-      icon: FileText,
-      href: "/estudiantes/e-ver-pensum",
-    },*/
-    { title: "Ver Notas", icon: ClipboardList, href: "/estudiantes/e-ver-notas" },
-    {
-      title: "Control Pago",
-      icon: BookOpen,
-      href: "/estudiantes/e-control-pagos",
-    },
-    { title: "Mis Datos", icon: User, href: "/estudiantes/e-datos-estudiante" },
-  ]
-
-  const solicitudesItems = [
-    { title: "Registro de Calificaciones", href: "/estudiantes/solicitudes/carta-culminacion" },
-    { title: "Solvencia", href: "/estudiantes/solicitudes/solvencia" },
-    { title: "Pensum", href: "/estudiantes/e-ver-pensum" },
-    { title: "Constancia de Inscripción", href: "/estudiantes/solicitudes/constancia-inscripcion" },
-    { title: "Elaboración de Expediente", href: "/estudiantes/solicitudes/carnet-estudiantil" },
-  ]
+   //EL MENU anterior
 
   if (isLoading) {
     return (
@@ -202,7 +181,7 @@ export default function VerNotas() {
       <main className="flex-1 container mx-auto px-6 py-8">
         <Card className="shadow-lg border-2">
           <CardHeader className="space-y-4">
-            <CardTitle className="text-2xl font-bold text-center text-[#004976]">Registro de Notas</CardTitle>
+            <CardTitle className="text-2xl font-bold text-center text-[#004976]">Visualizar Notas</CardTitle>
             <div className="flex justify-center gap-4">
               <Badge variant={userData?.solvente ? "success" : "destructive"}>
                 Estado: {userData?.solvente ? "Solvente" : "No Solvente"}

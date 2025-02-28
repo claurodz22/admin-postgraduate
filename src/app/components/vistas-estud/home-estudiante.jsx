@@ -8,6 +8,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { FileText, ClipboardList, BookOpen, User, FileDown, ChevronDown } from "lucide-react"
+import { menuItems, solicitudesItems } from "../../constants/menuItemsEstud";
 import axios from "axios"
 import { useCallback } from "react"
 
@@ -54,30 +55,8 @@ export default function EstudianteHomePage() {
   useEffect(() => {
     memoizedCallback()
   }, [memoizedCallback])
-
-  const menuItems = [
-    { title: "Inicio", icon: FileText, href: "/estudiantes/e-home-estudiante" },
-    /*{
-      title: "Ver Pesum",
-      icon: FileText,
-      href: "/estudiantes/e-ver-pensum",
-    },*/
-    { title: "Ver Notas", icon: ClipboardList, href: "/estudiantes/e-ver-notas" },
-    {
-      title: "Control Pago",
-      icon: BookOpen,
-      href: "/estudiantes/e-control-pagos",
-    },
-    { title: "Mis Datos", icon: User, href: "/estudiantes/e-datos-estudiante" },
-  ]
-
-  const solicitudesItems = [
-    { title: "Registro de Calificaciones", href: "/estudiantes/solicitudes/carta-culminacion" },
-    { title: "Solvencia", href: "/estudiantes/solicitudes/solvencia" },
-    { title: "Pensum", href: "/estudiantes/e-ver-pensum" },
-    { title: "Constancia de Inscripción", href: "/estudiantes/solicitudes/constancia-inscripcion" },
-    { title: "Elaboración de Expediente", href: "/estudiantes/solicitudes/carnet-estudiantil" },
-  ]
+ 
+  //EL MENU anterior
 
   if (isLoading) {
     return (
