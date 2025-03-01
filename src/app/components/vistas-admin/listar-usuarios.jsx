@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
@@ -12,36 +13,69 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 export default function ListarUsuarios() {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(true)
-  const [users, setUsers] = useState({ administradores: [], estudiantes: [], profesores: [] })
+  const [users, setUsers] = useState([])
+  const [selectedUserType, setSelectedUserType] = useState("")
+  const [currentPage, setCurrentPage] = useState(1)
+  const usersPerPage = 5
 
   useEffect(() => {
     const token = localStorage.getItem("token")
     if (!token) {
       router.push("/administrador/a-login-admin")
     } else {
-      fetchUsers()
+      setIsLoading(false)
     }
   }, [router])
 
-  const fetchUsers = () => {
-    // Aquí deberías hacer la llamada a tu API para obtener los usuarios
-    // Por ahora, usaremos datos de ejemplo
-    setUsers({
-      administradores: [
-        { id: 1, nombre: "Admin 1", email: "admin1@udo.edu" },
-        { id: 2, nombre: "Admin 2", email: "admin2@udo.edu" },
-      ],
-      estudiantes: [
-        { id: 3, nombre: "Estudiante 1", email: "estudiante1@udo.edu" },
-        { id: 4, nombre: "Estudiante 2", email: "estudiante2@udo.edu" },
-      ],
-      profesores: [
-        { id: 5, nombre: "Profesor 1", email: "profesor1@udo.edu" },
-        { id: 6, nombre: "Profesor 2", email: "profesor2@udo.edu" },
-      ],
-    })
-    setIsLoading(false)
+  useEffect(() => {
+    if (selectedUserType) {
+      fetchUsers(selectedUserType)
+    }
+  }, [selectedUserType])
+
+  const fetchUsers = async (userType) => {
+    setIsLoading(true)
+    try {
+      const userTypes = {
+        Administrador: 1,
+        Profesor: 3,
+        Estudiante: 2,
+      }
+
+      const typeId = userTypes[userType]
+      const response = await fetch(`http://127.0.0.1:8000/api/listar_usuarios/?tipo_usuario=${typeId}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        const formattedUsers = data.map((user) => ({
+          id: user.cedula,
+          nombre: `${user.nombre} ${user.apellido}`,
+          email: user.correo,
+        }))
+        setUsers(formattedUsers)
+      } else {
+        console.error(`Error fetching ${userType}: ${response.statusText}`)
+      }
+    } catch (error) {
+      console.error("Error fetching users:", error)
+    } finally {
+      setIsLoading(false)
+    }
   }
+
+  const handleUserTypeChange = (value) => {
+    setSelectedUserType(value)
+    setCurrentPage(1)
+  }
+
+  const indexOfLastUser = currentPage * usersPerPage
+  const indexOfFirstUser = indexOfLastUser - usersPerPage
+  const currentUsers = users.slice(indexOfFirstUser, indexOfLastUser)
+  const totalPages = Math.ceil(users.length / usersPerPage)
 
   if (isLoading) {
     return <div className="min-h-screen flex items-center justify-center">Cargando...</div>
@@ -103,9 +137,20 @@ export default function ListarUsuarios() {
           <Card className="max-w-5xl mx-auto bg-[#FFEFD5]">
             <CardContent className="p-6">
               <h2 className="text-3xl font-bold text-[#004976] mb-4 text-center">Lista de Usuarios</h2>
-              {Object.entries(users).map(([role, userList]) => (
-                <div key={role} className="mb-6">
-                  <h3 className="text-xl font-semibold text-[#004976] mb-2 capitalize">{role}</h3>
+              <div className="mb-4">
+                <Select onValueChange={handleUserTypeChange} value={selectedUserType}>
+                  <SelectTrigger className="w-[280px]">
+                    <SelectValue placeholder="Seleccione tipo de usuario a enlistar" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Administrador">Administrador</SelectItem>
+                    <SelectItem value="Profesor">Profesor</SelectItem>
+                    <SelectItem value="Estudiante">Estudiante</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              {selectedUserType && (
+                <>
                   <Table>
                     <TableHeader>
                       <TableRow>
@@ -114,7 +159,7 @@ export default function ListarUsuarios() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {userList.map((user) => (
+                      {currentUsers.map((user) => (
                         <TableRow key={user.id}>
                           <TableCell>{user.nombre}</TableCell>
                           <TableCell>{user.email}</TableCell>
@@ -122,8 +167,25 @@ export default function ListarUsuarios() {
                       ))}
                     </TableBody>
                   </Table>
-                </div>
-              ))}
+                  <div className="flex justify-between items-center mt-4">
+                    <Button
+                      onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                      disabled={currentPage === 1}
+                    >
+                      Anterior
+                    </Button>
+                    <span>
+                      Página {currentPage} de {totalPages}
+                    </span>
+                    <Button
+                      onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                      disabled={currentPage === totalPages}
+                    >
+                      Siguiente
+                    </Button>
+                  </div>
+                </>
+              )}
               <div className="flex justify-center mt-6">
                 <Button
                   onClick={() => router.push("/administrador/a-home-admin")}

@@ -14,9 +14,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 export default function EliminarUsuarios() {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(true)
-  const [users, setUsers] = useState({ administradores: [], estudiantes: [], profesores: [] })
+  const [users, setUsers] = useState([])
   const [selectedUsers, setSelectedUsers] = useState([])
-  const [selectedRole, setSelectedRole] = useState("")
+  const [selectedUserType, setSelectedUserType] = useState("")
   const [currentPage, setCurrentPage] = useState(1)
   const usersPerPage = 5
 
@@ -25,44 +25,84 @@ export default function EliminarUsuarios() {
     if (!token) {
       router.push("/administrador/a-login-admin")
     } else {
-      fetchUsers()
+      setIsLoading(false)
     }
   }, [router])
 
-  const fetchUsers = () => {
-    // Simula una llamada a la API
-    setUsers({
-      administradores: [
-        { id: 1, nombre: "Admin 1", email: "admin1@udo.edu" },
-        { id: 2, nombre: "Admin 2", email: "admin2@udo.edu" },
-        // ... más administradores
-      ],
-      estudiantes: [
-        { id: 3, nombre: "Estudiante 1", email: "estudiante1@udo.edu" },
-        { id: 4, nombre: "Estudiante 2", email: "estudiante2@udo.edu" },
-        // ... más estudiantes
-      ],
-      profesores: [
-        { id: 5, nombre: "Profesor 1", email: "profesor1@udo.edu" },
-        { id: 6, nombre: "Profesor 2", email: "profesor2@udo.edu" },
-        // ... más profesores
-      ],
-    })
-    setIsLoading(false)
+  useEffect(() => {
+    if (selectedUserType) {
+      fetchUsers(selectedUserType)
+    }
+  }, [selectedUserType])
+
+  const fetchUsers = async (userType) => {
+    setIsLoading(true)
+    try {
+      const userTypes = {
+        Administrador: 1,
+        Profesor: 3,
+        Estudiante: 2,
+      }
+
+      const typeId = userTypes[userType]
+      const response = await fetch(`http://127.0.0.1:8000/api/listar_usuarios/?tipo_usuario=${typeId}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        const formattedUsers = data.map((user) => ({
+          id: user.cedula,
+          nombre: `${user.nombre} ${user.apellido}`,
+          email: user.correo,
+        }))
+        setUsers(formattedUsers)
+      } else {
+        console.error(`Error fetching ${userType}: ${response.statusText}`)
+      }
+    } catch (error) {
+      console.error("Error fetching users:", error)
+    } finally {
+      setIsLoading(false)
+    }
+    
   }
 
   const handleCheckboxChange = (userId) => {
     setSelectedUsers((prev) => (prev.includes(userId) ? prev.filter((id) => id !== userId) : [...prev, userId]))
   }
 
-  const handleDeleteUsers = () => {
-    console.log("Usuarios a eliminar:", selectedUsers)
-    alert("Usuarios eliminados (simulación)")
-    setSelectedUsers([])
+  const handleDeleteUsers = async () => {
+    try {
+      const response = await fetch("http://127.0.0.1:8000/api/eliminar-usuarios/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify({ user_ids: selectedUsers }),
+      })
+
+      if (!response.ok) {
+        throw new Error("Error al eliminar usuarios")
+      }
+
+      const data = await response.json()
+      alert(data.message)
+
+      // Actualizar la lista de usuarios después de la eliminación
+      fetchUsers(selectedUserType)
+      setSelectedUsers([])
+    } catch (error) {
+      console.error("Error:", error)
+      alert("Hubo un error al eliminar los usuarios")
+    }
   }
 
-  const handleRoleChange = (value) => {
-    setSelectedRole(value)
+  const handleUserTypeChange = (value) => {
+    setSelectedUserType(value)
     setCurrentPage(1)
     setSelectedUsers([])
   }
@@ -71,10 +111,10 @@ export default function EliminarUsuarios() {
     return <div className="min-h-screen flex items-center justify-center">Cargando...</div>
   }
 
-  const currentUsers = selectedRole
-    ? users[selectedRole].slice((currentPage - 1) * usersPerPage, currentPage * usersPerPage)
-    : []
-  const totalPages = selectedRole ? Math.ceil(users[selectedRole].length / usersPerPage) : 0
+  const indexOfLastUser = currentPage * usersPerPage
+  const indexOfFirstUser = indexOfLastUser - usersPerPage
+  const currentUsers = users.slice(indexOfFirstUser, indexOfLastUser)
+  const totalPages = Math.ceil(users.length / usersPerPage)
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -133,18 +173,18 @@ export default function EliminarUsuarios() {
             <CardContent className="p-6">
               <h2 className="text-3xl font-bold text-[#004976] mb-4 text-center">Eliminar Usuarios</h2>
               <div className="mb-4">
-                <Select onValueChange={handleRoleChange}>
-                  <SelectTrigger className="w-[180px]">
-                    <SelectValue placeholder="Seleccionar rol" />
+                <Select onValueChange={handleUserTypeChange} value={selectedUserType}>
+                  <SelectTrigger className="w-[280px]">
+                    <SelectValue placeholder="Seleccione tipo de usuario a eliminar" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="administradores">Administradores</SelectItem>
-                    <SelectItem value="estudiantes">Estudiantes</SelectItem>
-                    <SelectItem value="profesores">Profesores</SelectItem>
+                    <SelectItem value="Administrador">Administrador</SelectItem>
+                    <SelectItem value="Profesor">Profesor</SelectItem>
+                    <SelectItem value="Estudiante">Estudiante</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
-              {selectedRole && (
+              {selectedUserType && (
                 <>
                   <Table>
                     <TableHeader>
@@ -169,17 +209,22 @@ export default function EliminarUsuarios() {
                       ))}
                     </TableBody>
                   </Table>
-                  <div className="flex justify-center gap-2 mt-4">
-                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                      <Button
-                        key={page}
-                        onClick={() => setCurrentPage(page)}
-                        variant={currentPage === page ? "default" : "outline"}
-                        className="w-8 h-8 p-0"
-                      >
-                        {page}
-                      </Button>
-                    ))}
+                  <div className="flex justify-between items-center mt-4">
+                    <Button
+                      onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                      disabled={currentPage === 1}
+                    >
+                      Anterior
+                    </Button>
+                    <span>
+                      Página {currentPage} de {totalPages}
+                    </span>
+                    <Button
+                      onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                      disabled={currentPage === totalPages}
+                    >
+                      Siguiente
+                    </Button>
                   </div>
                 </>
               )}
