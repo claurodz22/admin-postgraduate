@@ -21,6 +21,8 @@ export default function ControlNotas() {
   const notasOptions = [
     { title: "Generar Reporte de Pagos", description: "Generar un reporte de todos los pagos recibidos en el sistema", href: "/administrador/a-reporte-generar-pagos" },
     { title: "Buscar Pagos por Cédula", description: "Buscar los pagos realizados por un estudiante usando su número de cédula", href: "/administrador/a-buscar-pagos-cedula" },
+    { title: "Actualizar estado del pago", description: "Modificar el estado de los pagos registrados en el sistema", href: "/administrador/a-actualizar-pago" 
+    }
   ];
 
   return (

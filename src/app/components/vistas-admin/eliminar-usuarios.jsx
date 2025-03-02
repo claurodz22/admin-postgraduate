@@ -10,6 +10,7 @@ import { menuItems } from "../../constants/menuItemsADM"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { urls } from '../urls';
 
 export default function EliminarUsuarios() {
   const router = useRouter()
@@ -45,8 +46,9 @@ export default function EliminarUsuarios() {
       }
 
       const typeId = userTypes[userType]
-      const response = await fetch(`http://127.0.0.1:8000/api/listar_usuarios/?tipo_usuario=${typeId}`, {
+      const response = await fetch(`${urls.listar_usuarios}?tipo_usuario=${typeId}`, {
         headers: {
+          
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       })
@@ -76,7 +78,7 @@ export default function EliminarUsuarios() {
 
   const handleDeleteUsers = async () => {
     try {
-      const response = await fetch("http://127.0.0.1:8000/api/eliminar-usuarios/", {
+      const response = await fetch(urls.eliminar_usuarios, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

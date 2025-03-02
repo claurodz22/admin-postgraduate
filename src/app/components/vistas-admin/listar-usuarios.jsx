@@ -9,6 +9,7 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { menuItems } from "../../constants/menuItemsADM"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { urls } from '../urls';
 
 export default function ListarUsuarios() {
   const router = useRouter()
@@ -43,7 +44,7 @@ export default function ListarUsuarios() {
       }
 
       const typeId = userTypes[userType]
-      const response = await fetch(`http://127.0.0.1:8000/api/listar_usuarios/?tipo_usuario=${typeId}`, {
+      const response = await fetch(`${urls.listar_usuarios}?tipo_usuario=${typeId}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
