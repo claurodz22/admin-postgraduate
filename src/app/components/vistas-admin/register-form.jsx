@@ -9,8 +9,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { EyeIcon, EyeIcon as EyeClosedIcon, } from "lucide-react"
-import { menuItems } from "../../constants/menuItemsADM"; 
+import { EyeIcon, EyeIcon as EyeClosedIcon, RefreshCw } from "lucide-react"
+import { menuItems } from "../../constants/menuItemsADM"
 import { urls } from "../urls"
 
 export default function RegisterUser() {
@@ -100,6 +100,24 @@ export default function RegisterUser() {
     } finally {
       setIsLoading(false) // Detiene el estado de carga independientemente de si hubo un error o no
     }
+  }
+
+  // Función para limpiar el formulario y resetear estados
+  const handleClear = () => {
+    setUser({
+      nombre: "",
+      apellido: "",
+      cedulaTipo: "V-",
+      cedulaNumero: "",
+      correo: "",
+      tipoUsuario: "",
+      password: "",
+      confirmPassword: "",
+    })
+    setPasswordError("")
+    setFormError("")
+    setUserFound(false)
+    setSearchPerformed(false)
   }
 
   const validatePassword = (password) => {
@@ -247,8 +265,8 @@ export default function RegisterUser() {
               <h2 className="text-2xl font-bold text-[#004976] mb-6 text-center">Registro/Actualización de Usuario</h2>
 
               <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="col-span-2">
                     <Label htmlFor="cedula_estudiante">Cédula Estudiante</Label>
                     <div className="flex">
                       <Select
@@ -276,11 +294,26 @@ export default function RegisterUser() {
                       />
                     </div>
                   </div>
-                  <div>
-                    <Label htmlFor="buscar_estudiante">Buscar Estudiante</Label>
-                    <Button type="button" onClick={handleSearch} disabled={isLoading} className="w-full">
-                      {isLoading ? "Buscando..." : "Buscar"}
-                    </Button>
+                  <div className="flex gap-2">
+                    <div className="flex-1">
+                      <Label htmlFor="buscar_estudiante">Buscar</Label>
+                      <Button type="button" onClick={handleSearch} disabled={isLoading} className="w-full">
+                        {isLoading ? "Buscando..." : "Buscar"}
+                      </Button>
+                    </div>
+                    {searchPerformed && (
+                      <div className="flex-1">
+                        <Label htmlFor="limpiar">Limpiar</Label>
+                        <Button
+                          type="button"
+                          onClick={handleClear}
+                          className="w-full bg-gray-500 hover:bg-gray-600 text-white"
+                        >
+                          <RefreshCw className="h-4 w-4 mr-2" />
+                          Limpiar
+                        </Button>
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -344,7 +377,7 @@ export default function RegisterUser() {
                       value={user.password}
                       onChange={handleChange}
                       required
-                      //disabled={!searchPerformed}
+                      disabled={!searchPerformed}
                     />
                   </div>
                   <button
@@ -353,6 +386,7 @@ export default function RegisterUser() {
                     onClick={() => setShowPassword(!showPassword)}
                     className="text-[#004976] p-2"
                     aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                    disabled={!searchPerformed}
                   >
                     {!showPassword ? <EyeClosedIcon /> : <EyeIcon />}
                   </button>
@@ -365,7 +399,7 @@ export default function RegisterUser() {
                       name="confirmPassword"
                       type={showPassword ? "text" : "password"} // Cambia el tipo dinámicamente
                       autoComplete="current-password"
-                      //value={""}
+                      value={user.confirmPassword}
                       onChange={handleChange}
                       required
                       disabled={!searchPerformed}
@@ -377,6 +411,7 @@ export default function RegisterUser() {
                     onClick={() => setShowPassword(!showPassword)}
                     className="text-[#004976] p-2"
                     aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                    disabled={!searchPerformed}
                   >
                     {!showPassword ? <EyeClosedIcon /> : <EyeIcon />}
                   </button>

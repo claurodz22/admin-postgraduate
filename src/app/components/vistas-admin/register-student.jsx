@@ -278,9 +278,21 @@ const RegisterStudent = () => {
                       <SelectValue placeholder="Seleccione carrera concluida" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="Contaduría Pública">Contaduría Pública</SelectItem>
                       <SelectItem value="Administración">Administración</SelectItem>
+                      <SelectItem value="Contaduría Pública">Contaduría Pública</SelectItem>
+                      <SelectItem value="Ingeniería de Petroleo">Ingeniería de Petroleo</SelectItem>
                       <SelectItem value="Ingeniería en Computación">Ingeniería en Computación</SelectItem>
+                      <SelectItem value="Ingeniería Mecánica">Ingeniería Mecánica</SelectItem>
+                      <SelectItem value="Ingeniería Química">Ingeniería Química</SelectItem>
+                      <SelectItem value="Medicina">Medicina</SelectItem>
+                      <SelectItem value="Tecnología en Fabricación Mecánica">Tecnología en Fabricación Mecánica</SelectItem>
+                      <SelectItem value="Arquitectura">Arquitectura</SelectItem>
+                      <SelectItem value="Ingeniería Civil">Ingeniería Civil</SelectItem>
+                      <SelectItem value="Ingeniería de Sistemas">Ingeniería de Sistemas</SelectItem>
+                      <SelectItem value="Ingeniería Industrial">Ingeniería Industrial</SelectItem>
+                      <SelectItem value="Ingeniería Eléctrica">Ingeniería Eléctrica</SelectItem>
+                      <SelectItem value="Licenciatura en Turismo">Licenciatura en Turismo</SelectItem>
+                      <SelectItem value="Tecnología en Electrónica">Tecnología en Electrónica</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -318,7 +330,7 @@ const RegisterStudent = () => {
                   </Select>
                 </div>
                 <div>
-                  <Label htmlFor="cod_maestria">Código de Maestría</Label>
+                  <Label htmlFor="cod_maestria">Maestría a Realizar:</Label>
                   <Select
                   name="cod_maestria"
                   value={estudiante.cod_maestria}

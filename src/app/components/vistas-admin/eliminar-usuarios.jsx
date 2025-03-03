@@ -10,7 +10,7 @@ import { menuItems } from "../../constants/menuItemsADM"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { urls } from '../urls';
+import { urls } from "../urls"
 
 export default function EliminarUsuarios() {
   const router = useRouter()
@@ -48,7 +48,6 @@ export default function EliminarUsuarios() {
       const typeId = userTypes[userType]
       const response = await fetch(`${urls.listar_usuarios}?tipo_usuario=${typeId}`, {
         headers: {
-          
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       })
@@ -56,9 +55,11 @@ export default function EliminarUsuarios() {
       if (response.ok) {
         const data = await response.json()
         const formattedUsers = data.map((user) => ({
-          id: user.cedula,
-          nombre: `${user.nombre} ${user.apellido}`,
-          email: user.correo,
+          cedula: user.cedula,
+          nombre: user.nombre,
+          apellido: user.apellido,
+          tipo_usuario: getUserType(user.tipo_usuario),
+          correo: user.correo,
         }))
         setUsers(formattedUsers)
       } else {
@@ -69,11 +70,23 @@ export default function EliminarUsuarios() {
     } finally {
       setIsLoading(false)
     }
-    
   }
 
-  const handleCheckboxChange = (userId) => {
-    setSelectedUsers((prev) => (prev.includes(userId) ? prev.filter((id) => id !== userId) : [...prev, userId]))
+  const getUserType = (typeId) => {
+    switch (typeId) {
+      case 1:
+        return "Administrador"
+      case 2:
+        return "Estudiante"
+      case 3:
+        return "Profesor"
+      default:
+        return "Desconocido"
+    }
+  }
+
+  const handleCheckboxChange = (cedula) => {
+    setSelectedUsers((prev) => (prev.includes(cedula) ? prev.filter((id) => id !== cedula) : [...prev, cedula]))
   }
 
   const handleDeleteUsers = async () => {
@@ -120,7 +133,7 @@ export default function EliminarUsuarios() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      {/* encabezado */}
+      {/* Header */}
       <header className="bg-[#004976] text-white py-4">
         <div className="container mx-auto px-6 flex items-center">
           <div className="flex items-center gap-4">
@@ -153,7 +166,7 @@ export default function EliminarUsuarios() {
       </header>
 
       <div className="flex flex-1">
-        {/* menu con los items de arriba */}
+        {/* Sidebar */}
         <aside className="w-64 bg-[#e6f3ff]">
           <nav className="py-4">
             <ul className="space-y-1">
@@ -169,7 +182,7 @@ export default function EliminarUsuarios() {
           </nav>
         </aside>
 
-        {/* Contenido principal */}
+        {/* Main content */}
         <main className="flex-1 p-6">
           <Card className="max-w-5xl mx-auto bg-[#FFEFD5]">
             <CardContent className="p-6">
@@ -192,21 +205,27 @@ export default function EliminarUsuarios() {
                     <TableHeader>
                       <TableRow>
                         <TableHead className="w-[50px]">Seleccionar</TableHead>
+                        <TableHead>Cédula</TableHead>
                         <TableHead>Nombre</TableHead>
-                        <TableHead>Email</TableHead>
+                        <TableHead>Apellido</TableHead>
+                        <TableHead>Tipo de Usuario</TableHead>
+                        <TableHead>Correo</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {currentUsers.map((user) => (
-                        <TableRow key={user.id}>
+                        <TableRow key={user.cedula}>
                           <TableCell>
                             <Checkbox
-                              checked={selectedUsers.includes(user.id)}
-                              onCheckedChange={() => handleCheckboxChange(user.id)}
+                              checked={selectedUsers.includes(user.cedula)}
+                              onCheckedChange={() => handleCheckboxChange(user.cedula)}
                             />
                           </TableCell>
+                          <TableCell>{user.cedula}</TableCell>
                           <TableCell>{user.nombre}</TableCell>
-                          <TableCell>{user.email}</TableCell>
+                          <TableCell>{user.apellido}</TableCell>
+                          <TableCell>{user.tipo_usuario}</TableCell>
+                          <TableCell>{user.correo}</TableCell>
                         </TableRow>
                       ))}
                     </TableBody>

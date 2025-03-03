@@ -138,7 +138,7 @@ export default function CreacionDecohorte() {
 
       if (response.ok) {
         alert(`Cohorte guardado exitosamente con el código: ${result.codigo_cohorte}`)
-        router.push('/a-home-admin')  // Redirect to admin home page
+        router.push('/administrador/a-home-admin')  // Redirect to admin home page
       } else {
         alert(result.error || 'Error al guardar el cohorte')
       }

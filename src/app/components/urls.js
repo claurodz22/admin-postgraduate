@@ -18,7 +18,7 @@ export const urls = {
   listado_estudiantes: `${base_url}/api/listado_estudiantes/`,
   listado_materias: `${base_url}/api/listado-materias/`,
   asignar_profesor_materia: `${base_url}/api/asignar-profesor-materia/`,
-  verificarCodigoCohort: `${base_url}/api/verificar-codigo-cohort/`,
+  verificarCodigoCohort: `${base_url}/api/verificar-codigo-cohorte/`,
   cohorte_generar_codigo: `${base_url}/api/cohorte-generar-codigo/`,
   datosbasicos: `${base_url}/api/datosbasicos/`,
   obtenerdatosbasicos: `${base_url}/api/obtenerdatos/`,

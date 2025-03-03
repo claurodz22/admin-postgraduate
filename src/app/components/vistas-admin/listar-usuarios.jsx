@@ -9,7 +9,7 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { menuItems } from "../../constants/menuItemsADM"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { urls } from '../urls';
+import { urls } from "../urls"
 
 export default function ListarUsuarios() {
   const router = useRouter()
@@ -53,9 +53,11 @@ export default function ListarUsuarios() {
       if (response.ok) {
         const data = await response.json()
         const formattedUsers = data.map((user) => ({
-          id: user.cedula,
-          nombre: `${user.nombre} ${user.apellido}`,
-          email: user.correo,
+          cedula: user.cedula,
+          nombre: user.nombre,
+          apellido: user.apellido,
+          tipo_usuario: getUserType(user.tipo_usuario),
+          correo: user.correo,
         }))
         setUsers(formattedUsers)
       } else {
@@ -65,6 +67,19 @@ export default function ListarUsuarios() {
       console.error("Error fetching users:", error)
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  const getUserType = (typeId) => {
+    switch (typeId) {
+      case 1:
+        return "Administrador"
+      case 2:
+        return "Estudiante"
+      case 3:
+        return "Profesor"
+      default:
+        return "Desconocido"
     }
   }
 
@@ -84,7 +99,7 @@ export default function ListarUsuarios() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      {/* encabezado */}
+      {/* Header */}
       <header className="bg-[#004976] text-white py-4">
         <div className="container mx-auto px-6 flex items-center">
           <div className="flex items-center gap-4">
@@ -117,7 +132,7 @@ export default function ListarUsuarios() {
       </header>
 
       <div className="flex flex-1">
-        {/* menu con los items de arriba */}
+        {/* Sidebar */}
         <aside className="w-64 bg-[#e6f3ff]">
           <nav className="py-4">
             <ul className="space-y-1">
@@ -133,7 +148,7 @@ export default function ListarUsuarios() {
           </nav>
         </aside>
 
-        {/* Contenido principal */}
+        {/* Main content */}
         <main className="flex-1 p-6">
           <Card className="max-w-5xl mx-auto bg-[#FFEFD5]">
             <CardContent className="p-6">
@@ -155,15 +170,21 @@ export default function ListarUsuarios() {
                   <Table>
                     <TableHeader>
                       <TableRow>
+                        <TableHead>Cédula</TableHead>
                         <TableHead>Nombre</TableHead>
-                        <TableHead>Email</TableHead>
+                        <TableHead>Apellido</TableHead>
+                        <TableHead>Tipo de Usuario</TableHead>
+                        <TableHead>Correo</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {currentUsers.map((user) => (
-                        <TableRow key={user.id}>
+                        <TableRow key={user.cedula}>
+                          <TableCell>{user.cedula}</TableCell>
                           <TableCell>{user.nombre}</TableCell>
-                          <TableCell>{user.email}</TableCell>
+                          <TableCell>{user.apellido}</TableCell>
+                          <TableCell>{user.tipo_usuario}</TableCell>
+                          <TableCell>{user.correo}</TableCell>
                         </TableRow>
                       ))}
                     </TableBody>

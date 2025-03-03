@@ -6,7 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { menuItems } from "../../constants/menuItemsADM"; 
+import { menuItems } from "../../constants/menuItemsADM"
 import { useEffect, useState } from "react"
 import { urls } from "../urls"
 
@@ -104,7 +104,7 @@ export default function ControlPagos() {
 
         {/* cuerpo principal de la pag */}
         <main className="flex-1 p-6">
-          <Card className="mx-auto ">
+          <Card className="mx-auto bg-[#FFEFD5]">
             <CardContent className="p-6">
               <h2 className="text-2xl font-bold text-[#004976] mb-6 text-center">Últimos Pagos Ingresados</h2>
               {isLoading ? (
@@ -140,52 +140,49 @@ export default function ControlPagos() {
                           <TableCell className="text-right">
                             {typeof payment.monto_pago === "number" ? `${(payment.monto_pago).toFixed(2)} Bs.` : "N/A"}
                           </TableCell>
-                          <TableCell
-                           
-                            
-                          >
+                          <TableCell>
                             <div
-                             className="font-medium text-center"
-                             style={{
-                               borderRadius: "4px",
-                               padding: "0px", // Reduce el espacio interno
-                               fontSize: "0.8rem", // Hace el texto más compacto
-                               transition: "all 0.2s ease-in-out",
-                               boxShadow:
-                                 payment.estado_pago === "Pendiente"
-                                   ? "0 1px 2px rgba(234, 179, 8, 0.2)"
-                                   : payment.estado_pago === "Confirmado"
-                                   ? "0 1px 2px rgba(34, 197, 94, 0.2)"
-                                   : payment.estado_pago === "Negado"
-                                   ? "0 1px 2px rgba(239, 68, 68, 0.2)"
-                                   : "none",
-                               border:
-                                 payment.estado_pago === "Pendiente"
-                                   ? "1px solid rgba(234, 179, 8, 0.5)"
-                                   : payment.estado_pago === "Confirmado"
-                                   ? "1px solid rgba(34, 197, 94, 0.5)"
-                                   : payment.estado_pago === "Negado"
-                                   ? "1px solid rgba(239, 68, 68, 0.5)"
-                                   : "none",
-                               color:
-                                 payment.estado_pago === "Pendiente"
-                                   ? "rgb(161, 98, 7)"
-                                   : payment.estado_pago === "Confirmado"
-                                   ? "rgb(21, 128, 61)"
-                                   : payment.estado_pago === "Negado"
-                                   ? "rgb(185, 28, 28)"
-                                   : "inherit",
-                               backgroundColor:
-                                 payment.estado_pago === "Pendiente"
-                                   ? "rgba(234, 179, 8, 0.05)" // Más claro para que no resalte tanto
-                                   : payment.estado_pago === "Confirmado"
-                                   ? "rgba(34, 197, 94, 0.05)"
-                                   : payment.estado_pago === "Negado"
-                                   ? "rgba(239, 68, 68, 0.05)"
-                                   : "transparent",
-                             }}
+                              className="font-medium text-center"
+                              style={{
+                                borderRadius: "4px",
+                                padding: "0px", // Reduce el espacio interno
+                                fontSize: "0.8rem", // Hace el texto más compacto
+                                transition: "all 0.2s ease-in-out",
+                                boxShadow:
+                                  payment.estado_pago === "Pendiente"
+                                    ? "0 1px 2px rgba(234, 179, 8, 0.2)"
+                                    : payment.estado_pago === "Confirmado"
+                                      ? "0 1px 2px rgba(34, 197, 94, 0.2)"
+                                      : payment.estado_pago === "Negado"
+                                        ? "0 1px 2px rgba(239, 68, 68, 0.2)"
+                                        : "none",
+                                border:
+                                  payment.estado_pago === "Pendiente"
+                                    ? "1px solid rgba(234, 179, 8, 0.5)"
+                                    : payment.estado_pago === "Confirmado"
+                                      ? "1px solid rgba(34, 197, 94, 0.5)"
+                                      : payment.estado_pago === "Negado"
+                                        ? "1px solid rgba(239, 68, 68, 0.5)"
+                                        : "none",
+                                color:
+                                  payment.estado_pago === "Pendiente"
+                                    ? "rgb(161, 98, 7)"
+                                    : payment.estado_pago === "Confirmado"
+                                      ? "rgb(21, 128, 61)"
+                                      : payment.estado_pago === "Negado"
+                                        ? "rgb(185, 28, 28)"
+                                        : "inherit",
+                                backgroundColor:
+                                  payment.estado_pago === "Pendiente"
+                                    ? "rgba(234, 179, 8, 0.05)" // Más claro para que no resalte tanto
+                                    : payment.estado_pago === "Confirmado"
+                                      ? "rgba(34, 197, 94, 0.05)"
+                                      : payment.estado_pago === "Negado"
+                                        ? "rgba(239, 68, 68, 0.05)"
+                                        : "transparent",
+                              }}
                             >
-                            {payment.estado_pago || "N/A"}
+                              {payment.estado_pago || "N/A"}
                             </div>
                           </TableCell>
                         </TableRow>

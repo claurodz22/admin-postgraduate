@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -30,8 +30,10 @@ export default function ActualizarEstadoPagos() {
   const [cedulaNumero, setCedulaNumero] = useState("")
   const [fechaInicio, setFechaInicio] = useState("")
   const [fechaFin, setFechaFin] = useState("")
+  const [estadoPago, setEstadoPago] = useState("todos")
 
-  const fetchPayments = async () => {
+  // Memorizar la función fetchPayments con useCallback
+  const fetchPayments = useCallback(async () => {
     try {
       const response = await fetch(urls.pagos, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
@@ -47,7 +49,7 @@ export default function ActualizarEstadoPagos() {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, []) // Sin dependencias, la función se crea una sola vez
 
   useEffect(() => {
     const token = localStorage.getItem("token")
@@ -55,11 +57,13 @@ export default function ActualizarEstadoPagos() {
       router.push("/administrador/a-login-admin")
     } else {
       fetchPayments().then((data) => {
-        setAllPayments(data)
-        setFilteredPayments(data)
+        if (data) {
+          setAllPayments(data)
+          setFilteredPayments(data)
+        }
       })
     }
-  }, [router]) // Removed fetchPayments from dependencies
+  }, [router, fetchPayments]) // Ahora es seguro incluir fetchPayments como dependencia
 
   const handlePaymentSelect = (payment) => {
     setSelectedPayments((prev) => {
@@ -101,10 +105,12 @@ export default function ActualizarEstadoPagos() {
       console.log(result)
       // Refresh payments after update
       const updatedPayments = await fetchPayments()
-      setAllPayments(updatedPayments)
-      setFilteredPayments(updatedPayments)
-      setSelectedPayments([])
-      setError(null)
+      if (updatedPayments) {
+        setAllPayments(updatedPayments)
+        setFilteredPayments(updatedPayments)
+        setSelectedPayments([])
+        setError(null)
+      }
     } catch (err) {
       setError(`Error al actualizar los pagos: ${err.message}`)
     }
@@ -112,6 +118,7 @@ export default function ActualizarEstadoPagos() {
 
   const handleSearch = (e) => {
     e.preventDefault()
+
     const cedula = cedulaNumero ? `${cedulaTipo}-${cedulaNumero}` : ""
     const results = allPayments.filter((payment) => {
       const cedulaMatch = cedula === "" || payment.cedula_responsable?.includes(cedula)
@@ -122,8 +129,14 @@ export default function ActualizarEstadoPagos() {
         dateMatch = fechaPago >= new Date(fechaInicio) && fechaPago <= new Date(fechaFin)
       }
 
-      return cedulaMatch && dateMatch
+      // Mejorado el filtro de estado
+      const statusMatch =
+        estadoPago === "todos" ||
+        (payment.estado_pago && payment.estado_pago.trim().toLowerCase() === estadoPago.trim().toLowerCase())
+
+      return cedulaMatch && dateMatch && statusMatch
     })
+
     setFilteredPayments(results)
     setCurrentPage(1)
   }
@@ -134,6 +147,7 @@ export default function ActualizarEstadoPagos() {
     setCedulaNumero("")
     setFechaInicio("")
     setFechaFin("")
+    setEstadoPago("todos")
     setCurrentPage(1)
   }
 
@@ -209,8 +223,8 @@ export default function ActualizarEstadoPagos() {
             <CardContent className="p-6">
               <h2 className="text-2xl font-bold text-[#004976] mb-6 text-center">Actualizar Estado de Pagos</h2>
 
-              <form onSubmit={handleSearch} className="mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
+              <form onSubmit={handleSearch} className="mb-6 grid grid-cols-4 gap-4">
+                <div className="col-span-1">
                   <Label htmlFor="cedula">Cédula</Label>
                   <div className="flex">
                     <Select value={cedulaTipo} onValueChange={setCedulaTipo}>
@@ -231,7 +245,7 @@ export default function ActualizarEstadoPagos() {
                     />
                   </div>
                 </div>
-                <div>
+                <div className="col-span-1">
                   <Label htmlFor="fechaInicio">Fecha de Inicio</Label>
                   <Input
                     id="fechaInicio"
@@ -240,16 +254,36 @@ export default function ActualizarEstadoPagos() {
                     onChange={(e) => setFechaInicio(e.target.value)}
                   />
                 </div>
-                <div>
+                <div className="col-span-1">
                   <Label htmlFor="fechaFin">Fecha de Fin</Label>
                   <Input id="fechaFin" type="date" value={fechaFin} onChange={(e) => setFechaFin(e.target.value)} />
                 </div>
-                <Button type="submit" className="md:col-span-2 bg-[#004976] text-white hover:bg-[#003357]">
-                  <Search className="mr-2 h-4 w-4" /> Buscar Pagos
-                </Button>
-                <Button type="button" onClick={resetSearch} className="bg-gray-500 text-white hover:bg-gray-600">
-                  Resetear Búsqueda
-                </Button>
+                <div className="col-span-1">
+                  <Label htmlFor="estadoPago">Estado del Pago</Label>
+                  <Select value={estadoPago} onValueChange={setEstadoPago}>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Todos los estados" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="todos">Todos</SelectItem>
+                      <SelectItem value="pendiente">Pendiente</SelectItem>
+                      <SelectItem value="confirmado">Confirmado</SelectItem>
+                      <SelectItem value="negado">Negado</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="col-span-4 flex justify-center gap-4 mt-4">
+                  <Button type="submit" className="h-12 bg-[#004976] text-white hover:bg-[#003357] w-[600px]">
+                    <Search className="mr-2 h-5 w-5" /> Buscar Pagos
+                  </Button>
+                  <Button
+                    type="button"
+                    onClick={resetSearch}
+                    className="h-12 bg-gray-500 text-white hover:bg-gray-600 w-[600px]"
+                  >
+                    Resetear Búsqueda
+                  </Button>
+                </div>
               </form>
 
               {isLoading ? (
@@ -296,11 +330,11 @@ export default function ActualizarEstadoPagos() {
                   Anterior
                 </Button>
                 <span>
-                  Página {currentPage} de {totalPages}
+                  Página {currentPage} de {totalPages || 1}
                 </span>
                 <Button
                   onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-                  disabled={currentPage === totalPages}
+                  disabled={currentPage === totalPages || totalPages === 0}
                 >
                   Siguiente
                 </Button>

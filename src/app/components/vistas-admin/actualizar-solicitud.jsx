@@ -1,6 +1,6 @@
-'use client'
+"use client"
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -11,16 +11,17 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { Search, X } from 'lucide-react'
-import { urls } from '../urls'
+import { Search, X } from "lucide-react"
+import { urls } from "../urls"
 import { menuItems } from "../../constants/menuItemsADM"
 
 export default function ActualizarSolicitudesEstudiantiles() {
   const router = useRouter()
-  const [nacionalidad, setNacionalidad] = useState('V')
-  const [cedulaNumero, setCedulaNumero] = useState('')
-  const [fechaInicio, setFechaInicio] = useState('')
-  const [fechaFin, setFechaFin] = useState('')
+  const [nacionalidad, setNacionalidad] = useState("V")
+  const [cedulaNumero, setCedulaNumero] = useState("")
+  const [fechaInicio, setFechaInicio] = useState("")
+  const [fechaFin, setFechaFin] = useState("")
+  const [statusSolicitud, setStatusSolicitud] = useState("todos") // Nuevo estado para filtrar por status
   const [buscarResul, setBuscarResul] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -28,9 +29,9 @@ export default function ActualizarSolicitudesEstudiantiles() {
   const [selectedRequests, setSelectedRequests] = useState([])
 
   useEffect(() => {
-    const token = localStorage.getItem('token')
+    const token = localStorage.getItem("token")
     if (!token) {
-      router.push('/a-login-admin')
+      router.push("/a-login-admin")
     }
   }, [router])
 
@@ -38,7 +39,7 @@ export default function ActualizarSolicitudesEstudiantiles() {
     const fetchSolicitudes = async () => {
       try {
         const info_obt_json = await fetch(urls.solicitudes, {
-          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         })
         if (!info_obt_json.ok) {
           throw new Error(`HTTP error! status: ${info_obt_json.status}`)
@@ -48,7 +49,7 @@ export default function ActualizarSolicitudesEstudiantiles() {
         setAllResults(info_obt_js)
       } catch (err) {
         setError(`Error al cargar las solicitudes: ${err.message || String(err)}`)
-        console.error('Error fetching solicitudes:', err)
+        console.error("Error fetching solicitudes:", err)
       } finally {
         setIsLoading(false)
       }
@@ -61,41 +62,48 @@ export default function ActualizarSolicitudesEstudiantiles() {
     e.preventDefault()
 
     let searchCedula = cedulaNumero.trim()
-    
-    if (searchCedula.startsWith('V-') || searchCedula.startsWith('E-')) {
+
+    if (searchCedula.startsWith("V-") || searchCedula.startsWith("E-")) {
       searchCedula = searchCedula.slice(2)
     }
-    
-    const cedula = searchCedula ? `${nacionalidad}-${searchCedula}` : ''
-    
-    const filteredResults = allResults.filter(lista_solicitud => {
-      const cedulaMatch = cedula === '' || lista_solicitud.cedula_responsable.includes(cedula)
-      
+
+    const cedula = searchCedula ? `${nacionalidad}-${searchCedula}` : ""
+
+    const filteredResults = allResults.filter((lista_solicitud) => {
+      const cedulaMatch = cedula === "" || lista_solicitud.cedula_responsable.includes(cedula)
+
       let periodoCoincide = true
       if (fechaInicio && fechaFin) {
         const fechaSolicitud = new Date(lista_solicitud.fecha_solicitud)
         periodoCoincide = fechaSolicitud >= new Date(fechaInicio) && fechaSolicitud <= new Date(fechaFin)
       }
-      
-      return cedulaMatch && periodoCoincide
+
+      // Filtro por estado de solicitud
+      const statusMatch =
+        statusSolicitud === "todos" ||
+        (lista_solicitud.status_solicitud &&
+          lista_solicitud.status_solicitud.trim().toLowerCase() === statusSolicitud.trim().toLowerCase())
+
+      return cedulaMatch && periodoCoincide && statusMatch
     })
-    
+
     setBuscarResul(filteredResults)
   }
 
   const restablecer_results = () => {
     setBuscarResul(allResults)
-    setNacionalidad('V')
-    setCedulaNumero('')
-    setFechaInicio('')
-    setFechaFin('')
+    setNacionalidad("V")
+    setCedulaNumero("")
+    setFechaInicio("")
+    setFechaFin("")
+    setStatusSolicitud("todos") // Resetear el filtro de estado
   }
 
   const handleRequestSelect = (request) => {
-    setSelectedRequests(prev => {
-      const isAlreadySelected = prev.some(r => r.cod_solicitudes === request.cod_solicitudes)
+    setSelectedRequests((prev) => {
+      const isAlreadySelected = prev.some((r) => r.cod_solicitudes === request.cod_solicitudes)
       if (isAlreadySelected) {
-        return prev.filter(r => r.cod_solicitudes !== request.cod_solicitudes)
+        return prev.filter((r) => r.cod_solicitudes !== request.cod_solicitudes)
       } else {
         return [...prev, { ...request, newStatus: request.status_solicitud }]
       }
@@ -103,15 +111,11 @@ export default function ActualizarSolicitudesEstudiantiles() {
   }
 
   const handleStatusChange = (codSolicitud, newStatus) => {
-    setSelectedRequests(prev => 
-      prev.map(r => 
-        r.cod_solicitudes === codSolicitud ? { ...r, newStatus } : r
-      )
-    )
+    setSelectedRequests((prev) => prev.map((r) => (r.cod_solicitudes === codSolicitud ? { ...r, newStatus } : r)))
   }
 
   const removeSelectedRequest = (codSolicitud) => {
-    setSelectedRequests(prev => prev.filter(r => r.cod_solicitudes !== codSolicitud))
+    setSelectedRequests((prev) => prev.filter((r) => r.cod_solicitudes !== codSolicitud))
   }
 
   const handleUpdateStatus = async () => {
@@ -122,17 +126,17 @@ export default function ActualizarSolicitudesEstudiantiles() {
 
     try {
       const response = await fetch(urls.actualizar_solicitudes, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem("token")}`
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
         body: JSON.stringify({
-          solicitudes: selectedRequests.map(r => ({
+          solicitudes: selectedRequests.map((r) => ({
             cod_solicitudes: r.cod_solicitudes,
-            nuevoEstado: r.newStatus
-          }))
-        })
+            nuevoEstado: r.newStatus,
+          })),
+        }),
       })
 
       if (!response.ok) {
@@ -143,8 +147,8 @@ export default function ActualizarSolicitudesEstudiantiles() {
       console.log(result)
       // Refresh solicitudes after update
       const updatedSolicitudes = await fetch(urls.solicitudes, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-      }).then(res => res.json())
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      }).then((res) => res.json())
       setBuscarResul(updatedSolicitudes)
       setAllResults(updatedSolicitudes)
       setSelectedRequests([])
@@ -194,10 +198,7 @@ export default function ActualizarSolicitudesEstudiantiles() {
             <ul className="space-y-1">
               {menuItems.map((item, index) => (
                 <li key={index}>
-                  <Link 
-                    href={item.href} 
-                    className="flex items-center px-6 py-2 text-[#004976] gap-3"
-                  >
+                  <Link href={item.href} className="flex items-center px-6 py-2 text-[#004976] gap-3">
                     <item.icon className="h-5 w-5 shrink-0" />
                     <span>{item.title}</span>
                   </Link>
@@ -210,16 +211,15 @@ export default function ActualizarSolicitudesEstudiantiles() {
         <main className="flex-1 p-6">
           <Card className="mx-auto bg-[#FFEFD5] mb-6">
             <CardContent className="p-6">
-              <h2 className="text-2xl font-bold text-[#004976] mb-6 text-center">Actualizar Solicitudes Estudiantiles</h2>
-              
-              <form onSubmit={buscarSoli} className="mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
+              <h2 className="text-2xl font-bold text-[#004976] mb-6 text-center">
+                Actualizar Solicitudes Estudiantiles
+              </h2>
+
+              <form onSubmit={buscarSoli} className="mb-6 grid grid-cols-4 gap-4">
+                <div className="col-span-1">
                   <Label htmlFor="cedula">Cédula</Label>
                   <div className="flex">
-                    <Select 
-                      value={nacionalidad} 
-                      onValueChange={setNacionalidad}
-                    >
+                    <Select value={nacionalidad} onValueChange={setNacionalidad}>
                       <SelectTrigger className="w-[60px]">
                         <SelectValue placeholder="Tipo" />
                       </SelectTrigger>
@@ -237,7 +237,7 @@ export default function ActualizarSolicitudesEstudiantiles() {
                     />
                   </div>
                 </div>
-                <div>
+                <div className="col-span-1">
                   <Label htmlFor="fechaInicio">Fecha de Inicio</Label>
                   <Input
                     id="fechaInicio"
@@ -246,25 +246,37 @@ export default function ActualizarSolicitudesEstudiantiles() {
                     onChange={(e) => setFechaInicio(e.target.value)}
                   />
                 </div>
-                <div>
+                <div className="col-span-1">
                   <Label htmlFor="fechaFin">Fecha de Fin</Label>
-                  <Input
-                    id="fechaFin"
-                    type="date"
-                    value={fechaFin}
-                    onChange={(e) => setFechaFin(e.target.value)}
-                  />
+                  <Input id="fechaFin" type="date" value={fechaFin} onChange={(e) => setFechaFin(e.target.value)} />
                 </div>
-                <Button type="submit" className="md:col-span-2 bg-[#004976] text-white hover:bg-[#003357]">
-                  <Search className="mr-2 h-4 w-4" /> Buscar Solicitudes
-                </Button>
-                <Button 
-                  type="button" 
-                  onClick={restablecer_results}
-                  className="bg-gray-500 text-white hover:bg-gray-600"
-                >
-                  Resetear Búsqueda
-                </Button>
+                <div className="col-span-1">
+                  <Label htmlFor="statusSolicitud">Estado de Solicitud</Label>
+                  <Select value={statusSolicitud} onValueChange={setStatusSolicitud}>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Todos los estados" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="todos">Todos</SelectItem>
+                      <SelectItem value="pendiente">Pendiente</SelectItem>
+                      <SelectItem value="en proceso">En Proceso</SelectItem>
+                      <SelectItem value="completada">Completada</SelectItem>
+                      <SelectItem value="rechazada">Rechazada</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="col-span-4 flex justify-center gap-4 mt-4">
+                  <Button type="submit" className="h-12 bg-[#004976] text-white hover:bg-[#003357] w-[600px]">
+                    <Search className="mr-2 h-5 w-5" /> Buscar Solicitudes
+                  </Button>
+                  <Button
+                    type="button"
+                    onClick={restablecer_results}
+                    className="h-12 bg-gray-500 text-white hover:bg-gray-600 w-[600px]"
+                  >
+                    Resetear Búsqueda
+                  </Button>
+                </div>
               </form>
 
               {isLoading ? (
@@ -291,12 +303,18 @@ export default function ActualizarSolicitudesEstudiantiles() {
                         <TableRow key={lista_solicitud.cod_solicitudes}>
                           <TableCell>
                             <Checkbox
-                              checked={selectedRequests.some(r => r.cod_solicitudes === lista_solicitud.cod_solicitudes)}
+                              checked={selectedRequests.some(
+                                (r) => r.cod_solicitudes === lista_solicitud.cod_solicitudes,
+                              )}
                               onCheckedChange={() => handleRequestSelect(lista_solicitud)}
                             />
                           </TableCell>
                           <TableCell>{lista_solicitud.cod_solicitudes}</TableCell>
-                          <TableCell>{lista_solicitud.fecha_solicitud ? new Date(lista_solicitud.fecha_solicitud).toLocaleDateString('es-VE') : 'N/A'}</TableCell>
+                          <TableCell>
+                            {lista_solicitud.fecha_solicitud
+                              ? new Date(lista_solicitud.fecha_solicitud).toLocaleDateString("es-VE")
+                              : "N/A"}
+                          </TableCell>
                           <TableCell>{lista_solicitud.cedula_responsable}</TableCell>
                           <TableCell>{lista_solicitud.nombre_estudiante}</TableCell>
                           <TableCell>{lista_solicitud.apellido_estudiante}</TableCell>
@@ -346,7 +364,6 @@ export default function ActualizarSolicitudesEstudiantiles() {
                                 <SelectItem value="Pendiente">Pendiente</SelectItem>
                                 <SelectItem value="En Proceso">En Proceso</SelectItem>
                                 <SelectItem value="Completada">Completada</SelectItem>
-                
                                 <SelectItem value="Rechazada">Rechazada</SelectItem>
                               </SelectContent>
                             </Select>
@@ -364,8 +381,8 @@ export default function ActualizarSolicitudesEstudiantiles() {
                       ))}
                     </TableBody>
                   </Table>
-                  <Button 
-                    onClick={handleUpdateStatus} 
+                  <Button
+                    onClick={handleUpdateStatus}
                     className="w-full mt-4 bg-[#004976] text-white hover:bg-[#003357]"
                   >
                     Actualizar Solicitudes
@@ -381,3 +398,4 @@ export default function ActualizarSolicitudesEstudiantiles() {
     </div>
   )
 }
+
