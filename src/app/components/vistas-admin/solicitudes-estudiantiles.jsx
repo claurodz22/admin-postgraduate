@@ -1,27 +1,41 @@
-'use client'
+"use client"
 
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import Image from "next/image";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useEffect } from 'react'
-import { menuItems } from "../../constants/menuItemsADM"; 
+import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
+import Image from "next/image"
+import Link from "next/link"
+import { useRouter } from "next/navigation"
+import { useEffect } from "react"
+import { menuItems } from "../../constants/menuItemsADM"
 
 export default function ControlNotas() {
   const router = useRouter()
 
   useEffect(() => {
-    const token = localStorage.getItem('token')
+    const token = localStorage.getItem("token")
     if (!token) {
-      router.push('/a-login-admin')
+      router.push("/a-login-admin")
     }
   }, [router])
 
   const notasOptions = [
-    { title: "Generar Reporte de Solicitudes Estudiantiles", description: "Generar un reporte de las últimas solicitudes estudiantiles ingresadas", href: "/administrador/a-reporte-solicitudes-estudiantiles" },
-    { title: "Buscar Solicitudes por Cédula", description: "Buscar las solicitudes estudiantiles realizados por un estudiante usando su número de cédula en un período de tiempo.", href: "/administrador/a-buscar-solicitudes-estudiantiles" },
-  ];
+    {
+      title: "Generar Reporte de Solicitudes Estudiantiles",
+      description: "Generar un reporte de las últimas solicitudes estudiantiles ingresadas",
+      href: "/administrador/a-reporte-solicitudes-estudiantiles",
+    },
+    {
+      title: "Buscar Solicitudes por Cédula",
+      description:
+        "Buscar las solicitudes estudiantiles realizados por un estudiante usando su número de cédula en un período de tiempo.",
+      href: "/administrador/a-buscar-solicitudes-estudiantiles",
+    },
+    {
+      title: "Modificar Status de Solicitud",
+      description: "Actualizar el estado de una solicitud estudiantil existente.",
+      href: "/administrador/a-modificar-status-solicitud",
+    },
+  ]
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -46,10 +60,10 @@ export default function ControlNotas() {
               variant="secondary"
               className="bg-[#FFD580] text-black hover:bg-[#FFD580] hover:text-black"
               onClick={() => {
-                localStorage.removeItem("token");
-                localStorage.removeItem("accessToken");
-                localStorage.removeItem("refreshToken");
-                router.push("/home-all");
+                localStorage.removeItem("token")
+                localStorage.removeItem("accessToken")
+                localStorage.removeItem("refreshToken")
+                router.push("/home-all")
               }}
             >
               Cerrar Sesión
@@ -59,18 +73,14 @@ export default function ControlNotas() {
       </header>
 
       <div className="flex flex-1">
-        {/* menu izquierdo de la pag*/ }
+        {/* menu izquierdo de la pag*/}
         <aside className="w-64 bg-[#e6f3ff]">
           <nav className="py-4">
             <ul className="space-y-1">
               {menuItems.map((item, index) => (
                 <li key={index}>
-                  <Link 
-                    href={item.href} 
-                    className="flex items-center px-6 py-2 text-[#004976] gap-3"
-                  >
+                  <Link href={item.href} className="flex items-center px-6 py-2 text-[#004976] gap-3">
                     <item.icon className="h-5 w-5 shrink-0" />
-
                     <span>{item.title}</span>
                   </Link>
                 </li>
@@ -79,7 +89,7 @@ export default function ControlNotas() {
           </nav>
         </aside>
 
-        {/* cuerpo principal de la pag */ }
+        {/* cuerpo principal de la pag */}
         <main className="flex-1 p-6">
           <Card className="max-w-3xl mx-auto bg-[#FFEFD5]">
             <CardContent className="p-6">
@@ -102,6 +112,6 @@ export default function ControlNotas() {
         </main>
       </div>
     </div>
-  );
+  )
 }
 

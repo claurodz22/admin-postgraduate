@@ -26,9 +26,9 @@ export default function ControlNotas() {
   */
   const notasOptions = [
     { title: "Creación de cohorte", description: "El administrador crea un cohorte de acuerdo a los requerimientos", href: "/administrador/a-crear-cohorte" },
-    { title: "Habilitación de cohorte", description: "Habilitar o deshabilitar períodos de cohorte para ingreso de notas", href: "/habilitar-cohorte" },
+    //{ title: "Habilitación de cohorte", description: "Habilitar o deshabilitar períodos de cohorte para ingreso de notas", href: "/habilitar-cohorte" },
     { title: "Reportes de Notas", description: "Generar reportes de notas por estudiante, asignatura o cohorte", href: "/administrador/a-reportes-notas" },
-    { title: "Modificación de Notas", description: "Modificar notas existentes con autorización", href: "/modificar-notas" },
+    //{ title: "Modificación de Notas", description: "Modificar notas existentes con autorización", href: "/modificar-notas" },
   ];
 
   return (

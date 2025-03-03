@@ -2,6 +2,7 @@
 
 const base_url = "http://127.0.0.1:8000"
 export const urls = {
+  actualizar_solicitudes: `${base_url}/api/actualizar-solicitudes/`,
   eliminar_usuarios: `${base_url}/api/eliminar-usuarios/`,
   listar_usuarios: `${base_url}/api/listar_usuarios/`,
   actualizar_pagos: `${base_url}/api/actualizar-pago/`,
