@@ -19,9 +19,9 @@ export const menuItems = [
   ]
 
 export const solicitudesItems = [
-    { title: "Registro de Calificaciones", href: "/estudiantes/solicitudes/carta-culminacion" },
-    { title: "Solvencia", href: "/estudiantes/solicitudes/solvencia" },
+    { title: "Registro de Calificaciones", href: "/estudiantes/e-calificaciones" },
+    { title: "Solvencia", href: "/estudiantes/e-solvencia" },
     { title: "Pensum", href: "/estudiantes/e-ver-pensum" },
-    { title: "Constancia de Inscripción", href: "/estudiantes/solicitudes/constancia-inscripcion" },
-    { title: "Elaboración de Expediente", href: "/estudiantes/solicitudes/carnet-estudiantil" },
+    { title: "Constancia de Inscripción", href: "/estudiantes/e-constancia" },
+    { title: "Elaboración de Expediente", href: "/estudiantes/e-expediente" },
   ]
