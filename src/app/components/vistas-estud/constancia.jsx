@@ -27,8 +27,6 @@ export default function ConstanciaInscripcion() {
   const datosInscripcion = {
     periodo: "2023-2024",
     fechaInscripcion: "2023-09-15",
-    carrera: "Ingeniería en Computación",
-    semestre: "9no",
     materiasInscritas: [
       { codigo: "SIS301", nombre: "Bases de Datos", creditos: 4, seccion: "A" },
       { codigo: "SIS302", nombre: "Ingeniería de Software", creditos: 4, seccion: "B" },
@@ -238,7 +236,7 @@ export default function ConstanciaInscripcion() {
                     Carrera: <span className="font-normal">{userData.datos_estudiante.carrera}</span>
                   </p>
                   <p className="font-semibold">
-                    Semestre: <span className="font-normal">{datosInscripcion.semestre}</span>
+                  Estado estudiante: <span className="font-normal">{userData.datos_estudiante.estado_estudiante}</span>
                   </p>
                 </div>
 
