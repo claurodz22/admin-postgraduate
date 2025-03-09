@@ -8,8 +8,8 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { FileText, ClipboardList, BookOpen, User, FileDown, ChevronDown, Download, Printer } from "lucide-react"
-import { menuItems, solicitudesItems } from "../../constants/menuItemsEstud";
+import { FileDown, ChevronDown, Download, Printer } from "lucide-react"
+import { menuItems, solicitudesItems } from "../../constants/menuItemsEstud"
 import { format } from "date-fns"
 import { es } from "date-fns/locale"
 import axios from "axios"
@@ -52,6 +52,7 @@ export default function ConstanciaInscripcion() {
         },
       })
       setUserData(response.data)
+      console.log(response.data)
     } catch (error) {
       console.error("Error al obtener los datos del usuario:", error)
       if (error.response?.status === 401) {
@@ -234,7 +235,7 @@ export default function ConstanciaInscripcion() {
                     Cédula de Identidad: <span className="font-normal">{userData?.cedula}</span>
                   </p>
                   <p className="font-semibold">
-                    Carrera: <span className="font-normal">{datosInscripcion.carrera}</span>
+                    Carrera: <span className="font-normal">{userData.datos_estudiante.carrera}</span>
                   </p>
                   <p className="font-semibold">
                     Semestre: <span className="font-normal">{datosInscripcion.semestre}</span>
