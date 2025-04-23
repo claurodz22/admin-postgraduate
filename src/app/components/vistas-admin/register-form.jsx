@@ -267,7 +267,7 @@ export default function RegisterUser() {
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="grid grid-cols-3 gap-4">
                   <div className="col-span-2">
-                    <Label htmlFor="cedula_estudiante">Cédula Estudiante</Label>
+                    <Label htmlFor="cedula_estudiante">Cédula Usuario</Label>
                     <div className="flex">
                       <Select
                         value={user.cedulaTipo}
